@@ -32,3 +32,4 @@ sRNADiff <- function(gtf.file.name, bam.file.names, replicates, conditions, lazy
     register(MulticoreParam(8))
     return(object)
 }
+

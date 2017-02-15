@@ -1,0 +1,14 @@
+Package: srnadiff
+Type: Package
+Title: Differential Expression of Small RNA-Seq
+Version: 0.1.0
+Author: Matthias Zytnicki
+Maintainer: Matthias Zytnicki <matthias.zytnicki@inra.fr>
+Description: Differential expression of small RNA-seq
+    when reference annotation is not given.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 2.15.0), methods
+Imports: Rcpp (>= 0.12.8), DESeq2, Rsamtools, GenomicFeatures, GenomicAlignments
+LinkingTo: Rcpp

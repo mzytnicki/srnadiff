@@ -1,0 +1,10 @@
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
+useDynLib(srnadiff)
+
+import("methods")
+import("DESeq2")
+import("Rsamtools")
+import("GenomicFeatures")
+import("GenomicAlignments")
+import("BiocParallel")

@@ -11,12 +11,10 @@ count.features <- function(object, annotation) {
 }
 
 run.deseq2 <- function(object, counts) {
-    dds <- DESeqDataSet(counts, design = ~ condition)
-    dds <- dds[ rowSums(counts(dds)) > 1, ]
-    dds <- DESeq(dds)
-    res <- results(dds)
+    dds    <- DESeqDataSet(counts, design = ~ condition)
+    dds    <- dds[ rowSums(counts(dds)) > 1, ]
+    dds    <- DESeq(dds)
+    res    <- results(dds)
     res.05 <- res[ res$padj < 0.05 & ! is.na(res$padj), ]
-    print(res)
-    print(res.05)
     return(res.05)
 }
