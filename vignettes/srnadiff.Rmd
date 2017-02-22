@@ -1,0 +1,103 @@
+---
+title: "The sRNADiff package"
+author: "Matthias Zytnicki"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+sRNADiff aims at finding differentially expressed short RNAs with or without
+annotation.  To do so, sRNADiff uses up to 4 different strategies:
+
+- annotation-based,
+- naive,
+- HMM,
+- clustering.
+
+## Standard workflow
+
+    gtfFile     <- "annotation.gtf"
+    bamFiles    <- c("wt1.bam", "wt2.bam", "ko1.bam", "ko2.bam")
+    replicates  <- c("wt1", "wt2", "ko1", "ko2")
+    conditions  <- factor(c("wt", "wt", "ko", "ko"))
+    exp         <- sRNADiffExp(gtfFile, bamFiles, replicates, conditions)
+    diffRegions <- runAll(exp)
+    
+    
+## Example
+
+    dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+    data        <- read.csv(file.path(dir, "data.csv"))
+    gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+    bamFiles    <- file.path(dir, data$FileName)
+    replicates  <- data$SampleName
+    conditions  <- factor(data$Condition)
+    exp         <- sRNADiffExp(gtfFile, bamFiles, replicates, conditions)
+    diffRegions <- runAll(exp)
+
+
+## Rationale and scope of the package
+
+There is no real method for finding differentially expressed short RNAs.  The
+most used method focusses on miRNAs, and only uses a standard RNA-Seq pipe-line
+on these genes.
+
+However, annotated tRF, siRNAs, piRNA, etc. are thus out of the scope of these
+analyses.  Several ad hoc method have been used, and this package implements a
+unifying method, finding differentially expressed genes or regions of any kind.
+
+
+## Explanation of the different strategies
+
+Each strategy segments the genome its own way and finds potential differentially
+expressed regions.
+Every strategy makes assumption of the profiles of the differentially expressed
+regions.
+These assumptions differ between strategies, and thus it is useful to combined
+them.
+
+### Annotation
+
+This is the standard pipe-line, and the method simply provides the list of miRNA
+genes extracted from the given GTF file.
+
+If you do not provide a GTF file, this step is skipped.  Alternatively, you can
+type `exp@skipAnnotation <- TRUE` for the same result.
+
+### Naive
+
+The method first merges all the BAM files.  Reads are then merged into regions:
+if two reads overlap, they will belong to the same regions.  Regions with at
+least 10 reads (summing all the reads in all input BAM files) are kept.
+
+Type `exp@skipNaive <- TRUE` if you want to skip this step.
+
+
+### HMM
+
+We first compute the coverage of every input BAM file of every nucleotide of the
+genome.
+If two genome nucleotides have exactly the same coverage profile, we merge them.
+We give these coverage profiles to DESeq2, and compute the p-values.
+We thus have a p-value for each position of the genome.
+We then use a very crude hidden Markov model (HMM) on each chromosome of the
+genome.
+The HMM has two states: non-differentially expressed, and differentially
+expressed.
+Each state uses a binomial distribution.
+We did not try to optimize the parameters of the HMM, because it takes times,
+and do not improve the results.
+Instead, the HMM is used a crude (but effective) way to segment the genome.
+
+Type `exp@skipHmm <- TRUE` if you want to skip this step.
+
+### Combination of the strategies
+
+All the regions given by each strategies are then combined into a list of
+regions.
+DESeq2 is then used to get the adjusted p-values of these regions.
+All the regions with p-value less than 5% are then given.
+This threshold can by modified typing e.g. `exp@pValue <- 0.01`.

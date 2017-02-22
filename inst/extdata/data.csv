@@ -1,0 +1,7 @@
+FileName,SampleName,Condition
+SRR1634756.bam,SRR1634756,control
+SRR1634757.bam,SRR1634757,control
+SRR1634758.bam,SRR1634758,control
+SRR1634759.bam,SRR1634759,infected
+SRR1634760.bam,SRR1634760,infected
+SRR1634761.bam,SRR1634761,infected

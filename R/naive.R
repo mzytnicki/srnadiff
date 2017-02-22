@@ -1,15 +1,23 @@
-build.model.naive <- function(bam.files) {
-    names(reduced.ranges) <- as.character(reduced.ranges, ignore.strand = TRUE)
-}
-
-run.all.naive <- function(object) {
-    mergeBam(object@bam.files, "tmp.bam", overwrite = TRUE)
-    merged.reads        <- readGAlignments("tmp.bam")
-    merged.ranges       <- granges(merged.reads)
-    reduced.ranges      <- reduce(merged.ranges, drop.empty.ranges = TRUE, ignore.strand = TRUE, with.revmap = TRUE)
-    sizes               <- sapply(mcols(reduced.ranges)$revmap, length)
-    sized.ranges        <- reduced.ranges[sizes >= 10]
-    mcols(sized.ranges) <- NULL
-    names(sized.ranges) <- paste("naive", seq(length(sized.ranges)), sep = "_")
-    return(sized.ranges)
+#' Segmentation of the genome in a naive way.
+#'
+#' @param object An \code{srnadiff} object.
+#' @return A GRanges.
+runAllNaive <- function(object) {
+    if (object@skipNaive) {
+        return(GRanges())
+    }
+    tmpFileName        <- mergeBam(object@bamFiles,
+                                   tempfile(pattern = "mergeTmp",
+                                            fileext = ".bam"),
+                                   overwrite=TRUE)
+    mergedReads        <- readGAlignments(tmpFileName)
+    mergedRanges       <- granges(mergedReads)
+    reducedRanges      <- reduce(mergedRanges, drop.empty.ranges=TRUE,
+                                  ignore.strand=TRUE, with.revmap=TRUE)
+    sizes              <- sapply(mcols(reducedRanges)$revmap, length)
+    sizedRanges        <- reducedRanges[sizes >= 10]
+    mcols(sizedRanges) <- NULL
+    names(sizedRanges) <- paste("naive", seq(length(sizedRanges)), sep="_")
+    file.remove(tmpFileName)
+    return(sizedRanges)
 }

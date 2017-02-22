@@ -1,35 +1,70 @@
+#' An S4 class to represent sRNA-Seq data for differential expression.
+#'
+#' @slot gtfFileName     The name of the annotation in GTF format.
+#' @slot bamFileNames    The name of one read file in BAM format.
+#' @slot bamFiles        The BAM files in a \code{BamFileList}.
+#' @slot chromosomes     The names of the chromosomes.
+#' @slot chromosomeSizes The sizes of the chromosomes.
+#' @slot replicates      The names of the replicates.
+#' @slot conditions      The condition to which each replicate belongs.
+#' @slot coverages       The coverages, a vector of \code{RLE}.
+#' @slot design          Experimental design, a \code{DataFrome} for \code{DESeq2}
+#' @slot pValue          The adjusted p-value threshold
+#' @slot skipAnnotation  Whether to skip the annotation strategy step
+#' @slot skipNaive       Whether to skip the naive strategy step
+#' @slot skipHmm         Whether to skip the HMM strategy step
 setClass("sRNADiff",
          representation(
-             gtf.file.name        = "character",
-             bam.file.names       = "vector",
-             bam.files            = "BamFileList",
-             chromosomes          = "vector",
-             chromosome.sizes     = "vector",
-             replicates           = "vector",
-             conditions           = "vector",
-             coverages            = "vector",
-             design               = "DataFrame"),
+             gtfFileName    ="character",
+             bamFileNames   ="vector",
+             bamFiles       ="BamFileList",
+             chromosomes    ="vector",
+             chromosomeSizes="vector",
+             replicates     ="vector",
+             conditions     ="vector",
+             coverages      ="vector",
+             design         ="DataFrame",
+             pValue         ="numeric",
+             skipAnnotation ="logical",
+             skipNaive      ="logical",
+             skipHmm        ="logical"),
          prototype(
-             gtf.file.name        = NA_character_,
-             bam.file.names       = c(),
-             replicates           = c(),
-             conditions           = c()))
+             gtfFileName =NA_character_,
+             bamFileNames=c(),
+             replicates  =c(),
+             conditions  =c()))
 
-sRNADiff <- function(gtf.file.name, bam.file.names, replicates, conditions, lazyload=FALSE) {
-    bam.files <- BamFileList(bam.file.names)
+#' Constructor.
+#'
+#' @param gtfFileName  The name of the annotation in GTF format.
+#' @param bamFileNames The name of one read file in BAM format.
+#' @param replicates   The names of the replicates.
+#' @param conditions   The condition to which each replicate belongs.
+#' @param lazyload     Usual for S4 functions.
+#' @return             An \code{sRNADiff} object.
+#' @export
+sRNADiffExp <- function(gtfFileName=NA_character_,
+                        bamFileNames,
+                        replicates,
+                        conditions,
+                        lazyload=FALSE) {
+    bamFiles <- BamFileList(bamFileNames)
     object <- new("sRNADiff",
-                  gtf.file.name           = gtf.file.name,
-                  bam.file.names          = bam.file.names,
-                  bam.files               = bam.files,
-                  replicates              = replicates,
-                  conditions              = conditions,
-                  design                  = DataFrame(condition = factor(conditions)),
-                  chromosomes             = seqlevels(bam.files[[1]]),
-                  chromosome.sizes        = seqlengths(bam.files[[1]]),
-                  coverages               = sapply(bam.files, coverage)
+                  gtfFileName    =gtfFileName,
+                  bamFileNames   =bamFileNames,
+                  bamFiles       =bamFiles,
+                  replicates     =replicates,
+                  conditions     =conditions,
+                  design         =DataFrame(condition=conditions),
+                  chromosomes    =seqlevels(bamFiles[[1]]),
+                  chromosomeSizes=seqlengths(bamFiles[[1]]),
+                  coverages      =sapply(bamFiles, coverage),
+                  pValue         =0.05,
+                  skipAnnotation =FALSE,
+                  skipNaive      =FALSE,
+                  skipHmm        =FALSE
     )
-    rownames(object@design) = object@replicates
+    rownames(object@design) <- object@replicates
     register(MulticoreParam(8))
     return(object)
 }
-

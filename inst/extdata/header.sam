@@ -1,0 +1,3 @@
+@HD	VN:1.0	SO:coordinate
+@SQ	SN:14	LN:107043718
+@PG	ID:bowtie2	PN:bowtie2	VN:2.2.6	CL:"/usr/bin/bowtie2-align-s --wrapper basic-0 -x /home/mazytnicki/Desktop/Data/H_sapiens/Homo_sapiens.GRCh38.dna.primary_assembly -p 10 -S SRR1634756_trimmed.sam -U /tmp/8934.unp"
