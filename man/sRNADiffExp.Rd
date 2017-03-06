@@ -4,11 +4,11 @@
 \alias{sRNADiffExp}
 \title{Constructor.}
 \usage{
-sRNADiffExp(gtfFileName = NA_character_, bamFileNames, replicates, conditions,
+sRNADiffExp(annotation = NULL, bamFileNames, replicates, conditions,
   lazyload = FALSE)
 }
 \arguments{
-\item{gtfFileName}{The name of the annotation in GTF format.}
+\item{annotation}{The GRanges annotation}
 
 \item{bamFileNames}{The name of one read file in BAM format.}
 
@@ -23,4 +23,15 @@ An \code{sRNADiff} object.
 }
 \description{
 Constructor.
+}
+\examples{
+dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+data        <- read.csv(file.path(dir, "data.csv"))
+gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+annotation  <- readWholeGenomeAnnotation(gtfFile)
+bamFiles    <- file.path(dir, data$FileName)
+replicates  <- data$SampleName
+conditions  <- factor(data$Condition)
+exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+
 }

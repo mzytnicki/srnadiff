@@ -10,7 +10,7 @@ An S4 class to represent sRNA-Seq data for differential expression.
 \section{Slots}{
 
 \describe{
-\item{\code{gtfFileName}}{The name of the annotation in GTF format.}
+\item{\code{annotation}}{The annotation in GRanges format.}
 
 \item{\code{bamFileNames}}{The name of one read file in BAM format.}
 

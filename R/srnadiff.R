@@ -7,7 +7,7 @@
 #'
 #' @author Matthias Zytnicki, \email{matthias.zytnicki@@inra.fr}
 #'
-#' @import methods S4Vectors GenomeInfoDb SummarizedExperiment Rsamtools DESeq2 GenomicFeatures GenomicAlignments BiocParallel GenomicRanges
+#' @import methods S4Vectors GenomeInfoDb rtracklayer SummarizedExperiment Rsamtools DESeq2 GenomicFeatures GenomicAlignments BiocParallel GenomicRanges
 #' @importFrom Rcpp evalCpp
 #' @useDynLib srnadiff
 NULL

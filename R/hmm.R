@@ -58,11 +58,11 @@ runHmm <- function(object, counts, pvalues, lengths, values) {
 #' Segmentation of the genome using an HMM.
 #'
 #' @param object An \code{srnadiff} object.
-#' @return A GRanges.
 runAllHmm <- function(object) {
     if (object@skipHmm) {
         return(GRanges())
     }
+    message("Starting HMM step...")
     lengths          <- lapply(object@chromosomes,
                                function(chromosome)
                                    lapply(lapply(object@coverages,
@@ -75,9 +75,15 @@ runAllHmm <- function(object) {
                                                  `[[`,
                                                  chromosome),
                                           slot, "values"))
+    message("  Building data...")
     counts           <- buildDataHmm(object, lengths, values)
+    message("  ... data built")
     pvalues          <- computePvalues(object, counts)
+    message("  Running HMM...")
     intervals        <- runHmm(object, counts, pvalues, lengths, values)
+    message("  ... HMM run.")
     names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
+    message(paste0(c("  ... ", length(intervals), " regions found.")))
+    message("... HMM step done.")
     return(intervals)
 }

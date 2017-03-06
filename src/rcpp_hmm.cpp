@@ -75,6 +75,7 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         pvalueMap[row] = pvalues[i];
     }
     for (size_t chromosomeId = 0; chromosomeId < nChromosomes; ++chromosomeId) {
+        //Rcout << "chr " << as<CharacterVector>(chromosomeSizes.names())[chromosomeId] << std::endl;
         std::vector < size_t > indices(nSamples, 0);
         std::vector < unsigned int > remainings(nSamples),
                 currentCounts(nSamples);
@@ -151,18 +152,21 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         std::vector < unsigned int > diffStarts, diffEnds;
         if (inDiff) {
             diffEnds.push_back(chromosomeSize);
+            //Rcout << "1 end" << std::endl;
         }
         for (size_t i = previousStates.size(); i > 0; --i) {
             pos = statePos[i-1];
             if (previousPos != pos+1) {
                 if (inDiff) {
                     diffStarts.push_back(previousPos);
+                    //Rcout << "start " << previousPos << std::endl;
                 }
                 inDiff       = false;
                 currentState = NO_DIFF_CLASS;
             }
             currentState = previousStates[i-1][currentState];
             if ((currentState == DIFF_CLASS) && (! inDiff)) {
+                //Rcout << "end " << previousPos << std::endl;
                 diffEnds.push_back(pos);
                 inDiff = true;
             }

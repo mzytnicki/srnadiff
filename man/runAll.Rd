@@ -19,10 +19,11 @@ Run the segmentation using 3 different methods, and reconciliate them.
 dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
 data        <- read.csv(file.path(dir, "data.csv"))
 gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+annotation  <- readWholeGenomeAnnotation(gtfFile)
 bamFiles    <- file.path(dir, data$FileName)
 replicates  <- data$SampleName
 conditions  <- factor(data$Condition)
-exp         <- sRNADiffExp(gtfFile, bamFiles, replicates, conditions)
+exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
 diffRegions <- runAll(exp)
 
 }

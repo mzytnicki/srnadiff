@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation.R
 \name{runAllAnnotation}
 \alias{runAllAnnotation}
-\title{Parse an annotation file}
+\title{Segmentation using an annotation file.}
 \usage{
 runAllAnnotation(object)
 }
@@ -13,5 +13,5 @@ runAllAnnotation(object)
 A GRanges.
 }
 \description{
-Parse an annotation file
+Segmentation using an annotation file.
 }

@@ -1,6 +1,6 @@
 #' An S4 class to represent sRNA-Seq data for differential expression.
 #'
-#' @slot gtfFileName     The name of the annotation in GTF format.
+#' @slot annotation      The annotation in GRanges format.
 #' @slot bamFileNames    The name of one read file in BAM format.
 #' @slot bamFiles        The BAM files in a \code{BamFileList}.
 #' @slot chromosomes     The names of the chromosomes.
@@ -15,7 +15,7 @@
 #' @slot skipHmm         Whether to skip the HMM strategy step
 setClass("sRNADiff",
          representation(
-             gtfFileName    ="character",
+             annotation     ="GRanges",
              bamFileNames   ="vector",
              bamFiles       ="BamFileList",
              chromosomes    ="vector",
@@ -25,32 +25,44 @@ setClass("sRNADiff",
              coverages      ="vector",
              design         ="DataFrame",
              pValue         ="numeric",
+             deseqData      ="DESeqDataSet",
+             regions        ="GRanges",
              skipAnnotation ="logical",
              skipNaive      ="logical",
              skipHmm        ="logical"),
          prototype(
-             gtfFileName =NA_character_,
              bamFileNames=c(),
              replicates  =c(),
              conditions  =c()))
 
 #' Constructor.
 #'
-#' @param gtfFileName  The name of the annotation in GTF format.
+#' @param annotation   The GRanges annotation
 #' @param bamFileNames The name of one read file in BAM format.
 #' @param replicates   The names of the replicates.
 #' @param conditions   The condition to which each replicate belongs.
 #' @param lazyload     Usual for S4 functions.
 #' @return             An \code{sRNADiff} object.
+#' @examples
+#' dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+#' data        <- read.csv(file.path(dir, "data.csv"))
+#' gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+#' annotation  <- readWholeGenomeAnnotation(gtfFile)
+#' bamFiles    <- file.path(dir, data$FileName)
+#' replicates  <- data$SampleName
+#' conditions  <- factor(data$Condition)
+#' exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+#'
 #' @export
-sRNADiffExp <- function(gtfFileName=NA_character_,
+sRNADiffExp <- function(annotation=NULL,
                         bamFileNames,
                         replicates,
                         conditions,
                         lazyload=FALSE) {
+    message("Constructing object...")
     bamFiles <- BamFileList(bamFileNames)
     object <- new("sRNADiff",
-                  gtfFileName    =gtfFileName,
+                  annotation     =annotation,
                   bamFileNames   =bamFileNames,
                   bamFiles       =bamFiles,
                   replicates     =replicates,
@@ -65,6 +77,6 @@ sRNADiffExp <- function(gtfFileName=NA_character_,
                   skipHmm        =FALSE
     )
     rownames(object@design) <- object@replicates
-    register(MulticoreParam(8))
+    message("... done.")
     return(object)
 }

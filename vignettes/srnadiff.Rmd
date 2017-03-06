@@ -19,23 +19,38 @@ annotation.  To do so, sRNADiff uses up to 4 different strategies:
 
 ## Standard workflow
 
-    gtfFile     <- "annotation.gtf"
+    annotation  <- readMiRBasePreAnnotation("mirbase.gff")
     bamFiles    <- c("wt1.bam", "wt2.bam", "ko1.bam", "ko2.bam")
     replicates  <- c("wt1", "wt2", "ko1", "ko2")
     conditions  <- factor(c("wt", "wt", "ko", "ko"))
-    exp         <- sRNADiffExp(gtfFile, bamFiles, replicates, conditions)
+    exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
     diffRegions <- runAll(exp)
     
     
 ## Example
 
+Raw data have been downloaded from the GEO data set
+[GSE62830](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62830),
+provided in
+[Viollet *et al.*, 2015](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0126439).
+Adapters were removed with
+[fastx_clipper](http://hannonlab.cshl.edu/fastx_toolkit/commandline.html)
+and mapped with
+[bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
+on the human genome version GRCh38.
+
+This example provides this data, restricted to a small locus on chr14.
+It uses the whole genome annotation (with coding genes, etc.)
+and extracts miRNAs.
+
     dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
     data        <- read.csv(file.path(dir, "data.csv"))
     gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+    annotation  <- readWholeGenomeAnnotation(gtfFile)
     bamFiles    <- file.path(dir, data$FileName)
     replicates  <- data$SampleName
     conditions  <- factor(data$Condition)
-    exp         <- sRNADiffExp(gtfFile, bamFiles, replicates, conditions)
+    exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
     diffRegions <- runAll(exp)
 
 
@@ -67,11 +82,57 @@ genes extracted from the given GTF file.
 If you do not provide a GTF file, this step is skipped.  Alternatively, you can
 type `exp@skipAnnotation <- TRUE` for the same result.
 
+Unfortunately, there is no clear standard for an annotation format.
+We provide here four ways to parse the annotation file.
+
+#### Whole genome file annotation
+
+This GTF file can be found in the central repositories (NCBI, Ensembl) and
+contains all the annotation found in an organism (coding genes, tranposable
+element, etc.).
+The following function reads the annotation file and extracts the miRNAs.
+
+    annotation <- readWholeGenomeAnnotation(filename)
+
+#### miRBase annotation
+
+miRBase is the central repository for miRNAs.
+The following function parses a GFF3 miRBase file, and extracts the precursor
+miRNAs.
+
+    annotation <- readMiRBasePreAnnotation(filename)
+
+As a result, the reads will be counted per pre-miRNA, and the 5' and 3' arms,
+the miRNA and the miRNA* will be merged in the same feature.
+If you want to separate the two, use:
+
+    annotation <- readMiRBaseMatureAnnotation(filename)
+
+#### Other format
+
+When the previous functions do not work, you can use your own parser with:
+
+    annotation <- readAnnotation(filename, source, feature, name)
+
+The `source` parameter keeps all the lines such that the second field matches
+the given parameter (e.g. `miRNA`).
+The `feature` parameter keeps all the lines such that the third field matches
+the given parameter (e.g. `gene`).
+The name of the feature will be given by the tag `name` (e.g. `gene_name`).
+`source`, `feature` and `name` can be `NULL`.
+In this case, no selection is performed on `source` or `feature`.
+If `name` is null, then a systematic name is given (`annotation_N`).
+
+
+
 ### Naive
 
 The method first merges all the BAM files.  Reads are then merged into regions:
 if two reads overlap, they will belong to the same regions.  Regions with at
 least 10 reads (summing all the reads in all input BAM files) are kept.
+
+This method is efficient when a gene is differentially expressed on the whole
+transcript.
 
 Type `exp@skipNaive <- TRUE` if you want to skip this step.
 
@@ -92,6 +153,9 @@ We did not try to optimize the parameters of the HMM, because it takes times,
 and do not improve the results.
 Instead, the HMM is used a crude (but effective) way to segment the genome.
 
+This method is efficient when a region is highly differentially expressed, even
+if it is concealed in a longer transcript.
+
 Type `exp@skipHmm <- TRUE` if you want to skip this step.
 
 ### Combination of the strategies
@@ -101,3 +165,24 @@ regions.
 DESeq2 is then used to get the adjusted p-values of these regions.
 All the regions with p-value less than 5% are then given.
 This threshold can by modified typing e.g. `exp@pValue <- 0.01`.
+
+
+## Misc
+
+### Naming the conditions
+
+The conditions can be sorted (`WT` before `mutant`, `untreated` before
+`treated`) this way:
+
+    conditions  <- factor(c("wt", "wt", "ko", "ko"), levels=c("wt", "ko"))
+
+
+### Using several cores
+
+The quantification and differential expression steps can be accelerated using
+several cores and the
+[BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html)
+package and the following command:
+
+    library("BiocParallel")
+    register(MulticoreParam(4))
