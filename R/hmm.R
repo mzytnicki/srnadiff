@@ -58,6 +58,7 @@ runHmm <- function(object, counts, pvalues, lengths, values) {
 #' Segmentation of the genome using an HMM.
 #'
 #' @param object An \code{srnadiff} object.
+#' @return       A \code{GRanges} object.
 runAllHmm <- function(object) {
     if (object@skipHmm) {
         return(GRanges())

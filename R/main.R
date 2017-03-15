@@ -1,5 +1,6 @@
 #' Overloading the show method
 #' @param object An \code{srnadiff} object.
+#' @return       A description of the object.
 #'
 #' @examples
 #' dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)

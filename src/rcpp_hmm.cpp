@@ -4,6 +4,12 @@
 #include <algorithm>
 using namespace Rcpp;
 
+//' Compute unique counts.
+//'
+//' @param lengths          the sizes of the RLEs (one list per chromosome)
+//' @param values           the values of the RLEs (one list per chromosome)
+//' @param chromosomeSizes  the sizes of the chromosomes
+//' @return                 the unique counts
 // [[Rcpp::export]]
 List rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
                    ListOf < ListOf < IntegerVector > > &values,
@@ -50,6 +56,17 @@ List rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
     return wrap(outputValues);
 }
 
+//' Run the Viterbi algorithm on the HMM.
+//'
+//' @param chromosomeSizes  the sizes of the chromosomes
+//' @param transitions      the transition log-probabilities
+//' @param emissions        the emission log-probabilities
+//' @param starts           the start log-probabilities
+//' @param counts           the unique counts
+//' @param pvalues          the p-values of the counts
+//' @param lengths          the sizes of the RLEs (one list per chromosome)
+//' @param values           the values of the RLEs (one list per chromosome)
+//' @return                 a segmentation of the chromosomes
 // [[Rcpp::export]]
 DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
                        NumericMatrix &transitions,

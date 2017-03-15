@@ -10,6 +10,9 @@
 \arguments{
 \item{object}{An \code{srnadiff} object.}
 }
+\value{
+A description of the object.
+}
 \description{
 Overloading the show method
 }

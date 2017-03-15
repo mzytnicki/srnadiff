@@ -9,6 +9,9 @@ runAllHmm(object)
 \arguments{
 \item{object}{An \code{srnadiff} object.}
 }
+\value{
+A \code{GRanges} object.
+}
 \description{
 Segmentation of the genome using an HMM.
 }
