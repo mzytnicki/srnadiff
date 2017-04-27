@@ -76,7 +76,9 @@ readMiRBaseMatureAnnotation <- function(fileName) {
 #' @param object An \code{srnadiff} object.
 #' @return A GRanges.
 runAllAnnotation <- function(object) {
-    if (is.null(object@annotation) || object@skipAnnotation) {
+    if ((is.null(object@annotation)) ||
+        (length(object@annotation) == 0) ||
+        (object@skipAnnotation)) {
         return(GRanges())
     }
     return (object@annotation)

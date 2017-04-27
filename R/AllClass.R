@@ -60,7 +60,13 @@ sRNADiffExp <- function(annotation=NULL,
                         conditions,
                         lazyload=FALSE) {
     message("Constructing object...")
-    bamFiles <- BamFileList(bamFileNames)
+    indexBam(bamFileNames)
+    bamFiles <- BamFileList(bamFileNames,
+                            index=lapply(bamFileNames, paste0, ".bai"))
+    names(bamFiles) <- tools::file_path_sans_ext(names(bamFiles))
+    if (is.null(annotation)) {
+        annotation <- GRanges()
+    }
     object <- new("sRNADiff",
                   annotation     =annotation,
                   bamFileNames   =bamFileNames,

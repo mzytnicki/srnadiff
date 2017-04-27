@@ -167,6 +167,18 @@ All the regions with p-value less than 5% are then given.
 This threshold can by modified typing e.g. `exp@pValue <- 0.01`.
 
 
+## Visualization
+
+You can get the read coverage profile of your selected regions using the
+`plotRegion` method.  For instance, if `object` is your `srnadiff` object, you
+can type:
+
+    plotRegion(object, object@regions[1])
+
+Each line provides the read density on an input sample.
+The dark grey rectangle emphasizes the selected region.
+
+
 ## Misc
 
 ### Naming the conditions
