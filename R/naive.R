@@ -25,6 +25,8 @@ runAllNaive <- function(object) {
     names(sizedRanges) <- paste("naive", seq(length(sizedRanges)), sep="_")
     file.remove(tmpFileName)
     message(paste0(c("  ... ", length(sizedRanges), " regions found.")))
+    rm(mergedReads, mergedRanges, reducedRanges, sizes)
+    gc()
     message("... Naive step done.")
     return(sizedRanges)
 }

@@ -31,14 +31,11 @@ plotRegion <- function(object, region) {
     cov       <- lapply(sel, function (c)
         as.numeric(coverage(IRanges(c[["pos"]],
                                     width=c[["qwidth"]]), width=e)[s:e]))
-    samples   <- sapply(strsplit(names(cov), "[.]"), "[[", 1)
-    nSamples  <- length(samples)
+    nSamples  <- length(object@replicates)
     covTidy   <- data.frame(pos=rep(seq(s, e), nSamples),
-                            sample=rep(samples, each=w),
+                            sample=rep(object@replicates, each=w),
                             count=c(apply(rbind(as.list(cov)), 1, unlist)))
     return(qplot(pos, count, data=covTidy, facets=sample~., geom='line',
-                 xlab=seqnames(region)[1], ylab='',
-                 main=names(region)[1]) +
-               annotate("rect", xmin=sOr, xmax=eOr,
-                        ymin=-Inf, ymax=Inf, alpha=.2))
+         xlab=seqnames(region)[1], ylab='', main=names(region)[1]) +
+       annotate("rect", xmin=sOr, xmax=eOr, ymin=-Inf, ymax=Inf, alpha=.2))
 }

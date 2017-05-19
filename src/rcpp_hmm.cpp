@@ -202,9 +202,7 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
                              diffStarts.end());
         allDiffEnds.insert(allDiffEnds.end(), diffEnds.begin(), diffEnds.end());
         allDiffChromosomes.insert(allDiffChromosomes.end(), diffStarts.size(),
-                                  as < std::string >(
-                                          as< CharacterVector >(
-                                                  chromosomeSizes.names())
+          as < std::string >(as< CharacterVector >(chromosomeSizes.names())
                                       [chromosomeId]));
     }
     return DataFrame::create(_["seqnames"] = allDiffChromosomes,

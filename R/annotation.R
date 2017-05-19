@@ -20,7 +20,6 @@ readAnnotation <- function(fileName, source=NULL, feature=NULL, name=NULL) {
     if (! is.null(name)) {
         names(annotation) <- mcols(annotation)[[name]]
     }
-    #print(annotation)
     mcols(annotation) <- NULL
     message(paste0(c("... ", length(annotation), " elements found...")))
     message("... Annotation step done.")

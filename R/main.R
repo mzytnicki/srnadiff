@@ -69,15 +69,13 @@ setMethod("show",
 #'
 #' @export
 runAll <- function(object) {
-    setAnnotation              <- runAllAnnotation(object)
-    setNaive                   <- runAllNaive(object)
-    setHmm                     <- runAllHmm(object)
-    allSets                    <- GRangesList(c(setAnnotation, setNaive, setHmm))
+    setAnnotation <- runAllAnnotation(object)
+    setNaive      <- runAllNaive(object)
+    setHmm        <- runAllHmm(object)
+    allSets       <- GRangesList(c(setAnnotation, setNaive, setHmm))
     message("Computing differential expression...")
-    counts <- do.call(rbind,
-                  lapply(list(setAnnotation, setNaive, setHmm),
-                         function (set) {
-                            return(summarizeOverlaps(
+    counts <- do.call(rbind, lapply(list(setAnnotation, setNaive, setHmm),
+                 function (set) { return(summarizeOverlaps(
                                            features     =set,
                                            reads        =object@bamFiles,
                                            mode         ="IntersectionNotEmpty",
@@ -106,6 +104,8 @@ runAll <- function(object) {
              sizes[overlaps@from] == sizes[overlaps@to] &
              overlaps@from < overlaps@to)
     regions                    <- regions[-overlaps@to[dominance]]
+    names(regions)             <- paste0(seqnames(regions), "_", start(regions),
+                                         "_", end(regions))
     deseqData                  <- dds[rownames(dds) %in% rownames(regions)]
     message("... done.")
     object@deseqData           <- dds

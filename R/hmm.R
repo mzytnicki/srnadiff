@@ -24,6 +24,8 @@ computePvalues <- function(object, counts) {
     dds     <- DESeq(dds)
     res     <- results(dds)
     pvalues <- res$padj
+    rm(dds, res)
+    gc()
     return(pvalues)
 }
 
@@ -64,27 +66,21 @@ runAllHmm <- function(object) {
         return(GRanges())
     }
     message("Starting HMM step...")
-    lengths          <- lapply(object@chromosomes,
-                               function(chromosome)
-                                   lapply(lapply(object@coverages,
-                                                 `[[`,
-                                                 chromosome),
-                                          slot, "lengths"))
-    values           <- lapply(object@chromosomes,
-                               function(chromosome)
-                                   lapply(lapply(object@coverages,
-                                                 `[[`,
-                                                 chromosome),
-                                          slot, "values"))
+    lengths <- lapply(object@chromosomes, function(chromosome)
+       lapply(lapply(object@coverages, `[[`, chromosome), slot, "lengths"))
+    values <- lapply(object@chromosomes, function(chromosome)
+       lapply(lapply(object@coverages, `[[`, chromosome), slot, "values"))
     message("  Building data...")
-    counts           <- buildDataHmm(object, lengths, values)
+    counts <- buildDataHmm(object, lengths, values)
     message("  ... data built")
-    pvalues          <- computePvalues(object, counts)
+    pvalues <- computePvalues(object, counts)
     message("  Running HMM...")
-    intervals        <- runHmm(object, counts, pvalues, lengths, values)
+    intervals <- runHmm(object, counts, pvalues, lengths, values)
     message("  ... HMM run.")
     names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
     message(paste0(c("  ... ", length(intervals), " regions found.")))
+    rm(lengths, values, counts, pvalues)
+    gc()
     message("... HMM step done.")
     return(intervals)
 }
