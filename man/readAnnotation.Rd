@@ -9,9 +9,11 @@ readAnnotation(fileName, source = NULL, feature = NULL, name = NULL)
 \arguments{
 \item{fileName}{The annotation file name in GFF/GTF format.}
 
-\item{source}{If not NULL, only lines with this source (2nd field) are imported.}
+\item{source}{If not NULL, only lines with this source (2nd field) are
+imported.}
 
-\item{feature}{If not NULL, only lines with this feature (3rd field) are imported.}
+\item{feature}{If not NULL, only lines with this feature (3rd field) are
+imported.}
 
 \item{name}{If not NULL, use this tag as annotation name.}
 }
@@ -24,6 +26,7 @@ Segmentation using an annotation file.
 \examples{
 dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)
 gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene", name="gene_name")
+annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene",
+                             name="gene_name")
 
 }

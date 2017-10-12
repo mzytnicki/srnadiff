@@ -13,10 +13,11 @@
 #' conditions  <- factor(data$Condition)
 #' exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
 #' diffRegions <- runAll(exp)
-#' plotRegion(exp, diffRegions@regions[1])
+#' plotRegion(exp, regions(diffRegions)[1])
 #'
 #' @export
 plotRegion <- function(object, region) {
+    count     <- NULL
     cr        <- region
     sOr       <- start(region)[1]
     eOr       <- end(region)[1]
@@ -29,13 +30,13 @@ plotRegion <- function(object, region) {
     param     <- ScanBamParam(which=cr, what=scanBamWhat())
     sel       <- sapply(object@bamFiles, function (b) scanBam(b, param=param))
     cov       <- lapply(sel, function (c)
-        as.numeric(coverage(IRanges(c[["pos"]],
-                                    width=c[["qwidth"]]), width=e)[s:e]))
+                    as.numeric(coverage(IRanges(c[["pos"]],
+                        width=c[["qwidth"]]), width=e)[s:e]))
     nSamples  <- length(object@replicates)
-    covTidy   <- data.frame(pos=rep(seq(s, e), nSamples),
+    covTidy   <- data.frame(pos   =rep(seq(s, e), nSamples),
                             sample=rep(object@replicates, each=w),
-                            count=c(apply(rbind(as.list(cov)), 1, unlist)))
+                            count =c(apply(rbind(as.list(cov)), 1, unlist)))
     return(qplot(pos, count, data=covTidy, facets=sample~., geom='line',
-         xlab=seqnames(region)[1], ylab='', main=names(region)[1]) +
-       annotate("rect", xmin=sOr, xmax=eOr, ymin=-Inf, ymax=Inf, alpha=.2))
+            xlab=seqnames(region)[1], ylab='', main=names(region)[1]) +
+            annotate("rect", xmin=sOr, xmax=eOr, ymin=-Inf, ymax=Inf, alpha=.2))
 }

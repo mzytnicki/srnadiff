@@ -10,7 +10,7 @@ Description: Differential expression of small RNA-seq
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.4)
+Depends: R (>= 3.5)
 Imports:
     Rcpp (>= 0.12.8),
     methods,
@@ -20,6 +20,7 @@ Imports:
     SummarizedExperiment,
     IRanges,
     GenomicRanges,
+    Rsubread,
     DESeq2,
     Rsamtools,
     GenomicFeatures,
@@ -30,6 +31,7 @@ LinkingTo: Rcpp
 RoxygenNote: 6.0.1
 biocViews:
     GeneExpression,
+    Coverage,
     SmallRNA,
     Epigenetics,
     StatisticalMethod,

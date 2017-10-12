@@ -6,9 +6,23 @@
 #' @param lengths          the sizes of the RLEs (one list per chromosome)
 #' @param values           the values of the RLEs (one list per chromosome)
 #' @param chromosomeSizes  the sizes of the chromosomes
+#' @param minDepth         minimum coverage
+#' @param minSize          minimum region size
+#' @param maxSize          maximum region size
+#' @param minDifference    minimum difference between 2 regions
+#' @return                 selected regions
+rcpp_clustering <- function(lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference) {
+    .Call('_srnadiff_rcpp_clustering', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference)
+}
+
+#' Compute unique counts.
+#'
+#' @param lengths          the sizes of the RLEs (one list per chromosome)
+#' @param values           the values of the RLEs (one list per chromosome)
+#' @param chromosomeSizes  the sizes of the chromosomes
 #' @return                 the unique counts
 rcpp_buildHmm <- function(lengths, values, chromosomeSizes) {
-    .Call('srnadiff_rcpp_buildHmm', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes)
+    .Call('_srnadiff_rcpp_buildHmm', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes)
 }
 
 #' Run the Viterbi algorithm on the HMM.
@@ -23,6 +37,6 @@ rcpp_buildHmm <- function(lengths, values, chromosomeSizes) {
 #' @param values           the values of the RLEs (one list per chromosome)
 #' @return                 a segmentation of the chromosomes
 rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values) {
-    .Call('srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values)
+    .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values)
 }
 

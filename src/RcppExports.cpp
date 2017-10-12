@@ -5,9 +5,26 @@
 
 using namespace Rcpp;
 
+// rcpp_clustering
+List rcpp_clustering(ListOf < ListOf < IntegerVector > >& lengths, ListOf < ListOf < IntegerVector > >& values, IntegerVector& chromosomeSizes, int minDepth, int minSize, int maxSize, int minDifference);
+RcppExport SEXP _srnadiff_rcpp_clustering(SEXP lengthsSEXP, SEXP valuesSEXP, SEXP chromosomeSizesSEXP, SEXP minDepthSEXP, SEXP minSizeSEXP, SEXP maxSizeSEXP, SEXP minDifferenceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< ListOf < ListOf < IntegerVector > >& >::type lengths(lengthsSEXP);
+    Rcpp::traits::input_parameter< ListOf < ListOf < IntegerVector > >& >::type values(valuesSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type chromosomeSizes(chromosomeSizesSEXP);
+    Rcpp::traits::input_parameter< int >::type minDepth(minDepthSEXP);
+    Rcpp::traits::input_parameter< int >::type minSize(minSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type maxSize(maxSizeSEXP);
+    Rcpp::traits::input_parameter< int >::type minDifference(minDifferenceSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_clustering(lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_buildHmm
 List rcpp_buildHmm(ListOf < ListOf < IntegerVector > >& lengths, ListOf < ListOf < IntegerVector > >& values, IntegerVector& chromosomeSizes);
-RcppExport SEXP srnadiff_rcpp_buildHmm(SEXP lengthsSEXP, SEXP valuesSEXP, SEXP chromosomeSizesSEXP) {
+RcppExport SEXP _srnadiff_rcpp_buildHmm(SEXP lengthsSEXP, SEXP valuesSEXP, SEXP chromosomeSizesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +37,7 @@ END_RCPP
 }
 // rcpp_viterbi
 DataFrame rcpp_viterbi(IntegerVector& chromosomeSizes, NumericMatrix& transitions, NumericMatrix& emissions, NumericVector& starts, IntegerVector& counts, NumericVector& pvalues, ListOf < ListOf < IntegerVector > >& lengths, ListOf < ListOf < IntegerVector > >& values);
-RcppExport SEXP srnadiff_rcpp_viterbi(SEXP chromosomeSizesSEXP, SEXP transitionsSEXP, SEXP emissionsSEXP, SEXP startsSEXP, SEXP countsSEXP, SEXP pvaluesSEXP, SEXP lengthsSEXP, SEXP valuesSEXP) {
+RcppExport SEXP _srnadiff_rcpp_viterbi(SEXP chromosomeSizesSEXP, SEXP transitionsSEXP, SEXP emissionsSEXP, SEXP startsSEXP, SEXP countsSEXP, SEXP pvaluesSEXP, SEXP lengthsSEXP, SEXP valuesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

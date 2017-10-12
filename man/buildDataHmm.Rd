@@ -4,17 +4,14 @@
 \alias{buildDataHmm}
 \title{Read the coverage and extract expressed regions}
 \usage{
-buildDataHmm(object, lengths, values)
+buildDataHmm(object)
 }
 \arguments{
 \item{object}{An \code{srnadiff} object.}
-
-\item{lengths}{The lengths of the RLE of the coverages: a \code{list} of \code{vector}s or \code{integer}s.}
-
-\item{values}{The values of the RLE of the coverages: \code{list} of \code{vector}s or \code{integer}s.}
 }
 \value{
-The selected values: a \code{list} of \code{vector}s of \code{integer}s.
+The selected values: a \code{list} of \code{vector}s of
+                  \code{integer}s.
 }
 \description{
 Read the coverage and extract expressed regions

@@ -1,13 +1,27 @@
 #' srnadiff: A package for differential expression of sRNA-Seq.
 #'
-#' The srnadiff package provides uses four strategies to find differentially expressed loci.
+#' The srnadiff package provides uses four strategies to find differentially
+#'     expressed loci.
 #'
 #' @docType package
 #' @name srnadiff
 #'
 #' @author Matthias Zytnicki, \email{matthias.zytnicki@@inra.fr}
 #'
-#' @import methods S4Vectors GenomeInfoDb rtracklayer SummarizedExperiment IRanges Rsamtools DESeq2 GenomicFeatures GenomicAlignments BiocParallel GenomicRanges ggplot2
+#' @import methods
+#' @import S4Vectors
+#' @import GenomeInfoDb
+#' @import rtracklayer
+#' @import SummarizedExperiment
+#' @import IRanges
+#' @import Rsamtools
+#' @import Rsubread
+#' @import DESeq2
+#' @import GenomicFeatures
+#' @import GenomicAlignments
+#' @import BiocParallel
+#' @import GenomicRanges
+#' @import ggplot2
 #' @importFrom Rcpp evalCpp
 #' @useDynLib srnadiff
 NULL

@@ -8,32 +8,40 @@
 #' @slot replicates      The names of the replicates.
 #' @slot conditions      The condition to which each replicate belongs.
 #' @slot coverages       The coverages, a vector of \code{RLE}.
-#' @slot design          Experimental design, a \code{DataFrome} for \code{DESeq2}
+#' @slot lengths         The lengths parts of the coverages.
+#' @slot values          The values parts of the coverages.
+#' @slot design          Experimental design, a \code{DataFrame} for
+#'                           \code{DESeq2}
 #' @slot pValue          The adjusted p-value threshold
 #' @slot skipAnnotation  Whether to skip the annotation strategy step
 #' @slot skipNaive       Whether to skip the naive strategy step
 #' @slot skipHmm         Whether to skip the HMM strategy step
 setClass("sRNADiff",
-         representation(
-             annotation     ="GRanges",
-             bamFileNames   ="vector",
-             bamFiles       ="BamFileList",
-             chromosomes    ="vector",
-             chromosomeSizes="vector",
-             replicates     ="vector",
-             conditions     ="vector",
-             coverages      ="vector",
-             design         ="DataFrame",
-             pValue         ="numeric",
-             deseqData      ="DESeqDataSet",
-             regions        ="GRanges",
-             skipAnnotation ="logical",
-             skipNaive      ="logical",
-             skipHmm        ="logical"),
-         prototype(
-             bamFileNames=c(),
-             replicates  =c(),
-             conditions  =c()))
+            representation(
+                annotation     ="GRanges",
+                bamFileNames   ="vector",
+                bamFiles       ="BamFileList",
+                chromosomes    ="vector",
+                chromosomeSizes="vector",
+                replicates     ="vector",
+                conditions     ="vector",
+                coverages      ="vector",
+                lengths        ="list",
+                values         ="list",
+                design         ="DataFrame",
+                pValue         ="numeric",
+                deseqData      ="DESeqDataSet",
+                regions        ="GRanges",
+                skipAnnotation ="logical",
+                skipNaive      ="logical",
+                skipHmm        ="logical",
+                skipClustering ="logical"),
+            prototype(
+                bamFileNames=c(),
+                replicates  =c(),
+                conditions  =c()
+            )
+)
 
 #' Constructor.
 #'
@@ -68,20 +76,25 @@ sRNADiffExp <- function(annotation=NULL,
         annotation <- GRanges()
     }
     object <- new("sRNADiff",
-                  annotation     =annotation,
-                  bamFileNames   =bamFileNames,
-                  bamFiles       =bamFiles,
-                  replicates     =replicates,
-                  conditions     =conditions,
-                  design         =DataFrame(condition=conditions),
-                  chromosomes    =seqlevels(bamFiles[[1]]),
-                  chromosomeSizes=seqlengths(bamFiles[[1]]),
-                  coverages      =sapply(bamFiles, coverage),
-                  pValue         =0.05,
-                  skipAnnotation =FALSE,
-                  skipNaive      =FALSE,
-                  skipHmm        =FALSE
+                    annotation     =annotation,
+                    bamFileNames   =bamFileNames,
+                    bamFiles       =bamFiles,
+                    replicates     =replicates,
+                    conditions     =conditions,
+                    design         =DataFrame(condition=conditions),
+                    chromosomes    =seqlevels(bamFiles[[1]]),
+                    chromosomeSizes=seqlengths(bamFiles[[1]]),
+                    coverages      =sapply(bamFiles, coverage),
+                    pValue         =0.05,
+                    skipAnnotation =FALSE,
+                    skipNaive      =FALSE,
+                    skipHmm        =FALSE,
+                    skipClustering =FALSE
     )
+    object@lengths <- lapply(object@chromosomes, function(chromosome)
+        lapply(lapply(object@coverages, `[[`, chromosome), slot, "lengths"))
+    object@values <- lapply(object@chromosomes, function(chromosome)
+        lapply(lapply(object@coverages, `[[`, chromosome), slot, "values"))
     rownames(object@design) <- object@replicates
     message("... done.")
     return(object)

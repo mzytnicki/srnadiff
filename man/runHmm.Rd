@@ -4,18 +4,15 @@
 \alias{runHmm}
 \title{Initialize and run the HMM.}
 \usage{
-runHmm(object, counts, pvalues, lengths, values)
+runHmm(object, counts, pvalues)
 }
 \arguments{
 \item{object}{An \code{srnadiff} object.}
 
-\item{counts}{The counts: a \code{list} of \code{vector}s or \code{integer}s.}
+\item{counts}{The counts: a \code{list} of \code{vector}s or
+\code{integer}s.}
 
 \item{pvalues}{The p-values: a \code{list} of \code{numeric}.}
-
-\item{lengths}{The lengths of the RLE of the coverages: a \code{list} of \code{vector}s or \code{integer}s.}
-
-\item{values}{The values of the RLE of the coverages: \code{list} of \code{vector}s or \code{integer}s.}
 }
 \value{
 A GRanges.

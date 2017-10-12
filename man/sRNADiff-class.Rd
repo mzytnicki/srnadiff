@@ -26,7 +26,12 @@ An S4 class to represent sRNA-Seq data for differential expression.
 
 \item{\code{coverages}}{The coverages, a vector of \code{RLE}.}
 
-\item{\code{design}}{Experimental design, a \code{DataFrome} for \code{DESeq2}}
+\item{\code{lengths}}{The lengths parts of the coverages.}
+
+\item{\code{values}}{The values parts of the coverages.}
+
+\item{\code{design}}{Experimental design, a \code{DataFrame} for
+\code{DESeq2}}
 
 \item{\code{pValue}}{The adjusted p-value threshold}
 
