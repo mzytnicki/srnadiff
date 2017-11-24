@@ -20,9 +20,9 @@ annotation.  To do so, sRNADiff uses up to 4 different strategies:
 ## Standard workflow
 
     annotation  <- readMiRBasePreAnnotation("mirbase.gff")
-    bamFiles    <- c("wt1.bam", "wt2.bam", "ko1.bam", "ko2.bam")
-    replicates  <- c("wt1", "wt2", "ko1", "ko2")
-    conditions  <- factor(c("wt", "wt", "ko", "ko"))
+    bamFiles    <- c("wt1.bam", "wt2.bam", "wt3.bam", "ko1.bam", "ko2.bam", "ko3.bam")
+    replicates  <- c("wt1", "wt2", "wt3", "ko1", "ko2", "ko3")
+    conditions  <- factor(c("wt", "wt", "wt", "ko", "ko", "ko"))
     exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
     diffRegions <- runAll(exp)
     
@@ -53,6 +53,11 @@ and extracts miRNAs.
     exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
     diffRegions <- runAll(exp)
 
+For your conveniance, the sample can be loaded with an only command `exp <- sRNADiffExample()`, so the script boils down to:
+
+    exp         <- sRNADiffExample()
+    diffRegions <- runAll(exp)
+
 
 ## Rationale and scope of the package
 
@@ -79,11 +84,11 @@ them.
 This is the standard pipe-line, and the method simply provides the list of miRNA
 genes extracted from the given GTF file.
 
-If you do not provide a GTF file, this step is skipped.  Alternatively, you can
-type `exp@skipAnnotation <- TRUE` for the same result.
+If you do not provide a GTF file, this step is skipped.
 
 Unfortunately, there is no clear standard for an annotation format.
 We provide here four ways to parse the annotation file.
+
 
 #### Whole genome file annotation
 
@@ -93,6 +98,7 @@ element, etc.).
 The following function reads the annotation file and extracts the miRNAs.
 
     annotation <- readWholeGenomeAnnotation(filename)
+
 
 #### miRBase annotation
 
@@ -107,6 +113,7 @@ the miRNA and the miRNA* will be merged in the same feature.
 If you want to separate the two, use:
 
     annotation <- readMiRBaseMatureAnnotation(filename)
+
 
 #### Other format
 
@@ -124,56 +131,105 @@ In this case, no selection is performed on `source` or `feature`.
 If `name` is null, then a systematic name is given (`annotation_N`).
 
 
-
 ### Naive
 
-The method first merges all the BAM files.  Reads are then merged into regions:
-if two reads overlap, they will belong to the same regions.  Regions with at
-least 10 reads (summing all the reads in all input BAM files) are kept.
+This strategy is the simplest, most commonly used, to find transcription units.  It proceeds in two steps.
 
-This method is efficient when a gene is differentially expressed on the whole
-transcript.
+The first step merges all the BAM files.  Regions with a minimum number coverage (summing all the reads in all input BAM files) are kept.
 
-Type `exp@skipNaive <- TRUE` if you want to skip this step.
+The second steps merges regions that are within a given distance (also provided by the user).  The default distance can be change using this function:
+
+    exp <- setMergeDistance(exp, numeric)
+
+This method is efficient when a gene is differentially expressed on the whole transcript.
 
 
 ### HMM
 
-We first compute the coverage of every input BAM file of every nucleotide of the
-genome.
+This strategy first computes the coverage of every input BAM file of every nucleotide of the genome.
 If two genome nucleotides have exactly the same coverage profile, we merge them.
 We give these coverage profiles to DESeq2, and compute the p-values.
 We thus have a p-value for each position of the genome.
-We then use a very crude hidden Markov model (HMM) on each chromosome of the
-genome.
-The HMM has two states: non-differentially expressed, and differentially
-expressed.
-Each state uses a binomial distribution.
-We did not try to optimize the parameters of the HMM, because it takes times,
-and do not improve the results.
+We then use a very crude hidden Markov model (HMM) on each chromosome of the genome.
+The HMM has two states: "not differentially expressed", and "differentially expressed".
+Each state uses a binomial distribution, the probability to emit a p-value < 0.5, and the probability to emit a p-value >= 0.5.
+We did not try to optimize the parameters of the HMM, because it takes times, and do not improve the results.
 Instead, the HMM is used a crude (but effective) way to segment the genome.
 
-This method is efficient when a region is highly differentially expressed, even
-if it is concealed in a longer transcript.
+The parameters of the HMM can be changed using these functions:
 
-Type `exp@skipHmm <- TRUE` if you want to skip this step.
+    exp <- setTransitionProbabilities(exp, prob1, prob2)
+    exp <- setEmissionProbabilities(exp, prob3)
+
+where:
+
+ * `prob1` is the probability to move from the "not differentially expressed" state to the "differentially expressed" state,
+ * `prob2` is the probability to move from the "differentially expressed" state to the "not differentially expressed" state,
+ * `prob3` is the probability to emit a p-value < 0.5 in the "differentially expressed" state, and a p-value >= 0.5 in the "not differentially expressed" state.
+
+This method is efficient when a region is highly differentially expressed, even if it is concealed in a longer transcript.
+
+
+### Slicing
+
+This stretegy proceeds in three steps:
+
+ * It normalizes counts using a CPM strategy developped in EdgeR.
+ * The mean distribution of the coverage of the replicates is computed for each condition.
+ * For each condition, we "slice" the mean coverage distribution: we add horizontal lines at height h (where h is the minimum depth parameter defined in the general parameter section), h+1, h+2, ..., + infinity, and the intervals where the distribution and the horizontal lines meet is a putative region.
+ * These putative regions are the output of the strategy.
+
+Obviously, many putative regions may have very similar start and end points.  If two regions differ only by a few base pairs, the smallest regions will be discarded.
+
+The default values can be changed using these functions:
+
+    exp <- setMinDifferences(exp, numeric)
+
+This method is especially efficient when a differentially expressed region is large, even though the fold change is moderate.
+
+
+### General parameters
+
+The three last strategies can be tuned by specifying:
+
+ * the minimum and maximum regions sizes,
+ * the minimum depth of the most expressed condition.
+
+The default values can be changed using these functions:
+
+    exp <- setMinDepth(exp, numeric)
+    exp <- setSizes(exp, minSize, maxSize)
+
 
 ### Combination of the strategies
 
 All the regions given by each strategies are then combined into a list of
 regions.
 DESeq2 is then used to get the adjusted p-values of these regions.
-All the regions with p-value less than 5% are then given.
-This threshold can by modified typing e.g. `exp@pValue <- 0.01`.
+
+You can choose not to use some strategies, use the function
+
+    exp <- useStrategies(annotation, naive, HMM, slice)
+
+where `annotation`, `naive`, `HMM` and `slice` are logical variables, set to `FALSE` if you want to skip that step.
+
+
+### Extracting regions
+
+The regions, with corresponding information provided by DESeq2 (mean expression, fold-change, p-value, adjusted p-value, etc.), can be extracted with this command:
+
+    regions <- regions(exp, pValue)
+
+where `pValue` is the (adjusted) p-value threshold.  The output in a `GenomicIntervals` object, and the information is accessible with the `mcols()` function.
 
 
 ## Visualization
 
 You can get the read coverage profile of your selected regions using the
-`plotRegion` method.  For instance, if `object` is your `srnadiff` object, you
+`plotRegion` method.  For instance, if `exp` is your `srnadiff` object, you
 can type:
 
-    plotRegion(object, object@regions[1])
+    plotRegion(exp, regions(exp, 0.05)[1])
 
 Each line provides the read density on an input sample.
 The dark grey rectangle emphasizes the selected region.
@@ -192,9 +248,20 @@ The conditions can be sorted (`WT` before `mutant`, `untreated` before
 ### Using several cores
 
 The quantification and differential expression steps can be accelerated using
-several cores and the
-[BiocParallel](http://bioconductor.org/packages/release/bioc/html/BiocParallel.html)
-package and the following command:
+several cores and the following command:
 
-    library("BiocParallel")
-    register(MulticoreParam(4))
+    exp <- setNThreads(exp, nThreads)
+
+
+### Troubleshooting
+
+While installing the package, if the compiler complains and says
+
+    #error This file requires compiler and library support for the ISO C++ 2011 standard.
+    This support is currently experimental, and must be enabled with the -std=c++11 or -std=gnu++11 compiler options.
+
+Add this line
+
+    Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
+
+before installing the package.

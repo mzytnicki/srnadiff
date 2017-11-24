@@ -12,21 +12,14 @@ plotRegion(object, region)
 \item{region}{A \code{GenomicRange} object.}
 }
 \value{
-A \code{ggbio} object.
+A \code{ggplot} object.
 }
 \description{
 Plot a region
 }
 \examples{
-dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-data        <- read.csv(file.path(dir, "data.csv"))
-gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-annotation  <- readWholeGenomeAnnotation(gtfFile)
-bamFiles    <- file.path(dir, data$FileName)
-replicates  <- data$SampleName
-conditions  <- factor(data$Condition)
-exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
-diffRegions <- runAll(exp)
-plotRegion(exp, regions(diffRegions)[1])
+exp <- sRNADiffExample()
+exp <- runAll(exp)
+plotRegion(exp, regions(exp, 0.05)[1])
 
 }

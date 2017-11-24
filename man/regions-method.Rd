@@ -3,15 +3,20 @@
 \docType{methods}
 \name{regions}
 \alias{regions}
-\alias{regions,sRNADiff-method}
+\alias{regions,sRNADiff,numeric-method}
+\alias{regions,sRNADiff,ANY-method}
 \title{Get the output regions}
 \usage{
-regions(object)
+regions(object, pvalue = 0.05)
 
-\S4method{regions}{sRNADiff}(object)
+\S4method{regions}{sRNADiff,numeric}(object, pvalue = 0.05)
+
+\S4method{regions}{sRNADiff,ANY}(object)
 }
 \arguments{
 \item{object}{An \code{srnadiff} object.}
+
+\item{pvalue}{A minimum p-value}
 }
 \value{
 The selected regions
@@ -20,14 +25,7 @@ The selected regions
 Get the output regions
 }
 \examples{
-dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-data        <- read.csv(file.path(dir, "data.csv"))
-gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-annotation  <- readWholeGenomeAnnotation(gtfFile)
-bamFiles    <- file.path(dir, data$FileName)
-replicates  <- data$SampleName
-conditions  <- factor(data$Condition)
-exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+exp <- sRNADiffExample()
 regions(exp)
 
 }

@@ -17,14 +17,7 @@ A description of the object.
 Overloading the show method
 }
 \examples{
-dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-data        <- read.csv(file.path(dir, "data.csv"))
-gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-annotation  <- readWholeGenomeAnnotation(gtfFile)
-bamFiles    <- file.path(dir, data$FileName)
-replicates  <- data$SampleName
-conditions  <- factor(data$Condition)
-exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+exp <- sRNADiffExample()
 exp
 
 }

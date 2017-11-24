@@ -6,23 +6,10 @@
 #' @param lengths          the sizes of the RLEs (one list per chromosome)
 #' @param values           the values of the RLEs (one list per chromosome)
 #' @param chromosomeSizes  the sizes of the chromosomes
-#' @param minDepth         minimum coverage
-#' @param minSize          minimum region size
-#' @param maxSize          maximum region size
-#' @param minDifference    minimum difference between 2 regions
-#' @return                 selected regions
-rcpp_clustering <- function(lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference) {
-    .Call('_srnadiff_rcpp_clustering', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference)
-}
-
-#' Compute unique counts.
-#'
-#' @param lengths          the sizes of the RLEs (one list per chromosome)
-#' @param values           the values of the RLEs (one list per chromosome)
-#' @param chromosomeSizes  the sizes of the chromosomes
+#' @param minDepth         the minimum read coverage
 #' @return                 the unique counts
-rcpp_buildHmm <- function(lengths, values, chromosomeSizes) {
-    .Call('_srnadiff_rcpp_buildHmm', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes)
+rcpp_buildHmm <- function(lengths, values, chromosomeSizes, minDepth) {
+    .Call('_srnadiff_rcpp_buildHmm', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, minDepth)
 }
 
 #' Run the Viterbi algorithm on the HMM.
@@ -35,8 +22,48 @@ rcpp_buildHmm <- function(lengths, values, chromosomeSizes) {
 #' @param pvalues          the p-values of the counts
 #' @param lengths          the sizes of the RLEs (one list per chromosome)
 #' @param values           the values of the RLEs (one list per chromosome)
+#' @param minDepth         the minimum read coverage
+#' @param minSize          the minimum size region
+#' @param maxSize          the maximum size region
 #' @return                 a segmentation of the chromosomes
-rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values) {
-    .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values)
+rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize) {
+    .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize)
+}
+
+#' Compute naive method.
+#'
+#' @param lengths          the sizes of the RLEs (one list per chromosome)
+#' @param values           the values of the RLEs (one list per chromosome)
+#' @param chromosomeSizes  the sizes of the chromosomes
+#' @param depth            minimum number of reads per position
+#' @param distance         threshold to merge consecutive regions
+#' @param size             minimum region size
+#' @return                 the unique counts
+rcpp_naive <- function(lengths, values, chromosomeSizes, depth, distance, size) {
+    .Call('_srnadiff_rcpp_naive', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, depth, distance, size)
+}
+
+#' Normalize counts (and changes the input values)
+#'
+#' @param lengths          the sizes of the RLEs (one list per chromosome)
+#' @param values           the values of the RLEs (one list per chromosome)
+#' @param chromosomeSizes  the sizes of the chromosomes
+#' @param librarySizes     number of elements per sample
+rcpp_normalization <- function(lengths, values, chromosomeSizes, librarySizes) {
+    invisible(.Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, librarySizes))
+}
+
+#' Compute unique counts.
+#'
+#' @param lengths          the sizes of the RLEs (one list per chromosome)
+#' @param values           the values of the RLEs (one list per chromosome)
+#' @param chromosomeSizes  the sizes of the chromosomes
+#' @param minDepth         minimum coverage
+#' @param minSize          minimum region size
+#' @param maxSize          maximum region size
+#' @param minDifference    minimum difference between 2 regions
+#' @return                 selected regions
+rcpp_slice <- function(lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference) {
+    .Call('_srnadiff_rcpp_slice', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, minDepth, minSize, maxSize, minDifference)
 }
 

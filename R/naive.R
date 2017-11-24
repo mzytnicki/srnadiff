@@ -7,26 +7,18 @@ runAllNaive <- function(object) {
         return(GRanges())
     }
     message("Starting Naive step...")
-    message("  Merging data...")
-    tmpFileName        <- mergeBam(object@bamFiles,
-                                    tempfile(pattern = "mergeTmp",
-                                                fileext = ".bam"),
-                                    overwrite=TRUE)
-    mergedReads        <- readGAlignments(tmpFileName)
-    mergedRanges       <- granges(mergedReads)
-    message("  ... data merged.")
-    message("  Finding regions...")
-    reducedRanges      <- reduce(mergedRanges, drop.empty.ranges=TRUE,
-                                    ignore.strand=TRUE, with.revmap=TRUE)
-    sizes              <- sapply(mcols(reducedRanges)$revmap, length)
-    sizedRanges        <- reducedRanges[sizes >= 10 *
-                                            length(object@bamFileNames)]
-    mcols(sizedRanges) <- NULL
-    names(sizedRanges) <- paste("naive", seq(length(sizedRanges)), sep="_")
-    file.remove(tmpFileName)
-    message(paste0(c("  ... ", length(sizedRanges), " regions found.")))
-    rm(mergedReads, mergedRanges, reducedRanges, sizes)
-    gc()
+		ranges <- rcpp_naive(object@lengths, object@values, object@chromosomeSizes, object@minDepth, object@mergeDistance, object@minSize)
+		if (length(ranges[[1]]) == 0) {
+				ranges <- GRanges()
+		}
+		else {
+				ranges <- GRanges(ranges)
+		}
+		if (length(ranges) > 0) {
+				mcols(ranges) <- NULL
+				names(ranges) <- paste("naive", seq(length(ranges)), sep="_")
+		}
+    message(paste0(c("  ... ", length(ranges), " regions found.")))
     message("... Naive step done.")
-    return(sizedRanges)
+    return(ranges)
 }

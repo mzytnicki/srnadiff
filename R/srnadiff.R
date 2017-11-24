@@ -9,6 +9,7 @@
 #' @author Matthias Zytnicki, \email{matthias.zytnicki@@inra.fr}
 #'
 #' @import methods
+#' @importFrom utils read.csv
 #' @import S4Vectors
 #' @import GenomeInfoDb
 #' @import rtracklayer

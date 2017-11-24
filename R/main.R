@@ -3,14 +3,7 @@
 #' @return       A description of the object.
 #'
 #' @examples
-#' dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-#' data        <- read.csv(file.path(dir, "data.csv"))
-#' gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-#' annotation  <- readWholeGenomeAnnotation(gtfFile)
-#' bamFiles    <- file.path(dir, data$FileName)
-#' replicates  <- data$SampleName
-#' conditions  <- factor(data$Condition)
-#' exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+#' exp <- sRNADiffExample()
 #' exp
 #'
 #' @export
@@ -44,10 +37,8 @@ setMethod(  f         ="show",
                     object@skipNaive,
                     "\nSkip HMM step: ",
                     object@skipHmm,
-                    "\nSkip clustering step: ",
-                    object@skipClustering,
-                    "\np-value threshold: ",
-                    object@pValue,
+                    "\nSkip slice step: ",
+                    object@skipSlice,
                     "\n", sep = "")
             }
 )
@@ -55,22 +46,16 @@ setMethod(  f         ="show",
 #' Get the output regions
 #' @rdname regions-method
 #' @param  object  An \code{srnadiff} object.
+#' @param  pvalue  A minimum p-value
 #' @return         The selected regions
 #'
 #' @examples
-#' dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-#' data        <- read.csv(file.path(dir, "data.csv"))
-#' gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-#' annotation  <- readWholeGenomeAnnotation(gtfFile)
-#' bamFiles    <- file.path(dir, data$FileName)
-#' replicates  <- data$SampleName
-#' conditions  <- factor(data$Condition)
-#' exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+#' exp <- sRNADiffExample()
 #' regions(exp)
 #'
 #' @export
 setGeneric( name="regions",
-            def =function(object) {
+            def =function(object, pvalue = 0.05) {
                 standardGeneric("regions")
             }
 )
@@ -78,45 +63,286 @@ setGeneric( name="regions",
 #' @rdname  regions-method
 #' @export
 setMethod(  f        ="regions",
-            signature= "sRNADiff",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, pvalue) {
+                return(object@regions[mcols(object@regions)$padj <= pvalue])
+            }
+)
+
+#' @rdname  regions-method
+#' @export
+setMethod(  f        ="regions",
+            signature= c("sRNADiff"),
             definition=function(object) {
                 return(object@regions)
             }
 )
+
+
+#' Set the different steps
+#' @rdname setStrategies-method
+#' @param  object     An \code{srnadiff} object.
+#' @param  annotation The annotation step.
+#' @param  naive      The naive step.
+#' @param  hmm        The HMM step.
+#' @param  slice      The slice step.
+#' @return         The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setStrategies(exp, TRUE, FALSE, TRUE, TRUE)
+#'
+#' @export
+setGeneric( name="setStrategies",
+            def =function(object, annotation, naive, hmm, slice) {
+                standardGeneric("setStrategies")
+            }
+)
+
+#' @rdname  setStrategies-method
+#' @export
+setMethod(  f        ="setStrategies",
+            signature= c("sRNADiff", "logical", "logical", "logical", "logical"),
+            definition=function(object, annotation, naive, hmm, slice) {
+								object@skipAnnotation <- ! annotation
+								object@skipNaive      <- ! naive
+								object@skipHmm        <- ! hmm
+								object@skipSlice      <- ! slice
+                return(object)
+            }
+)
+
+
+#' Set min and max sizes of the regions
+#' @rdname setSizes-method
+#' @param  object  An \code{srnadiff} object.
+#' @param  minSize The minimum size.
+#' @param  maxSize The maximum size.
+#' @return         The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setSizes(exp, 10, 1000)
+#' regions(exp)
+#'
+#' @export
+setGeneric( name="setSizes",
+            def =function(object, minSize, maxSize) {
+                standardGeneric("setSizes")
+            }
+)
+
+#' @rdname  setSizes-method
+#' @export
+setMethod(  f        ="setSizes",
+            signature= c("sRNADiff", "numeric", "numeric"),
+            definition=function(object, minSize, maxSize) {
+								object@minSize <- minSize
+								object@maxSize <- maxSize
+                return(object)
+            }
+)
+
+
+#' Set min minimum depth to localize regions
+#' @rdname setMinDepth-method
+#' @param  object An \code{srnadiff} object.
+#' @param  depth  The minimum depth
+#' @return        The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setMinDepth(exp, 3)
+#'
+#' @export
+setGeneric( name="setMinDepth",
+            def =function(object, depth) {
+                standardGeneric("setMinDepth")
+            }
+)
+
+#' @rdname  setMinDepth-method
+#' @export
+setMethod(  f        ="setMinDepth",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, depth) {
+								object@minDepth <- depth
+                return(object)
+            }
+)
+
+
+#' Set the threshold to merge close regions (in the naive step)
+#' @rdname setMergeDistance-method
+#' @param  object   An \code{srnadiff} object.
+#' @param  distance The maximum distance
+#' @return          The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setMergeDistance(exp, 1000)
+#'
+#' @export
+setGeneric( name="setMergeDistance",
+            def =function(object, distance) {
+                standardGeneric("setMergeDistance")
+            }
+)
+
+#' @rdname  setMergeDistance-method
+#' @export
+setMethod(  f        ="setMergeDistance",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, distance) {
+								object@mergeDistance <- distance
+                return(object)
+            }
+)
+
+
+#' Set the threshold to remove similar regions (in the slice step)
+#' @rdname setMinDifferences-method
+#' @param  object      An \code{srnadiff} object.
+#' @param  differences The minimum number of different nt.
+#' @return             The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setMinDifferences(exp, 10)
+#'
+#' @export
+setGeneric( name="setMinDifferences",
+            def =function(object, differences) {
+                standardGeneric("setMinDifferences")
+            }
+)
+
+#' @rdname  setMinDifferences-method
+#' @export
+setMethod(  f        ="setMinDifferences",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, differences) {
+								object@minDifferences <- differences
+                return(object)
+            }
+)
+
+
+#' Set transition probabilities (for the HMM step).
+#' @rdname setTransitionProbabilities-method
+#' @param  object       An \code{srnadiff} object.
+#' @param  noDiffToDiff probability to change from the "not-differentially expressed" state to the "differentially expressed" state
+#' @param  diffToNoDiff probability to change from the "differentially expressed" state to the "not-differentially expressed" state
+#' @return         The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setTransitionProbabilities(exp, 0.001, 0.000001)
+#'
+#' @export
+setGeneric( name="setTransitionProbabilities",
+            def =function(object, noDiffToDiff, diffToNoDiff) {
+                standardGeneric("setTransitionProbabilities")
+            }
+)
+
+#' @rdname  setTransitionProbabilities-method
+#' @export
+setMethod(  f        ="setTransitionProbabilities",
+            signature= c("sRNADiff", "numeric", "numeric"),
+            definition=function(object, noDiffToDiff, diffToNoDiff) {
+								object@noDiffToDiff <- noDiffToDiff
+								object@diffToNoDiff <- diffToNoDiff
+                return(object)
+            }
+)
+
+
+#' Set emission probabilities (for the HMM step): probability to have a p-value not less than 0.5 in the "not-differentially expressed" state, and a p-value not greater than 0.5 in the "differentially expressed" state (supposed equal).
+#' @rdname setEmissionProbabilities-method
+#' @param  object       An \code{srnadiff} object.
+#' @param  probability  The emission probability
+#' @return              The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setEmissionProbabilities(exp, 0.9)
+#'
+#' @export
+setGeneric( name="setEmissionProbabilities",
+            def =function(object, probability) {
+                standardGeneric("setEmissionProbabilities")
+            }
+)
+
+#' @rdname  setEmissionProbabilities-method
+#' @export
+setMethod(  f        ="setEmissionProbabilities",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, probability) {
+								object@emission <- probability
+                return(object)
+            }
+)
+
+
+#' Set number of threads to use
+#' @rdname setNThreads-method
+#' @param  object   An \code{srnadiff} object.
+#' @param  nThreads The number of threads
+#' @return          The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setNThreads(exp, 4)
+#'
+#' @export
+setGeneric( name="setNThreads",
+            def =function(object, nThreads) {
+                standardGeneric("setNThreads")
+            }
+)
+
+#' @rdname  setNThreads-method
+#' @export
+setMethod(  f        ="setNThreads",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, nThreads) {
+                object@nThreads <- nThreads
+                return(object)
+            }
+)
+
 
 #' Run the segmentation using 3 different methods, and reconciliate them.
 #'
 #' @param object An \code{srnadiff} object.
 #' @return A GRanges.
 #' @examples
-#' dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-#' data        <- read.csv(file.path(dir, "data.csv"))
-#' gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-#' annotation  <- readWholeGenomeAnnotation(gtfFile)
-#' bamFiles    <- file.path(dir, data$FileName)
-#' replicates  <- data$SampleName
-#' conditions  <- factor(data$Condition)
-#' exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
-#' diffRegions <- runAll(exp)
+#' exp        <- sRNADiffExample()
+#' exp        <- runAll(exp)
 #'
 #' @export
 runAll <- function(object) {
+    if (object@nThreads > 1) {
+        register(MulticoreParam(object@nThreads))
+    }
     setAnnotation <- runAllAnnotation(object)
     setNaive      <- runAllNaive(object)
     setHmm        <- runAllHmm(object)
-    setClustering <- runAllClustering(object)
-    allSets       <- do.call("c", list(setAnnotation, setNaive, setHmm,
-                        setClustering))
+    setSlice      <- runAllSlice(object)
+    allSets       <- unique(sort(do.call("c", list(setAnnotation, setNaive, setHmm, setSlice))))
     message("Computing differential expression...")
     allSetsDT           <- as.data.frame(allSets)
     names(allSetsDT)    <- c("Chr", "Start", "End", "Width", "Strand")
     allSetsDT$GeneId    <- names(allSets)
-    counts <- featureCounts(object@bamFileNames,
-                            annot.ext=allSetsDT,
-                            allowMultiOverlap=TRUE,
-                            countMultiMappingReads=TRUE)
+    counts <- suppressMessages(featureCounts(object@bamFileNames,
+                                annot.ext=allSetsDT,
+                                allowMultiOverlap=TRUE,
+                                countMultiMappingReads=TRUE))
     counts              <- as.data.frame(counts$counts)
-    rownames(counts)    <- names(allSets)
+    rownames(counts)    <- paste(seqnames(allSets), start(allSets), end(allSets), names(allSets), sep="_")
+    #rownames(counts)    <- names(allSets)
     colnames(counts)    <- object@replicates
     dds                 <- DESeqDataSetFromMatrix(  countData=counts,
                                                     colData  =object@design,
@@ -132,21 +358,21 @@ runAll <- function(object) {
     padj                <- padj[! is.na(padj)]
     sizes               <- width(regions)
     overlaps            <- findOverlaps(regions, regions)
-    overlaps            <- overlaps[overlaps@from != overlaps@to]
+    from                <- queryHits(overlaps)
+    to                  <- subjectHits(overlaps)
+    overlaps            <- overlaps[from != to]
     if (length(overlaps) > 0) {
-        dominance <- padj[overlaps@from] < padj[overlaps@to] |
-            (padj[overlaps@from] == padj[overlaps@to] &
-                sizes[overlaps@from] < sizes[overlaps@to]) |
-            (padj[overlaps@from] == padj[overlaps@to] &
-                sizes[overlaps@from] == sizes[overlaps@to] &
-                overlaps@from < overlaps@to)
-        regions   <- regions[-overlaps@to[dominance]]
+        dominance <- padj[from] < padj[to] |
+            (padj[from] == padj[to] &
+                sizes[from] < sizes[to]) |
+            (padj[from] == padj[to] &
+                sizes[from] == sizes[to] &
+                from < to)
+        regions   <- regions[-to[dominance]]
     }
-    names(regions)      <- paste0(seqnames(regions), "_", start(regions),
+    names(regions) <- paste0(seqnames(regions), "_", start(regions),
                                                             "_", end(regions))
-    deseqData           <- dds[rownames(dds) %in% rownames(regions)]
+    object@regions <- regions
     message("... done.")
-    object@deseqData    <- dds
-    object@regions      <- regions
     return(object)
 }

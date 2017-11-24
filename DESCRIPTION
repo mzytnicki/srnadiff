@@ -10,10 +10,11 @@ Description: Differential expression of small RNA-seq
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.5)
+Depends: R (>= 3.3.2)
 Imports:
     Rcpp (>= 0.12.8),
     methods,
+    utils,
     S4Vectors,
     GenomeInfoDb,
     rtracklayer,
