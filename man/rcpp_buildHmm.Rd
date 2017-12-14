@@ -4,7 +4,7 @@
 \alias{rcpp_buildHmm}
 \title{Compute unique counts.}
 \usage{
-rcpp_buildHmm(lengths, values, chromosomeSizes)
+rcpp_buildHmm(lengths, values, chromosomeSizes, minDepth)
 }
 \arguments{
 \item{lengths}{the sizes of the RLEs (one list per chromosome)}
@@ -12,6 +12,8 @@ rcpp_buildHmm(lengths, values, chromosomeSizes)
 \item{values}{the values of the RLEs (one list per chromosome)}
 
 \item{chromosomeSizes}{the sizes of the chromosomes}
+
+\item{minDepth}{the minimum read coverage}
 }
 \value{
 the unique counts

@@ -5,7 +5,7 @@
 \title{Run the Viterbi algorithm on the HMM.}
 \usage{
 rcpp_viterbi(chromosomeSizes, transitions, emissions, starts, counts, pvalues,
-  lengths, values)
+  lengths, values, minDepth, minSize, maxSize)
 }
 \arguments{
 \item{chromosomeSizes}{the sizes of the chromosomes}
@@ -23,6 +23,12 @@ rcpp_viterbi(chromosomeSizes, transitions, emissions, starts, counts, pvalues,
 \item{lengths}{the sizes of the RLEs (one list per chromosome)}
 
 \item{values}{the values of the RLEs (one list per chromosome)}
+
+\item{minDepth}{the minimum read coverage}
+
+\item{minSize}{the minimum size region}
+
+\item{maxSize}{the maximum size region}
 }
 \value{
 a segmentation of the chromosomes

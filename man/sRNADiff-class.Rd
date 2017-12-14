@@ -58,5 +58,7 @@ An S4 class to represent sRNA-Seq data for differential expression.
 \item{\code{skipHmm}}{Whether to skip the HMM strategy step}
 
 \item{\code{skipSlice}}{Whether to skip the slice strategy step}
+
+\item{\code{nThreads}}{Number of threads}
 }}
 
