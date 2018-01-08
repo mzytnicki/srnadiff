@@ -59,11 +59,11 @@ class GenomeIterator {
 				chromosomeId = 0;
 			}
 			for (size_t sampleId = 0; sampleId < nSamples; ++sampleId) {
-				indices[sampleId]           = 0;
-				remainings[sampleId]        = lengths[chromosomeId][sampleId][0];
-				theseValues[sampleId]       = values[chromosomeId][sampleId][0];
-				theseValuesVector[sampleId] = theseValues[sampleId];
-				theseValuesDouble[sampleId] = theseValues[sampleId];
+				indices[sampleId]           =0;
+				remainings[sampleId]        =lengths[chromosomeId][sampleId][0];
+				theseValues[sampleId]       =values[chromosomeId][sampleId][0];
+				theseValuesVector[sampleId] =theseValues[sampleId];
+				theseValuesDouble[sampleId] =theseValues[sampleId];
 			}
 			step = remainings.min();
 			pos  = 0;
@@ -99,7 +99,9 @@ class GenomeIterator {
 		}
 
 		std::string getChromosome () {
-			return as < std::string >(as< CharacterVector >(chromosomeSizes.names()) [chromosomeId]);
+			return as < std::string >(
+			        as< CharacterVector >(chromosomeSizes.names())
+            		    [chromosomeId]);
 		}
 
 		unsigned long getPosition () {
@@ -120,8 +122,10 @@ class GenomeIterator {
 				remainings[sampleId] -= s;
 				if (remainings[sampleId] == 0) {
 					++indices[sampleId];
-					remainings[sampleId] = lengths[chromosomeId][sampleId][indices[sampleId]];
-					theseValues[sampleId] = values[chromosomeId][sampleId][indices[sampleId]];
+					remainings[sampleId] =
+					    lengths[chromosomeId][sampleId][indices[sampleId]];
+					theseValues[sampleId] =
+					    values[chromosomeId][sampleId][indices[sampleId]];
 					theseValuesDouble[sampleId] = theseValues[sampleId];
 					theseValuesVector[sampleId] = theseValues[sampleId];
 				}

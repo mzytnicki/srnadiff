@@ -20,14 +20,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_viterbi
-DataFrame rcpp_viterbi(IntegerVector& chromosomeSizes, NumericMatrix& transitions, NumericMatrix& emissions, NumericVector& starts, IntegerVector& counts, NumericVector& pvalues, ListOf < ListOf < IntegerVector > >& lengths, ListOf < ListOf < IntegerVector > >& values, int minDepth, int minSize, int maxSize);
-RcppExport SEXP _srnadiff_rcpp_viterbi(SEXP chromosomeSizesSEXP, SEXP transitionsSEXP, SEXP emissionsSEXP, SEXP startsSEXP, SEXP countsSEXP, SEXP pvaluesSEXP, SEXP lengthsSEXP, SEXP valuesSEXP, SEXP minDepthSEXP, SEXP minSizeSEXP, SEXP maxSizeSEXP) {
+DataFrame rcpp_viterbi(IntegerVector& chromosomeSizes, NumericMatrix& transitions, NumericMatrix& emissions, float emissionThreshold, NumericVector& starts, IntegerVector& counts, NumericVector& pvalues, ListOf < ListOf < IntegerVector > >& lengths, ListOf < ListOf < IntegerVector > >& values, int minDepth, int minSize, int maxSize);
+RcppExport SEXP _srnadiff_rcpp_viterbi(SEXP chromosomeSizesSEXP, SEXP transitionsSEXP, SEXP emissionsSEXP, SEXP emissionThresholdSEXP, SEXP startsSEXP, SEXP countsSEXP, SEXP pvaluesSEXP, SEXP lengthsSEXP, SEXP valuesSEXP, SEXP minDepthSEXP, SEXP minSizeSEXP, SEXP maxSizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< IntegerVector& >::type chromosomeSizes(chromosomeSizesSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type transitions(transitionsSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type emissions(emissionsSEXP);
+    Rcpp::traits::input_parameter< float >::type emissionThreshold(emissionThresholdSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type starts(startsSEXP);
     Rcpp::traits::input_parameter< IntegerVector& >::type counts(countsSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type pvalues(pvaluesSEXP);
@@ -36,7 +37,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type minDepth(minDepthSEXP);
     Rcpp::traits::input_parameter< int >::type minSize(minSizeSEXP);
     Rcpp::traits::input_parameter< int >::type maxSize(maxSizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_viterbi(chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize));
+    rcpp_result_gen = Rcpp::wrap(rcpp_viterbi(chromosomeSizes, transitions, emissions, emissionThreshold, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize));
     return rcpp_result_gen;
 END_RCPP
 }

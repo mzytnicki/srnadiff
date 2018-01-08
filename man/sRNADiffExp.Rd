@@ -27,7 +27,7 @@ Constructor.
 \examples{
 dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
 data        <- read.csv(file.path(dir, "data.csv"))
-gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotation  <- readWholeGenomeAnnotation(gtfFile)
 bamFiles    <- file.path(dir, data$FileName)
 replicates  <- data$SampleName

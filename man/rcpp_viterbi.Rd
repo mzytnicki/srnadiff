@@ -4,8 +4,8 @@
 \alias{rcpp_viterbi}
 \title{Run the Viterbi algorithm on the HMM.}
 \usage{
-rcpp_viterbi(chromosomeSizes, transitions, emissions, starts, counts, pvalues,
-  lengths, values, minDepth, minSize, maxSize)
+rcpp_viterbi(chromosomeSizes, transitions, emissions, emissionThreshold, starts,
+  counts, pvalues, lengths, values, minDepth, minSize, maxSize)
 }
 \arguments{
 \item{chromosomeSizes}{the sizes of the chromosomes}
@@ -13,6 +13,8 @@ rcpp_viterbi(chromosomeSizes, transitions, emissions, starts, counts, pvalues,
 \item{transitions}{the transition log-probabilities}
 
 \item{emissions}{the emission log-probabilities}
+
+\item{emissionThreshold}{the emission threshold}
 
 \item{starts}{the start log-probabilities}
 

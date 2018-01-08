@@ -15,6 +15,9 @@ rcpp_normalization(lengths, values, chromosomeSizes, librarySizes)
 
 \item{librarySizes}{number of elements per sample}
 }
+\value{
+nothing (but transform the values instead)
+}
 \description{
 Normalize counts (and changes the input values)
 }

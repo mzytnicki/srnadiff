@@ -27,7 +27,7 @@ rcpp_buildHmm <- function(lengths, values, chromosomeSizes, minDepth) {
 #' @param minSize           the minimum size region
 #' @param maxSize           the maximum size region
 #' @return                  a segmentation of the chromosomes
-rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize) {
+rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, emissionThreshold, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize) {
     .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, emissionThreshold, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize)
 }
 
@@ -50,6 +50,7 @@ rcpp_naive <- function(lengths, values, chromosomeSizes, depth, distance, size) 
 #' @param values           the values of the RLEs (one list per chromosome)
 #' @param chromosomeSizes  the sizes of the chromosomes
 #' @param librarySizes     number of elements per sample
+#' @return                 nothing (but transform the values instead)
 rcpp_normalization <- function(lengths, values, chromosomeSizes, librarySizes) {
     invisible(.Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, librarySizes))
 }

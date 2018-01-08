@@ -12,7 +12,8 @@
 #' @slot values            The values parts of the coverages.
 #' @slot design            Experimental design, a \code{DataFrame} for
 #'                           \code{DESeq2}
-#' @slot regions           A \code{GenomicRanges} of the possibly differentially expressed region
+#' @slot regions           A \code{GenomicRanges} of the possibly differentially
+#'                           expressed region
 #' @slot minDepth          Minimum depth to consider to find regions
 #' @slot minSize           Minimum region size
 #' @slot maxSize           Maximum region size
@@ -73,7 +74,7 @@ setClass("sRNADiff",
 #' @examples
 #' dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
 #' data        <- read.csv(file.path(dir, "data.csv"))
-#' gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+#' gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotation  <- readWholeGenomeAnnotation(gtfFile)
 #' bamFiles    <- file.path(dir, data$FileName)
 #' replicates  <- data$SampleName
@@ -138,13 +139,13 @@ sRNADiffExp <- function(annotation=NULL,
 #'
 #' @export
 sRNADiffExample <- function() {
-		dir        <- system.file("extdata", package="srnadiff", mustWork=TRUE)
-		data       <- read.csv(file.path(dir, "data.csv"))
-		gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
-		annotation <- readWholeGenomeAnnotation(gtfFile)
-		bamFiles   <- file.path(dir, data$FileName)
-		replicates <- data$SampleName
-		conditions <- factor(data$Condition)
-		object     <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
-		return(object)
+    dir        <- system.file("extdata", package="srnadiff", mustWork=TRUE)
+    data       <- read.csv(file.path(dir, "data.csv"))
+    gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
+    annotation <- readWholeGenomeAnnotation(gtfFile)
+    bamFiles   <- file.path(dir, data$FileName)
+    replicates <- data$SampleName
+    conditions <- factor(data$Condition)
+    object     <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+    return(object)
 }

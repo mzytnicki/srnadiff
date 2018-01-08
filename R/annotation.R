@@ -9,7 +9,7 @@
 #' @return         A GRanges.
 #' @examples
 #' dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-#' gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+#' gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene",
 #'                              name="gene_name")
 #'
@@ -36,7 +36,7 @@ readAnnotation <- function(fileName, source=NULL, feature=NULL, name=NULL) {
 #' @return A GRanges.
 #' @examples
 #' dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-#' gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+#' gtfFile    <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotation <- readWholeGenomeAnnotation(gtfFile)
 #'
 #' @export

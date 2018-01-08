@@ -45,7 +45,7 @@ and extracts miRNAs.
 
     dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
     data        <- read.csv(file.path(dir, "data.csv"))
-    gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf")
+    gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
     annotation  <- readWholeGenomeAnnotation(gtfFile)
     bamFiles    <- file.path(dir, data$FileName)
     replicates  <- data$SampleName
@@ -53,7 +53,8 @@ and extracts miRNAs.
     exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
     diffRegions <- runAll(exp)
 
-For your conveniance, the sample can be loaded with an only command `exp <- sRNADiffExample()`, so the script boils down to:
+For your conveniance, the sample can be loaded with an only command
+`exp <- sRNADiffExample()`, so the script boils down to:
 
     exp         <- sRNADiffExample()
     diffRegions <- runAll(exp)
@@ -133,27 +134,36 @@ If `name` is null, then a systematic name is given (`annotation_N`).
 
 ### Naive
 
-This strategy is the simplest, most commonly used, to find transcription units.  It proceeds in two steps.
+This strategy is the simplest, most commonly used, to find transcription units.
+It proceeds in two steps.
 
-The first step merges all the BAM files.  Regions with a minimum number coverage (summing all the reads in all input BAM files) are kept.
+The first step merges all the BAM files.  Regions with a minimum number coverage
+(summing all the reads in all input BAM files) are kept.
 
-The second steps merges regions that are within a given distance (also provided by the user).  The default distance can be change using this function:
+The second steps merges regions that are within a given distance (also provided
+by the user).  The default distance can be change using this function:
 
     exp <- setMergeDistance(exp, numeric)
 
-This method is efficient when a gene is differentially expressed on the whole transcript.
+This method is efficient when a gene is differentially expressed on the whole
+transcript.
 
 
 ### HMM
 
-This strategy first computes the coverage of every input BAM file of every nucleotide of the genome.
+This strategy first computes the coverage of every input BAM file of every
+nucleotide of the genome.
 If two genome nucleotides have exactly the same coverage profile, we merge them.
 We give these coverage profiles to DESeq2, and compute the p-values.
 We thus have a p-value for each position of the genome.
-We then use a very crude hidden Markov model (HMM) on each chromosome of the genome.
-The HMM has two states: "not differentially expressed", and "differentially expressed".
-Each state uses a binomial distribution, the probability to emit a p-value < 0.5, and the probability to emit a p-value >= 0.5.
-We did not try to optimize the parameters of the HMM, because it takes times, and do not improve the results.
+We then use a very crude hidden Markov model (HMM) on each chromosome of the
+genome.
+The HMM has two states: "not differentially expressed", and "differentially
+expressed".
+Each state uses a binomial distribution, the probability to emit a p-value
+< 0.5, and the probability to emit a p-value >= 0.5.
+We did not try to optimize the parameters of the HMM, because it takes times,
+and do not improve the results.
 Instead, the HMM is used a crude (but effective) way to segment the genome.
 
 The parameters of the HMM can be changed using these functions:
@@ -163,11 +173,16 @@ The parameters of the HMM can be changed using these functions:
 
 where:
 
- * `prob1` is the probability to move from the "not differentially expressed" state to the "differentially expressed" state,
- * `prob2` is the probability to move from the "differentially expressed" state to the "not differentially expressed" state,
- * `prob3` is the probability to emit a p-value < 0.5 in the "differentially expressed" state, and a p-value >= 0.5 in the "not differentially expressed" state.
+ * `prob1` is the probability to move from the "not differentially expressed"
+state to the "differentially expressed" state,
+ * `prob2` is the probability to move from the "differentially expressed" state
+to the "not differentially expressed" state,
+ * `prob3` is the probability to emit a p-value < 0.5 in the "differentially
+expressed" state, and a p-value >= 0.5 in the "not differentially expressed"
+state.
 
-This method is efficient when a region is highly differentially expressed, even if it is concealed in a longer transcript.
+This method is efficient when a region is highly differentially expressed, even
+if it is concealed in a longer transcript.
 
 
 ### Slicing
@@ -175,17 +190,24 @@ This method is efficient when a region is highly differentially expressed, even 
 This stretegy proceeds in three steps:
 
  * It normalizes counts using a CPM strategy developped in EdgeR.
- * The mean distribution of the coverage of the replicates is computed for each condition.
- * For each condition, we "slice" the mean coverage distribution: we add horizontal lines at height h (where h is the minimum depth parameter defined in the general parameter section), h+1, h+2, ..., + infinity, and the intervals where the distribution and the horizontal lines meet is a putative region.
+ * The mean distribution of the coverage of the replicates is computed for each
+condition.
+ * For each condition, we "slice" the mean coverage distribution: we add
+horizontal lines at height h (where h is the minimum depth parameter defined in
+the general parameter section), h+1, h+2, ..., + infinity, and the intervals
+where the distribution and the horizontal lines meet is a putative region.
  * These putative regions are the output of the strategy.
 
-Obviously, many putative regions may have very similar start and end points.  If two regions differ only by a few base pairs, the smallest regions will be discarded.
+Obviously, many putative regions may have very similar start and end points.
+If two regions differ only by a few base pairs, the smallest regions will be
+discarded.
 
 The default values can be changed using these functions:
 
     exp <- setMinDifferences(exp, numeric)
 
-This method is especially efficient when a differentially expressed region is large, even though the fold change is moderate.
+This method is especially efficient when a differentially expressed region is
+large, even though the fold change is moderate.
 
 
 ### General parameters
@@ -211,16 +233,21 @@ You can choose not to use some strategies, use the function
 
     exp <- useStrategies(annotation, naive, HMM, slice)
 
-where `annotation`, `naive`, `HMM` and `slice` are logical variables, set to `FALSE` if you want to skip that step.
+where `annotation`, `naive`, `HMM` and `slice` are logical variables, set to
+`FALSE` if you want to skip that step.
 
 
 ### Extracting regions
 
-The regions, with corresponding information provided by DESeq2 (mean expression, fold-change, p-value, adjusted p-value, etc.), can be extracted with this command:
+The regions, with corresponding information provided by DESeq2 (mean expression,
+fold-change, p-value, adjusted p-value, etc.), can be extracted with this
+command:
 
     regions <- regions(exp, pValue)
 
-where `pValue` is the (adjusted) p-value threshold.  The output in a `GenomicIntervals` object, and the information is accessible with the `mcols()` function.
+where `pValue` is the (adjusted) p-value threshold.  The output in a
+`GenomicIntervals` object, and the information is accessible with the `mcols()`
+function.
 
 
 ## Visualization

@@ -33,7 +33,8 @@ An S4 class to represent sRNA-Seq data for differential expression.
 \item{\code{design}}{Experimental design, a \code{DataFrame} for
 \code{DESeq2}}
 
-\item{\code{regions}}{A \code{GenomicRanges} of the possibly differentially expressed region}
+\item{\code{regions}}{A \code{GenomicRanges} of the possibly differentially
+expressed region}
 
 \item{\code{minDepth}}{Minimum depth to consider to find regions}
 
@@ -50,6 +51,8 @@ An S4 class to represent sRNA-Seq data for differential expression.
 \item{\code{diffToNoDiff}}{Transition probability}
 
 \item{\code{emission}}{Emission probability}
+
+\item{\code{emissionThreshold}}{Emission threshold}
 
 \item{\code{skipAnnotation}}{Whether to skip the annotation strategy step}
 

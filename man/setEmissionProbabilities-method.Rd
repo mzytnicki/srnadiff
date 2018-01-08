@@ -4,7 +4,10 @@
 \name{setEmissionProbabilities}
 \alias{setEmissionProbabilities}
 \alias{setEmissionProbabilities,sRNADiff,numeric-method}
-\title{Set emission probabilities (for the HMM step): probability to have a p-value not less than 0.5 in the "not-differentially expressed" state, and a p-value not greater than 0.5 in the "differentially expressed" state (supposed equal).}
+\title{Set emission probabilities (for the HMM step): probability to have a p-value
+   not less than a threshold in the "not-differentially expressed" state,
+   and a p-value not greater than this threshold in the "differentially
+   expressed" state (supposed equal).}
 \usage{
 setEmissionProbabilities(object, probability)
 
@@ -19,7 +22,10 @@ setEmissionProbabilities(object, probability)
 The same object
 }
 \description{
-Set emission probabilities (for the HMM step): probability to have a p-value not less than 0.5 in the "not-differentially expressed" state, and a p-value not greater than 0.5 in the "differentially expressed" state (supposed equal).
+Set emission probabilities (for the HMM step): probability to have a p-value
+   not less than a threshold in the "not-differentially expressed" state,
+   and a p-value not greater than this threshold in the "differentially
+   expressed" state (supposed equal).
 }
 \examples{
 exp <- sRNADiffExample()

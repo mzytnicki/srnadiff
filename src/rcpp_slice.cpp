@@ -34,7 +34,7 @@ struct Region {
     }
 };
 
-double computeMedian(std::vector < std::pair < double, unsigned int > > &table) {
+double computeMedian(std::vector < std::pair < double, unsigned int > > &table){
     sort(table.begin(), table.end());
     size_t i, s = 0, size = 0;
     for (auto &i: table) {
@@ -52,13 +52,15 @@ double computeMedian(std::vector < std::pair < double, unsigned int > > &table) 
 //' @param values           the values of the RLEs (one list per chromosome)
 //' @param chromosomeSizes  the sizes of the chromosomes
 //' @param librarySizes     number of elements per sample
+//' @return                 nothing (but transform the values instead)
 // [[Rcpp::export]]
 void rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
                         ListOf < ListOf < IntegerVector > > &values,
                         IntegerVector &chromosomeSizes,
                         IntegerVector &librarySizes) {
     GenomeIterator iterator (lengths, values, chromosomeSizes);
-    std::vector < std::pair < std::valarray < double >, unsigned int > > normValues;
+    std::vector < std::pair < std::valarray < double >, unsigned int > >
+        normValues;
     std::vector < std::pair < double, unsigned int > > normValuesPerSample;
     std::vector < std::pair < double, unsigned int > > avgValues;
     std::vector < std::pair < double, unsigned int > > avgNormValues;
@@ -85,9 +87,11 @@ void rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
         normValuesPerSample.clear();
         normValuesPerSample.reserve(normValues.size());
         for (auto &normValue: normValues) {
-            normValuesPerSample.emplace_back((normValue.first)[sample], normValue.second);
+            normValuesPerSample.emplace_back((normValue.first)[sample],
+                                             normValue.second);
         }
-        factors[sample] = computeMedian(normValuesPerSample) / librarySizes[sample];
+        factors[sample] = computeMedian(normValuesPerSample) /
+            librarySizes[sample];
     }
     factors           /= exp(factors.sum() / nSamples);
     librarySizesArray *= factors;
@@ -95,15 +99,20 @@ void rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
         sums           += iterator.getValuesDouble();
         normalizedSums += (iterator.getValuesDouble() / librarySizesArray);
     }
-    std::nth_element(std::begin(sums), std::begin(sums) + nSamples / 2, std::end(sums));
-    std::nth_element(std::begin(normalizedSums), std::begin(normalizedSums) + nSamples / 2, std::end(normalizedSums));
+    std::nth_element(std::begin(sums), std::begin(sums) + nSamples / 2,
+                     std::end(sums));
+    std::nth_element(std::begin(normalizedSums),
+                     std::begin(normalizedSums) + nSamples / 2,
+                     std::end(normalizedSums));
     double md     = sums[nSamples / 2];
     double mdNorm = normalizedSums[nSamples / 2];
     double fs     = sums[nSamples / 2] / normalizedSums[nSamples / 2];
     for (size_t chromosomeId = 0; chromosomeId < nChromosomes; ++chromosomeId) {
         for (size_t sampleId = 0; sampleId < nSamples; ++sampleId) {
             for (size_t i = 0; i < values[chromosomeId][sampleId].size(); ++i) {
-                values[chromosomeId][sampleId][i] = static_cast<unsigned int>(round(static_cast<double>(values[chromosomeId][sampleId][i]) * fs));
+                values[chromosomeId][sampleId][i] =
+                    static_cast<unsigned int>(round(static_cast<double>(
+                            values[chromosomeId][sampleId][i]) * fs));
             }
         }
     }
@@ -131,12 +140,13 @@ List rcpp_slice(ListOf < ListOf < IntegerVector > > &lengths,
     std::vector < Region > selectedRegions[nConditions];
     std::string chromosome;
     for (size_t chrId = 0; chrId < nChromosomes; ++chrId) {
-        chromosome = as < std::string >(as < CharacterVector> (chromosomeSizes.names())[chrId]);
+        chromosome = as < std::string >(as < CharacterVector> (
+            chromosomeSizes.names())[chrId]);
         for (int condition = 0; condition < nConditions; ++condition) {
             std::vector < Region > theseRegions;
-            size_t        nValues                         = lengths[condition][chrId].size();
-            unsigned long start                           = 1;
-						int           rLast = 0;
+            size_t        nValues = lengths[condition][chrId].size();
+            unsigned long start   = 1;
+            int           rLast   = 0;
             selectedRegions[condition].clear();
             for (size_t index = 0; index < nValues; ++index) {
                 unsigned long length    = lengths[condition][chrId][index];
@@ -160,13 +170,14 @@ List rcpp_slice(ListOf < ListOf < IntegerVector > > &lengths,
                 unsigned long size = region.getSize();
                 if ((minSize <= size) && (size <= maxSize)) {
                     unsigned long difference = minDifference + 1;
-										for (auto rit = selectedRegions[condition].rbegin(); rit != selectedRegions[condition].rend(); ++rit) {
-												unsigned long d = region.getDifference(*rit);
-												difference = std::min<unsigned long>(difference, d);
-												if (d > 10 * minDifference) {
-														break;
-												}
-										}
+                    for (auto rit = selectedRegions[condition].rbegin();
+                         rit != selectedRegions[condition].rend(); ++rit) {
+                        unsigned long d = region.getDifference(*rit);
+                        difference = std::min<unsigned long>(difference, d);
+                        if (d > 10 * minDifference) {
+                            break;
+                        }
+                    }
                     if (difference >= minDifference) {
                         selectedRegions[condition].push_back(region);
                     }
@@ -174,9 +185,12 @@ List rcpp_slice(ListOf < ListOf < IntegerVector > > &lengths,
             }
         }
         std::vector < Region > mergedRegions;
-        mergedRegions.reserve(selectedRegions[0].size() + selectedRegions[1].size());
-        std::vector < Region >::iterator its[2] = {selectedRegions[0].begin(), selectedRegions[1].begin()};
-        while ((its[0] != selectedRegions[0].end()) && (its[1] != selectedRegions[1].end())) {
+        mergedRegions.reserve(selectedRegions[0].size() +
+            selectedRegions[1].size());
+        std::vector < Region >::iterator its[2] =
+            {selectedRegions[0].begin(), selectedRegions[1].begin()};
+        while ((its[0] != selectedRegions[0].end()) &&
+               (its[1] != selectedRegions[1].end())) {
             unsigned int condition = (*its[0] < *its[1])? 0: 1;
             mergedRegions.push_back(*its[condition]);
             ++its[condition];

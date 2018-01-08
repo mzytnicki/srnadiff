@@ -102,12 +102,13 @@ setGeneric( name="setStrategies",
 #' @rdname  setStrategies-method
 #' @export
 setMethod(  f        ="setStrategies",
-            signature= c("sRNADiff", "logical", "logical", "logical", "logical"),
+            signature= c("sRNADiff", "logical", "logical", "logical",
+                            "logical"),
             definition=function(object, annotation, naive, hmm, slice) {
-								object@skipAnnotation <- ! annotation
-								object@skipNaive      <- ! naive
-								object@skipHmm        <- ! hmm
-								object@skipSlice      <- ! slice
+                                object@skipAnnotation <- ! annotation
+                                object@skipNaive      <- ! naive
+                                object@skipHmm        <- ! hmm
+                                object@skipSlice      <- ! slice
                 return(object)
             }
 )
@@ -137,8 +138,8 @@ setGeneric( name="setSizes",
 setMethod(  f        ="setSizes",
             signature= c("sRNADiff", "numeric", "numeric"),
             definition=function(object, minSize, maxSize) {
-								object@minSize <- minSize
-								object@maxSize <- maxSize
+                                object@minSize <- minSize
+                                object@maxSize <- maxSize
                 return(object)
             }
 )
@@ -166,7 +167,7 @@ setGeneric( name="setMinDepth",
 setMethod(  f        ="setMinDepth",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, depth) {
-								object@minDepth <- depth
+                                object@minDepth <- depth
                 return(object)
             }
 )
@@ -194,7 +195,7 @@ setGeneric( name="setMergeDistance",
 setMethod(  f        ="setMergeDistance",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, distance) {
-								object@mergeDistance <- distance
+                                object@mergeDistance <- distance
                 return(object)
             }
 )
@@ -222,7 +223,7 @@ setGeneric( name="setMinDifferences",
 setMethod(  f        ="setMinDifferences",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, differences) {
-								object@minDifferences <- differences
+                                object@minDifferences <- differences
                 return(object)
             }
 )
@@ -231,8 +232,12 @@ setMethod(  f        ="setMinDifferences",
 #' Set transition probabilities (for the HMM step).
 #' @rdname setTransitionProbabilities-method
 #' @param  object       An \code{srnadiff} object.
-#' @param  noDiffToDiff probability to change from the "not-differentially expressed" state to the "differentially expressed" state
-#' @param  diffToNoDiff probability to change from the "differentially expressed" state to the "not-differentially expressed" state
+#' @param  noDiffToDiff probability to change from the "not-differentially
+#'                        expressed" state to the "differentially expressed"
+#'                        state
+#' @param  diffToNoDiff probability to change from the "differentially
+#'                        expressed" state to the "not-differentially expressed"
+#'                        state
 #' @return         The same object
 #'
 #' @examples
@@ -251,14 +256,17 @@ setGeneric( name="setTransitionProbabilities",
 setMethod(  f        ="setTransitionProbabilities",
             signature= c("sRNADiff", "numeric", "numeric"),
             definition=function(object, noDiffToDiff, diffToNoDiff) {
-								object@noDiffToDiff <- noDiffToDiff
-								object@diffToNoDiff <- diffToNoDiff
+                                object@noDiffToDiff <- noDiffToDiff
+                                object@diffToNoDiff <- diffToNoDiff
                 return(object)
             }
 )
 
 
-#' Set emission probabilities (for the HMM step): probability to have a p-value not less than a threshold in the "not-differentially expressed" state, and a p-value not greater than this threshold in the "differentially expressed" state (supposed equal).
+#' Set emission probabilities (for the HMM step): probability to have a p-value
+#'    not less than a threshold in the "not-differentially expressed" state,
+#'    and a p-value not greater than this threshold in the "differentially
+#'    expressed" state (supposed equal).
 #' @rdname setEmissionProbabilities-method
 #' @param  object       An \code{srnadiff} object.
 #' @param  probability  The emission probability
@@ -280,17 +288,20 @@ setGeneric( name="setEmissionProbabilities",
 setMethod(  f        ="setEmissionProbabilities",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, probability) {
-								object@emission <- probability
+                                object@emission <- probability
                 return(object)
             }
 )
 
 
-#' Set emission threshold (for the HMM step): the emission distribution being binomial, all the p-values less than this threshold belong to one class, and all the p-values greater than this threshold belong to the other class.
+#' Set emission threshold (for the HMM step): the emission distribution being
+#'    binomial, all the p-values less than this threshold belong to one class,
+#'    and all the p-values greater than this threshold belong to the
+#'    other class.
 #' @rdname setEmissionThreshold-method
-#' @param  object       An \code{srnadiff} object.
-#' @param  probability  The emission threshold
-#' @return              The same object
+#' @param  object    An \code{srnadiff} object.
+#' @param  threshold The emission threshold
+#' @return           The same object
 #'
 #' @examples
 #' exp <- sRNADiffExample()
@@ -308,7 +319,7 @@ setGeneric( name="setEmissionThreshold",
 setMethod(  f        ="setEmissionThreshold",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, threshold) {
-								object@emissionThreshold <- threshold
+                                object@emissionThreshold <- threshold
                 return(object)
             }
 )
@@ -359,21 +370,24 @@ runAll <- function(object) {
     setNaive      <- runAllNaive(object)
     setHmm        <- runAllHmm(object)
     setSlice      <- runAllSlice(object)
-    allSets       <- unique(sort(do.call("c", list(setAnnotation, setNaive, setHmm, setSlice))))
+    allSets       <- unique(sort(do.call("c", list(setAnnotation, setNaive,
+                                                    setHmm, setSlice))))
     message("Computing differential expression...")
     allSetsDT           <- as.data.frame(allSets)
     names(allSetsDT)    <- c("Chr", "Start", "End", "Width", "Strand")
     allSetsDT$GeneId    <- names(allSets)
     counts <- suppressMessages(featureCounts(object@bamFileNames,
-                                annot.ext=allSetsDT,
-                                allowMultiOverlap=TRUE,
-                                countMultiMappingReads=TRUE,
-                                fracOverlap=0.5))
+                                                annot.ext=allSetsDT,
+                                                allowMultiOverlap=TRUE,
+                                                countMultiMappingReads=TRUE,
+                                                fracOverlap=0.5))
     counts           <- as.data.frame(counts$counts)
-    rownames(counts) <- paste(seqnames(allSets), start(allSets), end(allSets), names(allSets), sep="_")
+    rownames(counts) <- paste(seqnames(allSets), start(allSets),
+                                end(allSets), names(allSets), sep="_")
     colnames(counts) <- object@replicates
     dds              <- DESeqDataSetFromMatrix( countData=counts,
-																								colData  =object@design, design   =~condition)
+                                                colData  =object@design,
+                                                design   =~condition)
     names(dds)       <- names(allSets)
     dds              <- dds[rowSums(counts(dds)) > 1, ]
     dds              <- DESeq(dds)
@@ -388,21 +402,27 @@ runAll <- function(object) {
     overlaps         <- overlaps[queryHits(overlaps) != subjectHits(overlaps)]
     from             <- queryHits(overlaps)
     to               <- subjectHits(overlaps)
-		dominance        <- padj[from] < padj[to] | (padj[from] == padj[to] & sizes[from] < sizes[to]) | (padj[from] == padj[to] & sizes[from] == sizes[to] & from < to)
-		toBeRemoved      <- c()
-		while (TRUE) {
-				dominated   <- table(to[dominance])
-				dominator   <- table(from[dominance])
-				both        <- intersect(names(dominated), names(dominator))
-				if (length(both) == 0) break
-				toBeRemoved <- union(toBeRemoved, intersect(both, names(dominated[dominated == min(dominated[both])])))
-				dominance[(queryHits(overlaps) %in% toBeRemoved | subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
-				again <- length(toBeRemoved) > 0
-		}
-		toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
-		regions        <- regions[- toBeRemoved]
+    dominance        <- padj[from] < padj[to] |
+                            (padj[from] == padj[to] & sizes[from] < sizes[to]) |
+                            (padj[from] == padj[to] & sizes[from] == sizes[to]
+                                & from < to)
+    toBeRemoved      <- c()
+    while (TRUE) {
+        dominated   <- table(to[dominance])
+        dominator   <- table(from[dominance])
+        both        <- intersect(names(dominated), names(dominator))
+        if (length(both) == 0) break
+        toBeRemoved <- union(toBeRemoved,
+                                intersect(both,names(dominated[dominated ==
+                                        min(dominated[both])])))
+        dominance[(queryHits(overlaps) %in% toBeRemoved |
+                    subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
+        again <- length(toBeRemoved) > 0
+    }
+    toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
+    regions        <- regions[- toBeRemoved]
     names(regions) <- paste0(seqnames(regions), "_", start(regions),
-                                                            "_", end(regions))
+                                "_", end(regions))
     object@regions <- regions
     message("... done.")
     return(object)

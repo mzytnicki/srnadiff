@@ -14,9 +14,13 @@ setTransitionProbabilities(object, noDiffToDiff, diffToNoDiff)
 \arguments{
 \item{object}{An \code{srnadiff} object.}
 
-\item{noDiffToDiff}{probability to change from the "not-differentially expressed" state to the "differentially expressed" state}
+\item{noDiffToDiff}{probability to change from the "not-differentially
+expressed" state to the "differentially expressed"
+state}
 
-\item{diffToNoDiff}{probability to change from the "differentially expressed" state to the "not-differentially expressed" state}
+\item{diffToNoDiff}{probability to change from the "differentially
+expressed" state to the "not-differentially expressed"
+state}
 }
 \value{
 The same object

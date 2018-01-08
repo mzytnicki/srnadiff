@@ -17,26 +17,28 @@ using namespace Rcpp;
 //' @return                 the unique counts
 // [[Rcpp::export]]
 IntegerMatrix rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
-                   ListOf < ListOf < IntegerVector > > &values,
-                   IntegerVector &chromosomeSizes, int minDepth) {
+                            ListOf < ListOf < IntegerVector > > &values,
+                            IntegerVector &chromosomeSizes, int minDepth) {
     std::vector < std::vector < unsigned int > > outputValues;
     std::vector < std::vector < unsigned int > >::iterator it;
-    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ; iterator.getNext()) {
-                if (iterator.hasChangedChromosome() || iterator.isOver()) {
-                        sort(outputValues.begin(), outputValues.end());
-                        auto it = std::unique(outputValues.begin(), outputValues.end());
-                        outputValues.resize(std::distance(outputValues.begin(), it));
-                        if (iterator.isOver()) {
-                                IntegerMatrix matrix(outputValues.size(), lengths[0].size());
-                                for (size_t i = 0; i < outputValues.size(); ++i) {
-                                        matrix.row(i) = IntegerVector(outputValues[i].begin(), outputValues[i].end());
-                                }
-                                return matrix;
-                        }
+    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
+         iterator.getNext()) {
+        if (iterator.hasChangedChromosome() || iterator.isOver()) {
+            sort(outputValues.begin(), outputValues.end());
+            auto it = std::unique(outputValues.begin(), outputValues.end());
+            outputValues.resize(std::distance(outputValues.begin(), it));
+            if (iterator.isOver()) {
+                IntegerMatrix matrix(outputValues.size(), lengths[0].size());
+                for (size_t i = 0; i < outputValues.size(); ++i) {
+                    matrix.row(i) = IntegerVector(outputValues[i].begin(),
+                               outputValues[i].end());
                 }
-                if (iterator.getValues().max() >= minDepth) {
-                        outputValues.push_back(iterator.getValuesVector());
-                }
+                return matrix;
+            }
+        }
+        if (iterator.getValues().max() >= minDepth) {
+            outputValues.push_back(iterator.getValuesVector());
+        }
     }
 }
 
@@ -64,7 +66,8 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
                        IntegerVector &counts,
                        NumericVector &pvalues,
                        ListOf < ListOf < IntegerVector > > &lengths,
-                       ListOf < ListOf < IntegerVector > > &values, int minDepth, int minSize, int maxSize) {
+                       ListOf < ListOf < IntegerVector > > &values,
+                       int minDepth, int minSize, int maxSize) {
     static const unsigned int NO_DIFF_CLASS = 0;
     static const unsigned int DIFF_CLASS    = 1;
     static const unsigned int N_CLASSES     = 2;
@@ -88,15 +91,19 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         }
         pvalueMap[row] = pvalues[i];
     }
-    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ; iterator.getNext(step)) {
+    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
+         iterator.getNext(step)) {
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
-            unsigned int chromosomeId   = iterator.getChromosomeId()-1;
-            unsigned int chromosomeSize = chromosomeSizes[chromosomeId];
-            unsigned int currentState = (currentP[NO_DIFF_CLASS] <= currentP[DIFF_CLASS])? NO_DIFF_CLASS: DIFF_CLASS;
+            unsigned int chromosomeId     = iterator.getChromosomeId()-1;
+            unsigned int chromosomeSize   = chromosomeSizes[chromosomeId];
+            unsigned int currentState     = (currentP[NO_DIFF_CLASS] <=
+                                             currentP[DIFF_CLASS])?
+                                             NO_DIFF_CLASS: DIFF_CLASS;
             unsigned int pos, previousPos = chromosomeSize+1;
             bool inDiff = (currentState == DIFF_CLASS);
             std::vector < unsigned int > diffStarts, diffEnds;
-            std::string chromosome = as < std::string >(as< CharacterVector >(chromosomeSizes.names()) [chromosomeId]);
+            std::string chromosome = as < std::string >(as< CharacterVector >(
+                chromosomeSizes.names()) [chromosomeId]);
             if (inDiff) {
                 diffEnds.push_back(chromosomeSize);
             }
@@ -137,8 +144,8 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
             }
             if (iterator.isOver()) {
                 return DataFrame::create(_["seqnames"] = allDiffChromosomes,
-                                                                     _["start"] = allDiffStarts ,
-                                                                     _["end"] = allDiffEnds);
+                                         _["start"] = allDiffStarts,
+                                         _["end"] = allDiffEnds);
             }
             valueChange = true;
             previousP   = startsArray;
@@ -157,8 +164,11 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         currentP[NO_DIFF_CLASS] = currentP[DIFF_CLASS] = INFINITY;
         for (unsigned int pc = 0; pc < N_CLASSES; ++pc) {
             for (unsigned int nc = 0; nc < N_CLASSES; ++nc) {
-                unsigned int pvalueIndex = (nc == NO_DIFF_CLASS)? ((pvalue <= emissionThreshold)? 0: 1): ((pvalue <= emissionThreshold)? 0: 1);
-                double                 p = emissions(nc, pvalueIndex) + transitions(pc, nc) + previousP[pc];
+                unsigned int pvalueIndex = (nc == NO_DIFF_CLASS)?
+                    ((pvalue <= emissionThreshold)? 0: 1):
+                     ((pvalue <= emissionThreshold)? 0: 1);
+                double p = emissions(nc, pvalueIndex) + transitions(pc, nc) +
+                    previousP[pc];
                 if (p < currentP[nc]) {
                     previousState[nc] = pc;
                     currentP[nc]      = p;
@@ -172,7 +182,10 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
             statePos.push_back(iterator.getPosition());
             previousStates.push_back(previousState);
         }
-        else if (previousState[NO_DIFF_CLASS] == NO_DIFF_CLASS && previousState[DIFF_CLASS] == NO_DIFF_CLASS && pvalue == 1.0 && currentP[NO_DIFF_CLASS] < currentP[DIFF_CLASS]) {
+        else if (previousState[NO_DIFF_CLASS] == NO_DIFF_CLASS &&
+                 previousState[DIFF_CLASS] == NO_DIFF_CLASS &&
+                 pvalue == 1.0 &&
+                 currentP[NO_DIFF_CLASS] < currentP[DIFF_CLASS]) {
             step = 0;
         }
     }
