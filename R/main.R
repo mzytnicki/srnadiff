@@ -258,7 +258,7 @@ setMethod(  f        ="setTransitionProbabilities",
 )
 
 
-#' Set emission probabilities (for the HMM step): probability to have a p-value not less than 0.5 in the "not-differentially expressed" state, and a p-value not greater than 0.5 in the "differentially expressed" state (supposed equal).
+#' Set emission probabilities (for the HMM step): probability to have a p-value not less than a threshold in the "not-differentially expressed" state, and a p-value not greater than this threshold in the "differentially expressed" state (supposed equal).
 #' @rdname setEmissionProbabilities-method
 #' @param  object       An \code{srnadiff} object.
 #' @param  probability  The emission probability
@@ -281,6 +281,34 @@ setMethod(  f        ="setEmissionProbabilities",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, probability) {
 								object@emission <- probability
+                return(object)
+            }
+)
+
+
+#' Set emission threshold (for the HMM step): the emission distribution being binomial, all the p-values less than this threshold belong to one class, and all the p-values greater than this threshold belong to the other class.
+#' @rdname setEmissionThreshold-method
+#' @param  object       An \code{srnadiff} object.
+#' @param  probability  The emission threshold
+#' @return              The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setEmissionThreshold(exp, 0.1)
+#'
+#' @export
+setGeneric( name="setEmissionThreshold",
+            def =function(object, threshold) {
+                standardGeneric("setEmissionThreshold")
+            }
+)
+
+#' @rdname  setEmissionThreshold-method
+#' @export
+setMethod(  f        ="setEmissionThreshold",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, threshold) {
+								object@emissionThreshold <- threshold
                 return(object)
             }
 )
@@ -339,37 +367,40 @@ runAll <- function(object) {
     counts <- suppressMessages(featureCounts(object@bamFileNames,
                                 annot.ext=allSetsDT,
                                 allowMultiOverlap=TRUE,
-                                countMultiMappingReads=TRUE))
-    counts              <- as.data.frame(counts$counts)
-    rownames(counts)    <- paste(seqnames(allSets), start(allSets), end(allSets), names(allSets), sep="_")
-    #rownames(counts)    <- names(allSets)
-    colnames(counts)    <- object@replicates
-    dds                 <- DESeqDataSetFromMatrix(  countData=counts,
-                                                    colData  =object@design,
-                                                    design   =~condition)
-    names(dds)          <- names(allSets)
-    dds                 <- dds[rowSums(counts(dds)) > 1, ]
-    dds                 <- DESeq(dds)
-    regions             <- allSets[names(allSets) %in% names(dds),]
-    mcols(regions)      <- results(dds)
-    padj                <- mcols(regions)$padj
-    regions             <- regions[! is.na(padj)]
-    dds                 <- dds[! is.na(padj)]
-    padj                <- padj[! is.na(padj)]
-    sizes               <- width(regions)
-    overlaps            <- findOverlaps(regions, regions)
-    from                <- queryHits(overlaps)
-    to                  <- subjectHits(overlaps)
-    overlaps            <- overlaps[from != to]
-    if (length(overlaps) > 0) {
-        dominance <- padj[from] < padj[to] |
-            (padj[from] == padj[to] &
-                sizes[from] < sizes[to]) |
-            (padj[from] == padj[to] &
-                sizes[from] == sizes[to] &
-                from < to)
-        regions   <- regions[-to[dominance]]
-    }
+                                countMultiMappingReads=TRUE,
+                                fracOverlap=0.5))
+    counts           <- as.data.frame(counts$counts)
+    rownames(counts) <- paste(seqnames(allSets), start(allSets), end(allSets), names(allSets), sep="_")
+    colnames(counts) <- object@replicates
+    dds              <- DESeqDataSetFromMatrix( countData=counts,
+																								colData  =object@design, design   =~condition)
+    names(dds)       <- names(allSets)
+    dds              <- dds[rowSums(counts(dds)) > 1, ]
+    dds              <- DESeq(dds)
+    regions          <- allSets[names(allSets) %in% names(dds),]
+    mcols(regions)   <- results(dds)
+    padj             <- mcols(regions)$padj
+    regions          <- regions[! is.na(padj)]
+    dds              <- dds[! is.na(padj)]
+    padj             <- padj[! is.na(padj)]
+    sizes            <- width(regions)
+    overlaps         <- findOverlaps(regions, regions)
+    overlaps         <- overlaps[queryHits(overlaps) != subjectHits(overlaps)]
+    from             <- queryHits(overlaps)
+    to               <- subjectHits(overlaps)
+		dominance        <- padj[from] < padj[to] | (padj[from] == padj[to] & sizes[from] < sizes[to]) | (padj[from] == padj[to] & sizes[from] == sizes[to] & from < to)
+		toBeRemoved      <- c()
+		while (TRUE) {
+				dominated   <- table(to[dominance])
+				dominator   <- table(from[dominance])
+				both        <- intersect(names(dominated), names(dominator))
+				if (length(both) == 0) break
+				toBeRemoved <- union(toBeRemoved, intersect(both, names(dominated[dominated == min(dominated[both])])))
+				dominance[(queryHits(overlaps) %in% toBeRemoved | subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
+				again <- length(toBeRemoved) > 0
+		}
+		toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
+		regions        <- regions[- toBeRemoved]
     names(regions) <- paste0(seqnames(regions), "_", start(regions),
                                                             "_", end(regions))
     object@regions <- regions

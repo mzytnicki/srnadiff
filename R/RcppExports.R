@@ -14,20 +14,21 @@ rcpp_buildHmm <- function(lengths, values, chromosomeSizes, minDepth) {
 
 #' Run the Viterbi algorithm on the HMM.
 #'
-#' @param chromosomeSizes  the sizes of the chromosomes
-#' @param transitions      the transition log-probabilities
-#' @param emissions        the emission log-probabilities
-#' @param starts           the start log-probabilities
-#' @param counts           the unique counts
-#' @param pvalues          the p-values of the counts
-#' @param lengths          the sizes of the RLEs (one list per chromosome)
-#' @param values           the values of the RLEs (one list per chromosome)
-#' @param minDepth         the minimum read coverage
-#' @param minSize          the minimum size region
-#' @param maxSize          the maximum size region
-#' @return                 a segmentation of the chromosomes
+#' @param chromosomeSizes   the sizes of the chromosomes
+#' @param transitions       the transition log-probabilities
+#' @param emissions         the emission log-probabilities
+#' @param emissionThreshold the emission threshold
+#' @param starts            the start log-probabilities
+#' @param counts            the unique counts
+#' @param pvalues           the p-values of the counts
+#' @param lengths           the sizes of the RLEs (one list per chromosome)
+#' @param values            the values of the RLEs (one list per chromosome)
+#' @param minDepth          the minimum read coverage
+#' @param minSize           the minimum size region
+#' @param maxSize           the maximum size region
+#' @return                  a segmentation of the chromosomes
 rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize) {
-    .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize)
+    .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, emissionThreshold, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize)
 }
 
 #' Compute naive method.

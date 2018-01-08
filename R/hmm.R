@@ -39,12 +39,13 @@ runHmm <- function(object, counts, pvalues) {
     transitions       <- -log10(transitions / rowSums(transitions))
     emissions         <- t(matrix(data=c(1 - object@emission, object@emission, object@emission, 1 - object@emission), ncol=2))
     emissions         <- -log10(emissions / rowSums(emissions))
-    starts            <- c(object@diffToNoDiff / object@noDiffToDiff,
-                            object@noDiffToDiff / object@diffToNoDiff)
+    starts            <- c(object@noDiffToDiff / object@diffToNoDiff,
+                            object@diffToNoDiff / object@noDiffToDiff)
     starts            <- -log10(starts / sum(starts))
     ranges            <- rcpp_viterbi(object@chromosomeSizes, transitions,
-                                        emissions, starts, counts, pvalues,
+                                        emissions, object@emissionThreshold, starts, counts, pvalues,
                                         object@lengths, object@values, object@minDepth, object@minSize, object@maxSize)
+		if (nrow(ranges) == 0) return(GRanges())
     return(GRanges(ranges))
 }
 
@@ -66,8 +67,9 @@ runAllHmm <- function(object) {
     message("  Running HMM...")
     intervals <- runHmm(object, counts, pvalues)
     message("  ... HMM run.")
-    names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
+    if (length(intervals) > 0) names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
     message(paste0(c("  ... ", length(intervals), " regions found.")))
     message("... HMM step done.")
+message(paste0(intervals, sep="\n"))
     return(intervals)
 }

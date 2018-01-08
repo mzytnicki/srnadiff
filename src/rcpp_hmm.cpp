@@ -42,22 +42,24 @@ IntegerMatrix rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
 
 //' Run the Viterbi algorithm on the HMM.
 //'
-//' @param chromosomeSizes  the sizes of the chromosomes
-//' @param transitions      the transition log-probabilities
-//' @param emissions        the emission log-probabilities
-//' @param starts           the start log-probabilities
-//' @param counts           the unique counts
-//' @param pvalues          the p-values of the counts
-//' @param lengths          the sizes of the RLEs (one list per chromosome)
-//' @param values           the values of the RLEs (one list per chromosome)
-//' @param minDepth         the minimum read coverage
-//' @param minSize          the minimum size region
-//' @param maxSize          the maximum size region
-//' @return                 a segmentation of the chromosomes
+//' @param chromosomeSizes   the sizes of the chromosomes
+//' @param transitions       the transition log-probabilities
+//' @param emissions         the emission log-probabilities
+//' @param emissionThreshold the emission threshold
+//' @param starts            the start log-probabilities
+//' @param counts            the unique counts
+//' @param pvalues           the p-values of the counts
+//' @param lengths           the sizes of the RLEs (one list per chromosome)
+//' @param values            the values of the RLEs (one list per chromosome)
+//' @param minDepth          the minimum read coverage
+//' @param minSize           the minimum size region
+//' @param maxSize           the maximum size region
+//' @return                  a segmentation of the chromosomes
 // [[Rcpp::export]]
 DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
                        NumericMatrix &transitions,
                        NumericMatrix &emissions,
+                       float         emissionThreshold,
                        NumericVector &starts,
                        IntegerVector &counts,
                        NumericVector &pvalues,
@@ -90,12 +92,11 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
             unsigned int chromosomeId   = iterator.getChromosomeId()-1;
             unsigned int chromosomeSize = chromosomeSizes[chromosomeId];
-            unsigned int currentState = (currentP[NO_DIFF_CLASS] <= currentP[DIFF_CLASS])?  NO_DIFF_CLASS: DIFF_CLASS;
+            unsigned int currentState = (currentP[NO_DIFF_CLASS] <= currentP[DIFF_CLASS])? NO_DIFF_CLASS: DIFF_CLASS;
             unsigned int pos, previousPos = chromosomeSize+1;
             bool inDiff = (currentState == DIFF_CLASS);
             std::vector < unsigned int > diffStarts, diffEnds;
             std::string chromosome = as < std::string >(as< CharacterVector >(chromosomeSizes.names()) [chromosomeId]);
-            Rcout << "\t\t" << "Chromosome '" << chromosome << "' done." << "\n";
             if (inDiff) {
                 diffEnds.push_back(chromosomeSize);
             }
@@ -124,12 +125,14 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
             }
             std::reverse(diffStarts.begin(), diffStarts.end());
             std::reverse(diffEnds.begin(), diffEnds.end());
+						unsigned int cpt = 0;
             for (size_t i = 0; i < diffStarts.size(); ++i) {
                 unsigned int size = diffEnds[i] - diffStarts[i] + 1;
                 if ((minSize <= size) && (size <= maxSize)) {
                     allDiffStarts.push_back(diffStarts[i]);
                     allDiffEnds.push_back(diffEnds[i]);
                     allDiffChromosomes.push_back(chromosome);
+										++cpt;
                 }
             }
             if (iterator.isOver()) {
@@ -154,7 +157,7 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         currentP[NO_DIFF_CLASS] = currentP[DIFF_CLASS] = INFINITY;
         for (unsigned int pc = 0; pc < N_CLASSES; ++pc) {
             for (unsigned int nc = 0; nc < N_CLASSES; ++nc) {
-                unsigned int pvalueIndex = (nc == NO_DIFF_CLASS)?  ((pvalue <= 0.85)? 0: 1): ((pvalue <= 0.15)? 0: 1);
+                unsigned int pvalueIndex = (nc == NO_DIFF_CLASS)? ((pvalue <= emissionThreshold)? 0: 1): ((pvalue <= emissionThreshold)? 0: 1);
                 double                 p = emissions(nc, pvalueIndex) + transitions(pc, nc) + previousP[pc];
                 if (p < currentP[nc]) {
                     previousState[nc] = pc;

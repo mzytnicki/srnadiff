@@ -1,58 +1,60 @@
 #' An S4 class to represent sRNA-Seq data for differential expression.
 #'
-#' @slot annotation      The annotation in GRanges format.
-#' @slot bamFileNames    The name of one read file in BAM format.
-#' @slot bamFiles        The BAM files in a \code{BamFileList}.
-#' @slot chromosomes     The names of the chromosomes.
-#' @slot chromosomeSizes The sizes of the chromosomes.
-#' @slot replicates      The names of the replicates.
-#' @slot conditions      The condition to which each replicate belongs.
-#' @slot coverages       The coverages, a vector of \code{RLE}.
-#' @slot lengths         The lengths parts of the coverages.
-#' @slot values          The values parts of the coverages.
-#' @slot design          Experimental design, a \code{DataFrame} for
+#' @slot annotation        The annotation in GRanges format.
+#' @slot bamFileNames      The name of one read file in BAM format.
+#' @slot bamFiles          The BAM files in a \code{BamFileList}.
+#' @slot chromosomes       The names of the chromosomes.
+#' @slot chromosomeSizes   The sizes of the chromosomes.
+#' @slot replicates        The names of the replicates.
+#' @slot conditions        The condition to which each replicate belongs.
+#' @slot coverages         The coverages, a vector of \code{RLE}.
+#' @slot lengths           The lengths parts of the coverages.
+#' @slot values            The values parts of the coverages.
+#' @slot design            Experimental design, a \code{DataFrame} for
 #'                           \code{DESeq2}
-#' @slot regions         A \code{GenomicRanges} of the possibly differentially expressed region
-#' @slot minDepth        Minimum depth to consider to find regions
-#' @slot minSize         Minimum region size
-#' @slot maxSize         Maximum region size
-#' @slot mergeDistance   Distance to merge consecutive region
-#' @slot minDifferences  Minimum number of different nt between two regions
-#' @slot noDiffToDiff    Transition probability
-#' @slot diffToNoDiff    Transition probability
-#' @slot emission        Emission probability
-#' @slot skipAnnotation  Whether to skip the annotation strategy step
-#' @slot skipNaive       Whether to skip the naive strategy step
-#' @slot skipHmm         Whether to skip the HMM strategy step
-#' @slot skipSlice       Whether to skip the slice strategy step
-#' @slot nThreads        Number of threads
+#' @slot regions           A \code{GenomicRanges} of the possibly differentially expressed region
+#' @slot minDepth          Minimum depth to consider to find regions
+#' @slot minSize           Minimum region size
+#' @slot maxSize           Maximum region size
+#' @slot mergeDistance     Distance to merge consecutive region
+#' @slot minDifferences    Minimum number of different nt between two regions
+#' @slot noDiffToDiff      Transition probability
+#' @slot diffToNoDiff      Transition probability
+#' @slot emission          Emission probability
+#' @slot emissionThreshold Emission threshold
+#' @slot skipAnnotation    Whether to skip the annotation strategy step
+#' @slot skipNaive         Whether to skip the naive strategy step
+#' @slot skipHmm           Whether to skip the HMM strategy step
+#' @slot skipSlice         Whether to skip the slice strategy step
+#' @slot nThreads          Number of threads
 setClass("sRNADiff",
             representation(
-                annotation     ="GRanges",
-                bamFileNames   ="vector",
-                bamFiles       ="BamFileList",
-                chromosomes    ="vector",
-                chromosomeSizes="vector",
-                replicates     ="vector",
-                conditions     ="vector",
-                coverages      ="vector",
-                lengths        ="list",
-                values         ="list",
-                design         ="DataFrame",
-                regions        ="GRanges",
-                minDepth       ="numeric",
-                minSize        ="numeric",
-                maxSize        ="numeric",
-                mergeDistance  ="numeric",
-                minDifferences ="numeric",
-                noDiffToDiff   ="numeric",
-                diffToNoDiff   ="numeric",
-                emission       ="numeric",
-                skipAnnotation ="logical",
-                skipNaive      ="logical",
-                skipHmm        ="logical",
-                skipSlice      ="logical",
-                nThreads       ="numeric"),
+                annotation       ="GRanges",
+                bamFileNames     ="vector",
+                bamFiles         ="BamFileList",
+                chromosomes      ="vector",
+                chromosomeSizes  ="vector",
+                replicates       ="vector",
+                conditions       ="vector",
+                coverages        ="vector",
+                lengths          ="list",
+                values           ="list",
+                design           ="DataFrame",
+                regions          ="GRanges",
+                minDepth         ="numeric",
+                minSize          ="numeric",
+                maxSize          ="numeric",
+                mergeDistance    ="numeric",
+                minDifferences   ="numeric",
+                noDiffToDiff     ="numeric",
+                diffToNoDiff     ="numeric",
+                emission         ="numeric",
+                emissionThreshold="numeric",
+                skipAnnotation   ="logical",
+                skipNaive        ="logical",
+                skipHmm          ="logical",
+                skipSlice        ="logical",
+                nThreads         ="numeric"),
             prototype(
                 bamFileNames=c(),
                 replicates  =c(),
@@ -94,28 +96,29 @@ sRNADiffExp <- function(annotation=NULL,
         annotation <- GRanges()
     }
     object <- new("sRNADiff",
-                    annotation     =annotation,
-                    bamFileNames   =bamFileNames,
-                    bamFiles       =bamFiles,
-                    replicates     =replicates,
-                    conditions     =conditions,
-                    design         =DataFrame(condition=conditions),
-                    chromosomes    =seqlevels(bamFiles[[1]]),
-                    chromosomeSizes=seqlengths(bamFiles[[1]]),
-                    coverages      =sapply(bamFiles, coverage),
-                    skipAnnotation =FALSE,
-                    skipNaive      =FALSE,
-                    skipHmm        =FALSE,
-                    skipSlice      =FALSE,
-                    minDepth       =10,
-                    minSize        =18,
-                    maxSize        =1000000,
-                    mergeDistance  =100,
-                    minDifferences =100,
-                    noDiffToDiff   =0.001,
-                    diffToNoDiff   =0.000001,
-                    emission       =0.9,
-                    nThreads       =1
+                    annotation       =annotation,
+                    bamFileNames     =bamFileNames,
+                    bamFiles         =bamFiles,
+                    replicates       =replicates,
+                    conditions       =conditions,
+                    design           =DataFrame(condition=conditions),
+                    chromosomes      =seqlevels(bamFiles[[1]]),
+                    chromosomeSizes  =seqlengths(bamFiles[[1]]),
+                    coverages        =sapply(bamFiles, coverage),
+                    skipAnnotation   =FALSE,
+                    skipNaive        =FALSE,
+                    skipHmm          =FALSE,
+                    skipSlice        =FALSE,
+                    minDepth         =10,
+                    minSize          =18,
+                    maxSize          =1000000,
+                    mergeDistance    =100,
+                    minDifferences   =20,
+                    noDiffToDiff     =0.001,
+                    diffToNoDiff     =0.000001,
+                    emission         =0.9,
+                    emissionThreshold=0.1,
+                    nThreads         =1
     )
     object@lengths <- lapply(object@chromosomes, function(chromosome)
         lapply(lapply(object@coverages, `[[`, chromosome), slot, "lengths"))

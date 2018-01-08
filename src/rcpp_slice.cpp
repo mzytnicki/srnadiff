@@ -79,7 +79,6 @@ void rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
         if (theseValues.min() > 1) {
             theseValues /= exp(log(theseValues).sum() / nSamples);
             normValues.emplace_back(theseValues, iterator.getStep());
-            //normValues.emplace_back(tmpValues, iterator.getStep());
         }
     }
     for (size_t sample = 0; sample < nSamples; ++sample) {
@@ -135,29 +134,41 @@ List rcpp_slice(ListOf < ListOf < IntegerVector > > &lengths,
         chromosome = as < std::string >(as < CharacterVector> (chromosomeSizes.names())[chrId]);
         for (int condition = 0; condition < nConditions; ++condition) {
             std::vector < Region > theseRegions;
-            size_t        nValues = lengths[condition][chrId].size();
-            unsigned long start   = 1;
+            size_t        nValues                         = lengths[condition][chrId].size();
+            unsigned long start                           = 1;
+						int           rLast = 0;
             selectedRegions[condition].clear();
             for (size_t index = 0; index < nValues; ++index) {
-                unsigned long length = lengths[condition][chrId][index];
-                unsigned long value  = values[condition][chrId][index];
-                unsigned long end    = start + length - 1;
-                for (std::vector< Region >::reverse_iterator rit = theseRegions.rbegin(); (rit != theseRegions.rend()) && (rit->end == start - 1) && (rit->value < value); ++rit) {
-                    rit->end = end;
+                unsigned long length    = lengths[condition][chrId][index];
+                unsigned long value     = values[condition][chrId][index];
+                unsigned long end       = start + length - 1;
+								int           nextRLast = theseRegions.size();
+                for (int rit = theseRegions.size()-1; rit >= rLast; --rit) {
+										Region &region = theseRegions[rit];
+                    if ((region.end == start - 1) && (region.value <= value)) {
+                        region.end = end;
+												nextRLast = rit;
+                    }
                 }
+								rLast = nextRLast;
                 if (value >= minDepth) {
                     theseRegions.emplace_back(start, end, value);
                 }
                 start = end + 1;
             }
-            bool first = true;
             for (Region &region: theseRegions) {
                 unsigned long size = region.getSize();
                 if ((minSize <= size) && (size <= maxSize)) {
-                    unsigned long difference = (first) ? minDifference + 1 : region.getDifference(selectedRegions[condition].back());
+                    unsigned long difference = minDifference + 1;
+										for (auto rit = selectedRegions[condition].rbegin(); rit != selectedRegions[condition].rend(); ++rit) {
+												unsigned long d = region.getDifference(*rit);
+												difference = std::min<unsigned long>(difference, d);
+												if (d > 10 * minDifference) {
+														break;
+												}
+										}
                     if (difference >= minDifference) {
                         selectedRegions[condition].push_back(region);
-                        first = false;
                     }
                 }
             }
@@ -173,7 +184,7 @@ List rcpp_slice(ListOf < ListOf < IntegerVector > > &lengths,
         for (int condition = 0; condition < nConditions; ++condition) {
             while (its[condition] != selectedRegions[condition].end()) {
                 mergedRegions.push_back(*its[condition]);
-		++its[condition];
+								++its[condition];
             }
         }
         Region previousRegion;
