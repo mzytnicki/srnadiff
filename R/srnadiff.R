@@ -9,6 +9,8 @@
 #' @author Matthias Zytnicki, \email{matthias.zytnicki@@inra.fr}
 #'
 #' @import methods
+#' @import devtools
+#' @import BiocStyle
 #' @importFrom utils read.csv
 #' @import S4Vectors
 #' @import GenomeInfoDb

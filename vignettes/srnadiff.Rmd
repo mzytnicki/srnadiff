@@ -1,13 +1,24 @@
 ---
 title: "The sRNADiff package"
 author: "Matthias Zytnicki"
-date: "`r Sys.Date()`"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('srnadiff')`"
 output: rmarkdown::html_vignette
+bibliography: references.bib
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+```{r setup_knitr, include = FALSE, cache = FALSE}
+library("srnadiff")
+library("BiocStyle")
+library("knitr")
+library("rmarkdown")
+opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE,
+               cache = FALSE, fig.width = 5, fig.height = 5)
+```
 
 sRNADiff aims at finding differentially expressed short RNAs with or without
 annotation.  To do so, sRNADiff uses up to 4 different strategies:
@@ -17,47 +28,49 @@ annotation.  To do so, sRNADiff uses up to 4 different strategies:
 - HMM,
 - clustering.
 
-## Standard workflow
 
-    annotation  <- readMiRBasePreAnnotation("mirbase.gff")
-    bamFiles    <- c("wt1.bam", "wt2.bam", "wt3.bam", "ko1.bam", "ko2.bam", "ko3.bam")
-    replicates  <- c("wt1", "wt2", "wt3", "ko1", "ko2", "ko3")
-    conditions  <- factor(c("wt", "wt", "wt", "ko", "ko", "ko"))
-    exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
-    diffRegions <- runAll(exp)
-    
-    
 ## Example
 
 Raw data have been downloaded from the GEO data set
 [GSE62830](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62830),
 provided in
-[Viollet *et al.*, 2015](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0126439).
+[Viollet *et al.*, 2015](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0126439)
+[@data].
 Adapters were removed with
 [fastx_clipper](http://hannonlab.cshl.edu/fastx_toolkit/commandline.html)
 and mapped with
-[bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
+[bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [@bowtie2]
 on the human genome version GRCh38.
 
 This example provides this data, restricted to a small locus on chr14.
 It uses the whole genome annotation (with coding genes, etc.)
 and extracts miRNAs.
 
-    dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-    data        <- read.csv(file.path(dir, "data.csv"))
-    gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
-    annotation  <- readWholeGenomeAnnotation(gtfFile)
-    bamFiles    <- file.path(dir, data$FileName)
-    replicates  <- data$SampleName
-    conditions  <- factor(data$Condition)
-    exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
-    diffRegions <- runAll(exp)
+The file `data.csv` contains three columns for each BAM file:
+
+- the file name (`FileName`)
+- a human readable sample name (`SampleName`)
+- a condition, e.g. `WT` (`Condition`)
+
+```{r, standard, results="hide", warning=FALSE}
+dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+data        <- read.csv(file.path(dir, "data.csv"))
+gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
+annotation  <- readWholeGenomeAnnotation(gtfFile)
+bamFiles    <- file.path(dir, data$FileName)
+replicates  <- data$SampleName
+conditions  <- factor(data$Condition)
+exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
+diffRegions <- runAll(exp)
+```
 
 For your conveniance, the sample can be loaded with an only command
 `exp <- sRNADiffExample()`, so the script boils down to:
 
-    exp         <- sRNADiffExample()
-    diffRegions <- runAll(exp)
+```{r, example}
+exp         <- sRNADiffExample()
+diffRegions <- runAll(exp)
+```
 
 
 ## Rationale and scope of the package
@@ -98,7 +111,10 @@ contains all the annotation found in an organism (coding genes, tranposable
 element, etc.).
 The following function reads the annotation file and extracts the miRNAs.
 
-    annotation <- readWholeGenomeAnnotation(filename)
+```{r, read_whole_genome}
+gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
+annotation  <- readWholeGenomeAnnotation(gtfFile)
+```
 
 
 #### miRBase annotation
@@ -107,20 +123,27 @@ miRBase is the central repository for miRNAs.
 The following function parses a GFF3 miRBase file, and extracts the precursor
 miRNAs.
 
-    annotation <- readMiRBasePreAnnotation(filename)
+```{r, read_mirbase_pre}
+gffFile    <- file.path(dir, "mirbase21_GRCh38.gff3")
+annotation <- readMiRBasePreAnnotation(gffFile)
+```
 
 As a result, the reads will be counted per pre-miRNA, and the 5' and 3' arms,
 the miRNA and the miRNA* will be merged in the same feature.
 If you want to separate the two, use:
 
-    annotation <- readMiRBaseMatureAnnotation(filename)
+```{r, read_mirbase_mature}
+annotation <- readMiRBaseMatureAnnotation(gffFile)
+```
 
 
 #### Other format
 
 When the previous functions do not work, you can use your own parser with:
 
-    annotation <- readAnnotation(filename, source, feature, name)
+```{r, read_annotation}
+annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene", name="gene_name")
+```
 
 The `source` parameter keeps all the lines such that the second field matches
 the given parameter (e.g. `miRNA`).
@@ -143,7 +166,9 @@ The first step merges all the BAM files.  Regions with a minimum number coverage
 The second steps merges regions that are within a given distance (also provided
 by the user).  The default distance can be change using this function:
 
-    exp <- setMergeDistance(exp, numeric)
+```{r, set_merge_distance}
+exp <- setMergeDistance(exp, 100)
+```
 
 This method is efficient when a gene is differentially expressed on the whole
 transcript.
@@ -154,32 +179,38 @@ transcript.
 This strategy first computes the coverage of every input BAM file of every
 nucleotide of the genome.
 If two genome nucleotides have exactly the same coverage profile, we merge them.
-We give these coverage profiles to DESeq2, and compute the p-values.
+We give these coverage profiles to `r Biocpkg("DESeq2")` [@deseq2], and compute
+the p-values.
 We thus have a p-value for each position of the genome.
 We then use a very crude hidden Markov model (HMM) on each chromosome of the
 genome.
 The HMM has two states: "not differentially expressed", and "differentially
 expressed".
 Each state uses a binomial distribution, the probability to emit a p-value
-< 0.5, and the probability to emit a p-value >= 0.5.
+< $t$, and the probability to emit a p-value >= $t$ (where $t$ is a threshold
+that can be tuned, initially set to 0.1).
 We did not try to optimize the parameters of the HMM, because it takes times,
 and do not improve the results.
 Instead, the HMM is used a crude (but effective) way to segment the genome.
 
 The parameters of the HMM can be changed using these functions:
 
-    exp <- setTransitionProbabilities(exp, prob1, prob2)
-    exp <- setEmissionProbabilities(exp, prob3)
+```{r, hmm}
+exp <- setTransitionProbabilities(exp, noDiffToDiff = 0.0001, diffToNoDiff = 0.01)
+exp <- setEmissionProbabilities(exp, probability = 0.9)
+exp <- setEmissionThreshold(exp, threshold = 0.1)
+```
 
 where:
 
- * `prob1` is the probability to move from the "not differentially expressed"
-state to the "differentially expressed" state,
- * `prob2` is the probability to move from the "differentially expressed" state
-to the "not differentially expressed" state,
- * `prob3` is the probability to emit a p-value < 0.5 in the "differentially
-expressed" state, and a p-value >= 0.5 in the "not differentially expressed"
-state.
+ * `noDiffToDiff` is the probability to move from the "not differentially
+expressed" state to the "differentially expressed" state,
+ * `diffToNoDiff` is the probability to move from the "differentially expressed"
+state to the "not differentially expressed" state,
+ * `probability` is the probability to emit a p-value < $t$ in the
+"differentially expressed" state, and a p-value >= $t$ in the "not
+differentially expressed" state, where $t$ is the next threshold,
+ * `threshold` is the threshold that limits each state.
 
 This method is efficient when a region is highly differentially expressed, even
 if it is concealed in a longer transcript.
@@ -194,7 +225,7 @@ This stretegy proceeds in three steps:
 condition.
  * For each condition, we "slice" the mean coverage distribution: we add
 horizontal lines at height h (where h is the minimum depth parameter defined in
-the general parameter section), h+1, h+2, ..., + infinity, and the intervals
+the general parameter section), $h+1$, $h+2$, ..., $+\infty$, and the intervals
 where the distribution and the horizontal lines meet is a putative region.
  * These putative regions are the output of the strategy.
 
@@ -204,7 +235,9 @@ discarded.
 
 The default values can be changed using these functions:
 
-    exp <- setMinDifferences(exp, numeric)
+```{r, slicing}
+exp <- setMinDifferences(exp, differences = 50)
+```
 
 This method is especially efficient when a differentially expressed region is
 large, even though the fold change is moderate.
@@ -219,35 +252,44 @@ The three last strategies can be tuned by specifying:
 
 The default values can be changed using these functions:
 
-    exp <- setMinDepth(exp, numeric)
-    exp <- setSizes(exp, minSize, maxSize)
+```{r, general_parameters}
+exp <- setMinDepth(exp, depth = 10)
+exp <- setSizes(exp, minSize = 15, maxSize = 1000)
+```
 
 
 ### Combination of the strategies
 
 All the regions given by each strategies are then combined into a list of
 regions.
-DESeq2 is then used to get the adjusted p-values of these regions.
+`r Biocpkg("DESeq2")` is then used to get the adjusted p-values of these
+regions.
 
 You can choose not to use some strategies, use the function
 
-    exp <- useStrategies(annotation, naive, HMM, slice)
+```{r, strategies}
+exp <- setStrategies(exp, annotation = TRUE, naive = FALSE, hmm = TRUE, slice = TRUE)
+```
 
-where `annotation`, `naive`, `HMM` and `slice` are logical variables, set to
+where `annotation`, `naive`, `hmm` and `slice` are logical variables, set to
 `FALSE` if you want to skip that step.
 
 
 ### Extracting regions
 
-The regions, with corresponding information provided by DESeq2 (mean expression,
-fold-change, p-value, adjusted p-value, etc.), can be extracted with this
-command:
+The regions, with corresponding information provided by `r Biocpkg("DESeq2")`
+(mean expression, fold-change, p-value, adjusted p-value, etc.), can be
+extracted with this command:
 
-    regions <- regions(exp, pValue)
+```{r regions}
+exp     <- sRNADiffExample()
+exp     <- runAll(exp)
+regions <- regions(exp, pvalue = 0.5)
+```
 
-where `pValue` is the (adjusted) p-value threshold.  The output in a
-`GenomicIntervals` object, and the information is accessible with the `mcols()`
-function.
+where `pvalue` is the (adjusted) p-value threshold.  The output in a
+`r Biocpkg("GenomicRanges")` object, and the information is accessible with the
+`mcols()` function.
 
 
 ## Visualization
@@ -256,7 +298,9 @@ You can get the read coverage profile of your selected regions using the
 `plotRegion` method.  For instance, if `exp` is your `srnadiff` object, you
 can type:
 
-    plotRegion(exp, regions(exp, 0.05)[1])
+```{r, plot}
+plotRegion(exp, regions[1])
+```
 
 Each line provides the read density on an input sample.
 The dark grey rectangle emphasizes the selected region.
@@ -269,7 +313,9 @@ The dark grey rectangle emphasizes the selected region.
 The conditions can be sorted (`WT` before `mutant`, `untreated` before
 `treated`) this way:
 
-    conditions  <- factor(c("wt", "wt", "ko", "ko"), levels=c("wt", "ko"))
+```{r, conditions}
+conditions  <- factor(c("wt", "wt", "ko", "ko"), levels=c("wt", "ko"))
+```
 
 
 ### Using several cores
@@ -277,7 +323,9 @@ The conditions can be sorted (`WT` before `mutant`, `untreated` before
 The quantification and differential expression steps can be accelerated using
 several cores and the following command:
 
-    exp <- setNThreads(exp, nThreads)
+```{r, threads}
+exp <- setNThreads(exp, nThreads = 4)
+```
 
 
 ### Troubleshooting
@@ -292,3 +340,13 @@ Add this line
     Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 
 before installing the package.
+
+
+# Session information
+
+```{r, session_info}
+devtools::session_info()
+```
+
+
+# References
