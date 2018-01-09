@@ -40,9 +40,9 @@ class GenomeIterator {
 					theseValuesVector(nSamples),
 					theseValuesDouble(nSamples),
 					pos(0),
+					chromosomeId(0),
 					chromosomeChange(false),
-					over(false),
-					chromosomeId(0) {
+					over(false) {
 				reset();
 		}
 

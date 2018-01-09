@@ -22,7 +22,7 @@ plotRegion <- function(object, region) {
     start(cr) <- s
     end(cr)   <- e
     param     <- ScanBamParam(which=cr, what=scanBamWhat())
-    sel       <- sapply(object@bamFiles, function (b) scanBam(b, param=param))
+    sel       <- lapply(object@bamFiles, function (b) scanBam(b, param=param))
     cov       <- lapply(sel, function (c)
                     as.numeric(coverage(IRanges(c[["pos"]],
                         width=c[["qwidth"]]), width=e)[s:e]))

@@ -72,7 +72,6 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
     static const unsigned int DIFF_CLASS    = 1;
     static const unsigned int N_CLASSES     = 2;
     size_t nSamples     = lengths[0].size();
-    size_t nChromosomes = chromosomeSizes.size();
     std::vector < double > startsArray (starts.begin(), starts.end());
     std::vector < double > previousP = startsArray;
     std::vector < double > currentP(2);

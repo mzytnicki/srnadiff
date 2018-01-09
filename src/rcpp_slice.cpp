@@ -71,11 +71,9 @@ void rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
     std::valarray < double > sums (nSamples);
     std::valarray < double > normalizedSums (nSamples);
     std::valarray < double > librarySizesArray (nSamples);
-    double gm;
-    unsigned int step;
-        for (unsigned int i = 0; i < nSamples; ++i) {
-            librarySizesArray[i] = librarySizes[i];
-        }
+    for (unsigned int i = 0; i < nSamples; ++i) {
+        librarySizesArray[i] = librarySizes[i];
+    }
     for (; ! iterator.isOver(); iterator.getNext()) {
         theseValues = iterator.getValuesDouble();
         if (theseValues.min() > 1) {
@@ -104,8 +102,6 @@ void rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
     std::nth_element(std::begin(normalizedSums),
                      std::begin(normalizedSums) + nSamples / 2,
                      std::end(normalizedSums));
-    double md     = sums[nSamples / 2];
-    double mdNorm = normalizedSums[nSamples / 2];
     double fs     = sums[nSamples / 2] / normalizedSums[nSamples / 2];
     for (size_t chromosomeId = 0; chromosomeId < nChromosomes; ++chromosomeId) {
         for (size_t sampleId = 0; sampleId < nSamples; ++sampleId) {
