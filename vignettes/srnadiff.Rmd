@@ -260,11 +260,10 @@ exp <- setSizes(exp, minSize = 15, maxSize = 1000)
 
 ### Combination of the strategies
 
+#### Choice of the strategies
+
 All the regions given by each strategies are then combined into a list of
 regions.
-`r Biocpkg("DESeq2")` is then used to get the adjusted p-values of these
-regions.
-
 You can choose not to use some strategies, use the function
 
 ```{r, strategies}
@@ -273,6 +272,25 @@ exp <- setStrategies(exp, annotation = TRUE, naive = FALSE, hmm = TRUE, slice = 
 
 where `annotation`, `naive`, `hmm` and `slice` are logical variables, set to
 `FALSE` if you want to skip that step.
+
+
+#### Quantification of the features
+
+The selected regions are then quantified using of the `summarizeOverlaps`
+function of the `r Biocpkg("GenomicAlignments")` package.
+Notice that a read can overlap two different regions (e.g. extracted from the
+naive and the slicing methods), and thus can be counted twice for the
+quantification.
+
+You can adjust the minimum number of overlapping nucleotides between a read and
+a region to declare a hit, using:
+```{r, minOverlap}
+exp <- setMinOverlap(exp, minOverlap = 20)
+```
+
+`r Biocpkg("DESeq2")` is then used to get the adjusted p-values of these
+regions.
+
 
 
 ### Extracting regions

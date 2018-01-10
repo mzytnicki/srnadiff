@@ -51,6 +51,7 @@ setClass("sRNADiff",
                 diffToNoDiff     ="numeric",
                 emission         ="numeric",
                 emissionThreshold="numeric",
+                minOverlap       ="numeric",
                 skipAnnotation   ="logical",
                 skipNaive        ="logical",
                 skipHmm          ="logical",
@@ -88,7 +89,9 @@ sRNADiffExp <- function(annotation=NULL,
                         conditions,
                         lazyload=FALSE) {
     message("Constructing object...")
-    indexBam(bamFileNames)
+    indexFileNames <- paste0(bamFileNames, ".bai")
+    unIndexedFiles <- bamFileNames[! file.exists(indexFileNames)]
+    if (length(unIndexedFiles) > 0) indexBam(unIndexedFiles)
     bamFiles <- BamFileList(lapply(bamFileNames,
                     function (b) {
                         BamFile(b, yieldSize=500000, paste0(b, ".bai"))}))
@@ -119,6 +122,7 @@ sRNADiffExp <- function(annotation=NULL,
                     diffToNoDiff     =0.000001,
                     emission         =0.9,
                     emissionThreshold=0.1,
+                    minOverlap       =10,
                     nThreads         =1
     )
     object@lengths <- lapply(object@chromosomes, function(chromosome)

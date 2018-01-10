@@ -325,6 +325,36 @@ setMethod(  f        ="setEmissionThreshold",
 )
 
 
+#' Set minimum overlap (for the last quantification step): all the reads with
+#'    at least n nucleotides shared with a feature will be used for
+#'    quantification of this feature.
+#' @rdname setMinOverlap-method
+#' @param  object     An \code{srnadiff} object.
+#' @param  minOverlap The minimum overlap
+#' @return            The same object
+#'
+#' @examples
+#' exp <- sRNADiffExample()
+#' exp <- setMinOverlap(exp, 10)
+#'
+#' @export
+setGeneric( name="setMinOverlap",
+            def =function(object, minOverlap) {
+                standardGeneric("setMinOverlap")
+            }
+)
+
+#' @rdname  setMinOverlap-method
+#' @export
+setMethod(  f        ="setMinOverlap",
+            signature= c("sRNADiff", "numeric"),
+            definition=function(object, minOverlap) {
+                                object@minOverlap <- minOverlap
+                return(object)
+            }
+)
+
+
 #' Set number of threads to use
 #' @rdname setNThreads-method
 #' @param  object   An \code{srnadiff} object.
@@ -348,6 +378,7 @@ setMethod(  f        ="setNThreads",
             signature= c("sRNADiff", "numeric"),
             definition=function(object, nThreads) {
                 object@nThreads <- nThreads
+                if (nThreads > 1) register(MulticoreParam(workers = nThreads))
                 return(object)
             }
 )
@@ -373,21 +404,14 @@ runAll <- function(object) {
     allSets       <- unique(sort(do.call("c", list(setAnnotation, setNaive,
                                                     setHmm, setSlice))))
     message("Computing differential expression...")
-    allSetsDT           <- as.data.frame(allSets)
-    names(allSetsDT)    <- c("Chr", "Start", "End", "Width", "Strand")
-    allSetsDT$GeneId    <- names(allSets)
-    counts <- suppressMessages(featureCounts(object@bamFileNames,
-                                                annot.ext=allSetsDT,
-                                                allowMultiOverlap=TRUE,
-                                                countMultiMappingReads=TRUE,
-                                                fracOverlap=0.5))
-    counts           <- as.data.frame(counts$counts)
-    rownames(counts) <- paste(seqnames(allSets), start(allSets),
-                                end(allSets), names(allSets), sep="_")
-    colnames(counts) <- object@replicates
-    dds              <- DESeqDataSetFromMatrix( countData=counts,
-                                                colData  =object@design,
-                                                design   =~condition)
+    counts           <- summarizeOverlaps(allSets, object@bamFiles,
+                            inter.feature=FALSE,
+                            mode=function(features, reads, ignore.strand,
+                                inter.feature)
+                                countOverlaps(features, reads,
+                                    minoverlap=object@minOverlap))
+    colData(counts)  <- object@design
+    dds              <- DESeqDataSet(counts, design =~condition)
     names(dds)       <- names(allSets)
     dds              <- dds[rowSums(counts(dds)) > 1, ]
     dds              <- DESeq(dds)

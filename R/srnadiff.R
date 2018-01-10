@@ -18,7 +18,6 @@
 #' @import SummarizedExperiment
 #' @import IRanges
 #' @import Rsamtools
-#' @import Rsubread
 #' @import DESeq2
 #' @import GenomicFeatures
 #' @import GenomicAlignments
