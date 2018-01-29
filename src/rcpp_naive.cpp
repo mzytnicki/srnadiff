@@ -8,21 +8,21 @@ using namespace Rcpp;
 
 // [[Rcpp::plugins(cpp11)]]
 
-bool addElement(unsigned int start, unsigned int end, std::string &chromosome,
-                std::vector < unsigned int > &starts,
-                std::vector < unsigned int > &ends,
+bool addElement(int start, int end, std::string &chromosome,
+                std::vector < int > &starts,
+                std::vector < int > &ends,
                 std::vector < std::string > &chromosomes,
                 bool first, int distance, int size) {
 		if (end - start + 1 < size) {
-				return false;
+                    return false;
 		}
 		if ((! first) && (start - ends.back() <= distance)) {
-				ends.back() = end;
+                    ends.back() = end;
 		}
 		else {
-				starts.push_back(start);
-				ends.push_back(end);
-				chromosomes.push_back(chromosome);
+                    starts.push_back(start);
+                    ends.push_back(end);
+                    chromosomes.push_back(chromosome);
 		}
 		return true;
 }
@@ -41,20 +41,19 @@ DataFrame rcpp_naive(ListOf < ListOf < IntegerVector > > &lengths,
                      ListOf < ListOf < IntegerVector > > &values,
                      IntegerVector &chromosomeSizes, int depth,
                      int distance, int size) {
-    std::vector < std::vector < unsigned int > >::iterator it;
-    std::vector < unsigned int > starts, ends;
+    std::vector < std::vector < int > >::iterator it;
+    std::vector < int > starts, ends;
     std::vector < std::string > chromosomes;
-    unsigned int nSamples = lengths[0].size();
-    bool         inRegion = false;
-    bool         first    = true;
-    unsigned int start;
+    int nSamples  = lengths[0].size();
+    bool inRegion = false;
+    bool first    = true;
+    int start;
     depth *= nSamples;
     for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
          iterator.getNext()) {
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
             if (inRegion) {
-                unsigned int previousChromosomeId =
-                    iterator.getChromosomeId() - 1;
+                int previousChromosomeId = iterator.getChromosomeId() - 1;
                 std::string chromosome = as < std::string >(
                     as< CharacterVector >(chromosomeSizes.names())
                     [previousChromosomeId]);
