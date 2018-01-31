@@ -58,10 +58,24 @@ setClass("sRNADiff",
                 skipSlice        ="logical",
                 nThreads         ="numeric"),
             prototype(
-                bamFileNames=c(),
-                replicates  =c(),
-                conditions  =c()
-            )
+                annotation=GRanges()
+            ),
+            validity=function(object) {
+                nBams  <- length(object@bamFileNames)
+                nReps  <- length(object@replicates)
+                nConds <- length(object@conditions)
+                if (nBams != nReps) {
+                    return(paste0("The number of input BAM files should be ",
+                        "equal to the number of replicates (", nBams, " and ",
+                        nReps, " resp.)."))
+                }
+                if (nBams != nConds) {
+                    return(paste0("The number of input BAM files should be ",
+                        "equal to the number of conditions (", nBams, " and ",
+                        nConds, " resp.)."))
+                }
+                return(TRUE)
+            }
 )
 
 #' Constructor.

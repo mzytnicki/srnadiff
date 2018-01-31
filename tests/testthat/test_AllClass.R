@@ -27,6 +27,14 @@ test_that("Running implemented constructor", {
     expect_is(exp, "sRNADiff")
 })
 
+test_that("Running implemented constructor with unbalanced number of replicates", {
+    expect_error(sRNADiffExp(annotation, bamFiles, replicates[1:3], conditions))
+})
+
+test_that("Running implemented constructor with unbalanced number of conditions", {
+    expect_error(sRNADiffExp(annotation, bamFiles, replicates, conditions[1:2]))
+})
+
 test_that("Running example constructor", {
     exp <- sRNADiffExample()
     expect_is(exp, "sRNADiff")

@@ -29,3 +29,7 @@ test_that("Importing miRNAs from GTF file manually", {
                                     name="gene_name")
     expect_equal(length(annotation), 164)
 })
+
+test_that("Importing non existing annotation file", {
+    expect_error(readAnnotation("XXXXX.gtf"))
+})

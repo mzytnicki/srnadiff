@@ -106,10 +106,14 @@ We provide here four ways to parse the annotation file.
 
 #### Whole genome file annotation
 
-This GTF file can be found in the central repositories (NCBI, Ensembl) and
+This GTF file can be found in the central repositories
+([NCBI](https://www.ncbi.nlm.nih.gov/), 
+[Ensembl](https://www.ensembl.org/index.html)) and
 contains all the annotation found in an organism (coding genes, tranposable
 element, etc.).
 The following function reads the annotation file and extracts the miRNAs.
+Annotation files may have different formats, but this command has been tested
+on several model organisms (including human) from Ensembl.
 
 ```{r, read_whole_genome}
 gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
@@ -119,7 +123,10 @@ annotation  <- readWholeGenomeAnnotation(gtfFile)
 
 #### miRBase annotation
 
-miRBase is the central repository for miRNAs.
+[miRBase](http://www.mirbase.org/) [@mirbase] is the central repository for
+miRNAs.
+If your organism is available, you can download their miRNA annotation in GFF3
+format (check the "Browse" tab).
 The following function parses a GFF3 miRBase file, and extracts the precursor
 miRNAs.
 

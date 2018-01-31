@@ -15,6 +15,9 @@
 #'
 #' @export
 readAnnotation <- function(fileName, source=NULL, feature=NULL, name=NULL) {
+    if (! file.exists(fileName)) {
+        stop(paste0("Annotation file '", fileName, "' cannot be open."))
+    }
     annotation <- import(fileName, feature.type=feature)
     if (! is.null(source)) {
         annotation <- annotation[mcols(annotation)$source == source]
