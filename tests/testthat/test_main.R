@@ -94,3 +94,12 @@ test_that("Running main function", {
     expect_equal(length(exp@regions), 43)
 })
 
+test_that("Running redundant removal", {
+    regions  <- GRanges(seqnames = "14", strand = "+",
+                        ranges = IRanges(start = c(60000000, 60000100),
+                        width = 10))
+    padj     <- c(0.01,  0.001)
+    regions2 <- removeRedundant(regions, padj)
+    expect_equal(length(regions2), 2)
+})
+

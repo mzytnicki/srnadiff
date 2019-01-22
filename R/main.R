@@ -314,6 +314,7 @@ setGeneric( name="setEmissionThreshold",
             }
 )
 
+
 #' @rdname  setEmissionThreshold-method
 #' @export
 setMethod(  f        ="setEmissionThreshold",
@@ -384,25 +385,67 @@ setMethod(  f        ="setNThreads",
 )
 
 
-#' Run the segmentation using 3 different methods, and reconciliate them.
-#'
-#' @param object An \code{srnadiff} object.
-#' @return A GRanges.
-#' @examples
-#' exp        <- sRNADiffExample()
-#' exp        <- runAll(exp)
-#'
-#' @export
-runAll <- function(object) {
-    if (object@nThreads > 1) {
-        register(MulticoreParam(object@nThreads))
+# Remove redundant regions
+#
+# @param regions An \code{GRanges} object.
+# @param padj A list of adjusted p-values.
+# @return A \code{GRanges} object.
+# @examples
+# library(GenomicRanges)
+# exp     <- sRNADiffExample()
+# regions <- GRanges(seqnames = "14", strand = "+",
+#                    ranges = IRanges(start = c(60000000, 60000100),
+#                    width = 200))
+# padj    <- c(0.01,  0.001)
+# removeRedundant(regions, padj)
+#
+removeRedundant <- function(regions, padj) {
+    names(regions) <- paste0(seqnames(regions), "_", start(regions),
+                                "_", end(regions))
+    sizes          <- width(regions)
+    overlaps       <- findOverlaps(regions, regions)
+    overlaps       <- overlaps[queryHits(overlaps) != subjectHits(overlaps)]
+    if (length(overlaps) == 0) {
+        return(regions)
     }
-    setAnnotation <- runAllAnnotation(object)
-    setNaive      <- runAllNaive(object)
-    setHmm        <- runAllHmm(object)
-    setSlice      <- runAllSlice(object)
-    allSets       <- unique(sort(do.call("c", list(setAnnotation, setNaive,
-                                                    setHmm, setSlice))))
+    from      <- queryHits(overlaps)
+    to        <- subjectHits(overlaps)
+    dominance <- padj[from] < padj[to] |
+                            (padj[from] == padj[to] & sizes[from] < sizes[to]) |
+                            (padj[from] == padj[to] & sizes[from] == sizes[to]
+                                & from < to)
+    toBeRemoved <- c()
+    while (TRUE) {
+        dominated   <- table(to[dominance])
+        dominator   <- table(from[dominance])
+        both        <- intersect(names(dominated), names(dominator))
+        if (length(both) == 0) break
+        toBeRemoved <- union(toBeRemoved,
+                                intersect(both, names(dominated[dominated ==
+                                        min(dominated[both])])))
+        dominance[(queryHits(overlaps) %in% toBeRemoved |
+                    subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
+    }
+    toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
+    regions        <- regions[- toBeRemoved]
+    return(regions)
+}
+
+
+# Keep regions with best p-values.
+#
+# @param object An \code{srnadiff} object.
+# @param allSets A \code{GRanges} object.
+# @return A \code{GRanges} object.
+# @examples
+# library(GenomicRanges)
+# exp     <- sRNADiffExample()
+# regions <- GRanges(seqnames = "14", strand = "+",
+#                    ranges = IRanges(start = c(60000000, 60000100),
+#                    width = 200))
+# reconcileRegions(exp, regions)
+#
+reconcileRegions <- function(object, allSets) {
     message("Computing differential expression...")
     counts           <- summarizeOverlaps(allSets, object@bamFiles,
                             inter.feature=FALSE,
@@ -421,33 +464,31 @@ runAll <- function(object) {
     regions          <- regions[! is.na(padj)]
     dds              <- dds[! is.na(padj)]
     padj             <- padj[! is.na(padj)]
-    sizes            <- width(regions)
-    overlaps         <- findOverlaps(regions, regions)
-    overlaps         <- overlaps[queryHits(overlaps) != subjectHits(overlaps)]
-    from             <- queryHits(overlaps)
-    to               <- subjectHits(overlaps)
-    dominance        <- padj[from] < padj[to] |
-                            (padj[from] == padj[to] & sizes[from] < sizes[to]) |
-                            (padj[from] == padj[to] & sizes[from] == sizes[to]
-                                & from < to)
-    toBeRemoved      <- c()
-    while (TRUE) {
-        dominated   <- table(to[dominance])
-        dominator   <- table(from[dominance])
-        both        <- intersect(names(dominated), names(dominator))
-        if (length(both) == 0) break
-        toBeRemoved <- union(toBeRemoved,
-                                intersect(both,names(dominated[dominated ==
-                                        min(dominated[both])])))
-        dominance[(queryHits(overlaps) %in% toBeRemoved |
-                    subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
-        again <- length(toBeRemoved) > 0
-    }
-    toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
-    regions        <- regions[- toBeRemoved]
-    names(regions) <- paste0(seqnames(regions), "_", start(regions),
-                                "_", end(regions))
-    object@regions <- regions
+    regions          <- removeRedundant(regions, padj)
     message("... done.")
+    return(regions)
+}
+
+
+#' Run the segmentation using 3 different methods, and reconcile them.
+#'
+#' @param object An \code{srnadiff} object.
+#' @return A \code{GRanges} object.
+#' @examples
+#' exp        <- sRNADiffExample()
+#' exp        <- runAll(exp)
+#'
+#' @export
+runAll <- function(object) {
+    if (object@nThreads > 1) {
+        register(MulticoreParam(object@nThreads))
+    }
+    setAnnotation  <- runAllAnnotation(object)
+    setNaive       <- runAllNaive(object)
+    setHmm         <- runAllHmm(object)
+    setSlice       <- runAllSlice(object)
+    allSets        <- unique(sort(do.call("c", list(setAnnotation, setNaive,
+                                                    setHmm, setSlice))))
+    object@regions <- reconcileRegions(object, allSets)
     return(object)
 }
