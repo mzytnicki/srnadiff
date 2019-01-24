@@ -29,17 +29,19 @@ bool addElement(int start, int end, std::string &chromosome,
 
 //' Compute naive method.
 //'
-//' @param lengths          the sizes of the RLEs (one list per chromosome)
-//' @param values           the values of the RLEs (one list per chromosome)
-//' @param chromosomeSizes  the sizes of the chromosomes
-//' @param depth            minimum number of reads per position
-//' @param distance         threshold to merge consecutive regions
-//' @param size             minimum region size
-//' @return                 the unique counts
+//' @param lengths              the sizes of the RLEs (one list per chromosome)
+//' @param values               the values of the RLEs (one list per chromosome)
+//' @param chromosomeSizes      the sizes of the chromosomes
+//' @param normalizationFactors the normalization coefficients
+//' @param depth                minimum number of reads per position
+//' @param distance             threshold to merge consecutive regions
+//' @param size                 minimum region size
+//' @return                     the unique counts
 // [[Rcpp::export]]
 DataFrame rcpp_naive(ListOf < ListOf < IntegerVector > > &lengths,
                      ListOf < ListOf < IntegerVector > > &values,
-                     IntegerVector &chromosomeSizes, int depth,
+                     IntegerVector &chromosomeSizes,
+                     NumericVector normalizationFactors, int depth,
                      int distance, int size) {
     std::vector < std::vector < int > >::iterator it;
     std::vector < int > starts, ends;
@@ -47,9 +49,10 @@ DataFrame rcpp_naive(ListOf < ListOf < IntegerVector > > &lengths,
     int nSamples  = lengths[0].size();
     bool inRegion = false;
     bool first    = true;
-    int start;
+    int start     = 1;
     depth *= nSamples;
-    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
+    for (GenomeIterator iterator (lengths, values, chromosomeSizes,
+                                  normalizationFactors); ;
          iterator.getNext()) {
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
             if (inRegion) {

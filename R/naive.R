@@ -8,8 +8,9 @@ runAllNaive <- function(object) {
     }
     message("Starting Naive step...")
     ranges <- rcpp_naive(object@lengths, object@values,
-                            object@chromosomeSizes, object@minDepth,
-                            object@mergeDistance, object@minSize)
+                            object@chromosomeSizes, object@normalizationFactors,
+                            object@minDepth, object@mergeDistance,
+                            object@minSize)
     if (length(ranges[[1]]) == 0) {
         ranges <- GRanges()
     }

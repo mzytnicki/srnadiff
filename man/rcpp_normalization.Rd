@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rcpp_normalization}
 \alias{rcpp_normalization}
-\title{Normalize counts (and changes the input values)}
+\title{Normalize counts}
 \usage{
 rcpp_normalization(lengths, values, chromosomeSizes, librarySizes)
 }
@@ -16,8 +16,8 @@ rcpp_normalization(lengths, values, chromosomeSizes, librarySizes)
 \item{librarySizes}{number of elements per sample}
 }
 \value{
-nothing (but transform the values instead)
+the normalization factors
 }
 \description{
-Normalize counts (and changes the input values)
+Normalize counts
 }

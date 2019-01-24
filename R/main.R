@@ -385,20 +385,11 @@ setMethod(  f        ="setNThreads",
 )
 
 
-# Remove redundant regions
-#
-# @param regions An \code{GRanges} object.
-# @param padj A list of adjusted p-values.
-# @return A \code{GRanges} object.
-# @examples
-# library(GenomicRanges)
-# exp     <- sRNADiffExample()
-# regions <- GRanges(seqnames = "14", strand = "+",
-#                    ranges = IRanges(start = c(60000000, 60000100),
-#                    width = 200))
-# padj    <- c(0.01,  0.001)
-# removeRedundant(regions, padj)
-#
+#' Remove redundant regions
+#'
+#' @param regions An \code{GRanges} object.
+#' @param padj A list of adjusted p-values.
+#' @return A \code{GRanges} object.
 removeRedundant <- function(regions, padj) {
     names(regions) <- paste0(seqnames(regions), "_", start(regions),
                                 "_", end(regions))
@@ -432,19 +423,11 @@ removeRedundant <- function(regions, padj) {
 }
 
 
-# Keep regions with best p-values.
-#
-# @param object An \code{srnadiff} object.
-# @param allSets A \code{GRanges} object.
-# @return A \code{GRanges} object.
-# @examples
-# library(GenomicRanges)
-# exp     <- sRNADiffExample()
-# regions <- GRanges(seqnames = "14", strand = "+",
-#                    ranges = IRanges(start = c(60000000, 60000100),
-#                    width = 200))
-# reconcileRegions(exp, regions)
-#
+#' Keep regions with best p-values.
+#'
+#' @param object An \code{srnadiff} object.
+#' @param allSets A \code{GRanges} object.
+#' @return A \code{GRanges} object.
 reconcileRegions <- function(object, allSets) {
     message("Computing differential expression...")
     counts           <- summarizeOverlaps(allSets, object@bamFiles,
@@ -470,6 +453,20 @@ reconcileRegions <- function(object, allSets) {
 }
 
 
+#' Compute normalization factors
+#'
+#' @param object An \code{srnadiff} object.
+#' @return The normalization factor as a list of numeric.
+computeNormalizationFactors <- function(object) {
+    librarySize    <- vapply(lapply(object@coverages, sum), sum, integer(1))
+    normalizationFactors <- rcpp_normalization(object@lengths, object@values,
+                                               object@chromosomeSizes,
+                                               librarySize)
+    object@normalizationFactors <- normalizationFactors
+    return(object)
+}
+
+
 #' Run the segmentation using 3 different methods, and reconcile them.
 #'
 #' @param object An \code{srnadiff} object.
@@ -483,6 +480,7 @@ runAll <- function(object) {
     if (object@nThreads > 1) {
         register(MulticoreParam(object@nThreads))
     }
+    object         <- computeNormalizationFactors(object)
     setAnnotation  <- runAllAnnotation(object)
     setNaive       <- runAllNaive(object)
     setHmm         <- runAllHmm(object)

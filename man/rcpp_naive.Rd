@@ -4,7 +4,8 @@
 \alias{rcpp_naive}
 \title{Compute naive method.}
 \usage{
-rcpp_naive(lengths, values, chromosomeSizes, depth, distance, size)
+rcpp_naive(lengths, values, chromosomeSizes, normalizationFactors, depth,
+  distance, size)
 }
 \arguments{
 \item{lengths}{the sizes of the RLEs (one list per chromosome)}
@@ -12,6 +13,8 @@ rcpp_naive(lengths, values, chromosomeSizes, depth, distance, size)
 \item{values}{the values of the RLEs (one list per chromosome)}
 
 \item{chromosomeSizes}{the sizes of the chromosomes}
+
+\item{normalizationFactors}{the normalization coefficients}
 
 \item{depth}{minimum number of reads per position}
 

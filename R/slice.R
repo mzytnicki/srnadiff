@@ -3,11 +3,6 @@
 #' @param object An \code{srnadiff} object.
 #' @return A GRanges.
 runSlice <- function(object) {
-    librarySize    <- vapply(lapply(object@coverages, sum), sum, integer(1))
-    rcpp_normalization(object@lengths,
-                        object@values,
-                        object@chromosomeSizes,
-                        librarySize)
     avgCounts <- lapply(split(object@coverages,
                                 object@conditions == object@conditions[[1]]),
                             function (s) { round(Reduce('+', s) / length(s)) })

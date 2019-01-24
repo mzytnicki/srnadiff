@@ -33,26 +33,27 @@ rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, emissionThresh
 
 #' Compute naive method.
 #'
-#' @param lengths          the sizes of the RLEs (one list per chromosome)
-#' @param values           the values of the RLEs (one list per chromosome)
-#' @param chromosomeSizes  the sizes of the chromosomes
-#' @param depth            minimum number of reads per position
-#' @param distance         threshold to merge consecutive regions
-#' @param size             minimum region size
-#' @return                 the unique counts
-rcpp_naive <- function(lengths, values, chromosomeSizes, depth, distance, size) {
-    .Call('_srnadiff_rcpp_naive', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, depth, distance, size)
+#' @param lengths              the sizes of the RLEs (one list per chromosome)
+#' @param values               the values of the RLEs (one list per chromosome)
+#' @param chromosomeSizes      the sizes of the chromosomes
+#' @param normalizationFactors the normalization coefficients
+#' @param depth                minimum number of reads per position
+#' @param distance             threshold to merge consecutive regions
+#' @param size                 minimum region size
+#' @return                     the unique counts
+rcpp_naive <- function(lengths, values, chromosomeSizes, normalizationFactors, depth, distance, size) {
+    .Call('_srnadiff_rcpp_naive', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, normalizationFactors, depth, distance, size)
 }
 
-#' Normalize counts (and changes the input values)
+#' Normalize counts
 #'
 #' @param lengths          the sizes of the RLEs (one list per chromosome)
 #' @param values           the values of the RLEs (one list per chromosome)
 #' @param chromosomeSizes  the sizes of the chromosomes
 #' @param librarySizes     number of elements per sample
-#' @return                 nothing (but transform the values instead)
+#' @return                 the normalization factors
 rcpp_normalization <- function(lengths, values, chromosomeSizes, librarySizes) {
-    invisible(.Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, librarySizes))
+    .Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, librarySizes)
 }
 
 #' Compute unique counts.

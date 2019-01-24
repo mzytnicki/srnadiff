@@ -3,6 +3,7 @@
 #include <valarray>
 #include <tuple>
 #include <string>
+#include <math.h>
 using namespace Rcpp;
 
 // [[Rcpp::plugins(cpp11)]]
@@ -12,6 +13,7 @@ class GenomeIterator {
         ListOf < ListOf < IntegerVector > > &lengths;
         ListOf < ListOf < IntegerVector > > &values;
         IntegerVector &chromosomeSizes;
+        NumericVector normalizationFactors;
         int nSamples;
         int nChromosomes;
         std::valarray < int > indices;
@@ -28,10 +30,11 @@ class GenomeIterator {
     public:
         GenomeIterator (ListOf < ListOf < IntegerVector > > &l,
                 ListOf < ListOf < IntegerVector > > &v,
-                IntegerVector &cs):
+                IntegerVector &cs, NumericVector f):
                     lengths(l),
                     values(v),
                     chromosomeSizes(cs),
+                    normalizationFactors(f),
                     nSamples(lengths[0].size()),
                     nChromosomes(chromosomeSizes.size()),
                     indices(nSamples),
@@ -46,6 +49,10 @@ class GenomeIterator {
                 reset();
         }
 
+        GenomeIterator (ListOf < ListOf < IntegerVector > > &l,
+                ListOf < ListOf < IntegerVector > > &v, IntegerVector &cs):
+                    GenomeIterator(l, v, cs, NumericVector(l[0].size(), 1.0)) {}
+
         void reset (bool nextChromosome = false) {
             if (nextChromosome) {
                 ++chromosomeId;
@@ -59,11 +66,12 @@ class GenomeIterator {
                 chromosomeId = 0;
             }
             for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
-                indices[sampleId]           =0;
-                remainings[sampleId]        =lengths[chromosomeId][sampleId][0];
-                theseValues[sampleId]       =values[chromosomeId][sampleId][0];
-                theseValuesVector[sampleId] =theseValues[sampleId];
-                theseValuesDouble[sampleId] =theseValues[sampleId];
+                indices[sampleId]          =0;
+                remainings[sampleId]       =lengths[chromosomeId][sampleId][0];
+                theseValuesDouble[sampleId]=values[chromosomeId][sampleId][0] *
+                                                normalizationFactors[sampleId];
+                theseValues[sampleId]      =round(theseValuesDouble[sampleId]);
+                theseValuesVector[sampleId]=theseValues[sampleId];
             }
             step = remainings.min();
             pos  = 0;
@@ -124,9 +132,10 @@ class GenomeIterator {
                     ++indices[sampleId];
                     remainings[sampleId] =
                         lengths[chromosomeId][sampleId][indices[sampleId]];
-                    theseValues[sampleId] =
-                        values[chromosomeId][sampleId][indices[sampleId]];
-                    theseValuesDouble[sampleId] = theseValues[sampleId];
+                    theseValuesDouble[sampleId] =
+                        values[chromosomeId][sampleId][indices[sampleId]] *
+                        normalizationFactors[sampleId];
+                    theseValues[sampleId] = round(theseValuesDouble[sampleId]);
                     theseValuesVector[sampleId] = theseValues[sampleId];
                 }
             }
