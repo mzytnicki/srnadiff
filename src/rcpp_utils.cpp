@@ -16,11 +16,14 @@ class GenomeIterator {
         NumericVector normalizationFactors;
         int nSamples;
         int nChromosomes;
-        std::valarray < int > indices;
-        std::valarray < int > remainings;
-        std::valarray < int > theseValues;
-        std::vector < int > theseValuesVector;
+        std::valarray < int >    indices;
+        std::valarray < int >    remainings;
+        std::valarray < int >    theseValues;
+        std::vector < int >      theseValuesVector;
         std::valarray < double > theseValuesDouble;
+        std::valarray < int >    theseRawValues;
+        std::vector < int >      theseRawValuesVector;
+        std::valarray < double > theseRawValuesDouble;
         int step;
         long pos;
         int chromosomeId;
@@ -42,6 +45,9 @@ class GenomeIterator {
                     theseValues(nSamples),
                     theseValuesVector(nSamples),
                     theseValuesDouble(nSamples),
+                    theseRawValues(nSamples),
+                    theseRawValuesVector(nSamples),
+                    theseRawValuesDouble(nSamples),
                     pos(0),
                     chromosomeId(0),
                     chromosomeChange(false),
@@ -66,16 +72,33 @@ class GenomeIterator {
                 chromosomeId = 0;
             }
             for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
-                indices[sampleId]          =0;
-                remainings[sampleId]       =lengths[chromosomeId][sampleId][0];
-                theseValuesDouble[sampleId]=values[chromosomeId][sampleId][0] *
+                indices[sampleId]    = 0;
+                remainings[sampleId] = lengths[chromosomeId][sampleId][0];
+                theseRawValuesDouble[sampleId] =
+                    theseRawValues[sampleId] =
+                    theseRawValuesVector[sampleId] =
+                        values[chromosomeId][sampleId][0];
+                theseValuesDouble[sampleId] = theseRawValues[sampleId] *
                                                 normalizationFactors[sampleId];
-                theseValues[sampleId]      =round(theseValuesDouble[sampleId]);
-                theseValuesVector[sampleId]=theseValues[sampleId];
+                theseValues[sampleId] =
+                    theseValuesVector[sampleId] =
+                        round(theseValuesDouble[sampleId]);
             }
             step = remainings.min();
             pos  = 0;
             over = false;
+        }
+
+        std::valarray < int > &getRawValues () {
+            return theseRawValues;
+        }
+
+        std::valarray < double > &getRawValuesDouble () {
+            return theseRawValuesDouble;
+        }
+
+        std::vector < int > &getRawValuesVector () {
+            return theseRawValuesVector;
         }
 
         std::valarray < int > &getValues () {
@@ -119,7 +142,7 @@ class GenomeIterator {
         void getNext (int s = 0) {
             chromosomeChange = false;
             if (s == 0) {
-                    s = step;
+                s = step;
             }
             pos += s;
             if (pos >= chromosomeSizes[chromosomeId]) {
@@ -132,11 +155,16 @@ class GenomeIterator {
                     ++indices[sampleId];
                     remainings[sampleId] =
                         lengths[chromosomeId][sampleId][indices[sampleId]];
+                    theseRawValuesDouble[sampleId] =
+                        theseRawValues[sampleId] =
+                        theseRawValuesVector[sampleId] =
+                            values[chromosomeId][sampleId][indices[sampleId]];
                     theseValuesDouble[sampleId] =
-                        values[chromosomeId][sampleId][indices[sampleId]] *
+                        theseRawValues[sampleId] *
                         normalizationFactors[sampleId];
-                    theseValues[sampleId] = round(theseValuesDouble[sampleId]);
-                    theseValuesVector[sampleId] = theseValues[sampleId];
+                    theseValues[sampleId] =
+                        theseValuesVector[sampleId] =
+                            round(theseValuesDouble[sampleId]);
                 }
             }
             step = remainings.min();

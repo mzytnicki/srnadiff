@@ -37,7 +37,7 @@ IntegerMatrix rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
             }
         }
         if (iterator.getValues().max() >= minDepth) {
-            outputValues.push_back(iterator.getValuesVector());
+            outputValues.push_back(iterator.getRawValuesVector());
         }
     }
 }
@@ -154,7 +154,7 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         std::vector < int > previousState(2);
         if (valueChange) {
             if (iterator.getValues().max() >= minDepth) {
-                pvalue = pvalueMap[iterator.getValuesVector()];
+                pvalue = pvalueMap[iterator.getRawValuesVector()];
             }
             else {
                 pvalue = 1.0;

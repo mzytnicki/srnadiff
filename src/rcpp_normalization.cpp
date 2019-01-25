@@ -12,10 +12,10 @@ double computeMedian(std::vector < std::pair < double, int > > &table){
     sort(table.begin(), table.end());
     int i, s = 0, size = 0;
     for (auto &i: table) {
-            size += i.second;
+        size += i.second;
     }
     for (i = 0; s < size/2; ++i) {
-            s += table[i].second;
+        s += table[i].second;
     }
     return table[i].first;
 }
