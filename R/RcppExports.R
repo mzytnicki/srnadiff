@@ -31,6 +31,17 @@ rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, emissionThresh
     .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', chromosomeSizes, transitions, emissions, emissionThreshold, starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize)
 }
 
+#' Normalize counts
+#'
+#' @param lengths          the sizes of the RLEs (one list per chromosome)
+#' @param values           the values of the RLEs (one list per chromosome)
+#' @param chromosomeSizes  the sizes of the chromosomes
+#' @param librarySizes     number of elements per sample
+#' @return                 the normalization factors
+rcpp_normalization <- function(lengths, values, chromosomeSizes, librarySizes) {
+    .Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, librarySizes)
+}
+
 #' Compute naive method.
 #'
 #' @param lengths              the sizes of the RLEs (one list per chromosome)
@@ -43,17 +54,6 @@ rcpp_viterbi <- function(chromosomeSizes, transitions, emissions, emissionThresh
 #' @return                     the unique counts
 rcpp_naive <- function(lengths, values, chromosomeSizes, normalizationFactors, depth, distance, size) {
     .Call('_srnadiff_rcpp_naive', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, normalizationFactors, depth, distance, size)
-}
-
-#' Normalize counts
-#'
-#' @param lengths          the sizes of the RLEs (one list per chromosome)
-#' @param values           the values of the RLEs (one list per chromosome)
-#' @param chromosomeSizes  the sizes of the chromosomes
-#' @param librarySizes     number of elements per sample
-#' @return                 the normalization factors
-rcpp_normalization <- function(lengths, values, chromosomeSizes, librarySizes) {
-    .Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, librarySizes)
 }
 
 #' Compute unique counts.

@@ -10,7 +10,7 @@ computeNormalizationFactors(object)
 \item{object}{An \code{srnadiff} object.}
 }
 \value{
-The normalization factor as a list of numeric.
+The same object, with the normalization factors
 }
 \description{
 Compute normalization factors

@@ -10,6 +10,7 @@
 #' @slot coverages         The coverages, a vector of \code{RLE}.
 #' @slot lengths           The lengths parts of the coverages.
 #' @slot values            The values parts of the coverages.
+#' @slot logFC             The log fold change.
 #' @slot design            Experimental design, a \code{DataFrame} for
 #'                           \code{DESeq2}
 #' @slot regions           A \code{GenomicRanges} of the possibly differentially
@@ -40,12 +41,14 @@ setClass("sRNADiff",
                 coverages           ="vector",
                 lengths             ="list",
                 values              ="list",
+                logFC               ="RleList",
                 design              ="DataFrame",
                 normalizationFactors="vector",
                 regions             ="GRanges",
                 minDepth            ="numeric",
                 minSize             ="numeric",
                 maxSize             ="numeric",
+                minLogFC            ="numeric",
                 mergeDistance       ="numeric",
                 minDifferences      ="numeric",
                 noDiffToDiff        ="numeric",
@@ -125,6 +128,7 @@ sRNADiffExp <- function(annotation=NULL,
                     chromosomes         =seqlevels(bamFiles[[1]]),
                     chromosomeSizes     =seqlengths(bamFiles[[1]]),
                     coverages           =lapply(bamFiles, coverage),
+                    logFC               =RleList(),
                     skipAnnotation      =FALSE,
                     skipNaive           =TRUE,
                     skipHmm             =FALSE,
@@ -132,6 +136,7 @@ sRNADiffExp <- function(annotation=NULL,
                     minDepth            =10,
                     minSize             =18,
                     maxSize             =1000000,
+                    minLogFC            =0.5,
                     mergeDistance       =100,
                     minDifferences      =20,
                     noDiffToDiff        =0.001,

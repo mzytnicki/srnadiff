@@ -92,3 +92,46 @@ NumericVector rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
     }
     */
 }
+
+/*
+//' Compute log fold changes
+//'
+//' @param lengths          the sizes of the RLEs (one list per chromosome)
+//' @param values           the values of the RLEs (one list per chromosome)
+//' @param chromosomeSizes  the sizes of the chromosomes
+//' @param minDepth         the minimum read coverage
+//' @return                 the log fold change in RLE
+// [[Rcpp::export]]
+List rcpp_computeFoldChange(ListOf < ListOf < IntegerVector > > &lengths,
+                            ListOf < ListOf < IntegerVector > > &values,
+                            IntegerVector &chromosomeSizes,
+                            NumericVector &normalizationFactors,
+                            IntegerVector &conditions,
+                            int minDepth) {
+    for (GenomeIterator iterator (lengths, values, chromosomeSizes,
+                             normalizationFactors);
+         ! iterator.isOver(); iterator.getNext()) {
+    }
+    std::vector < std::vector < int > > outputValues;
+    std::vector < std::vector < int > >::iterator it;
+    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
+         iterator.getNext()) {
+        if (iterator.hasChangedChromosome() || iterator.isOver()) {
+            sort(outputValues.begin(), outputValues.end());
+            auto it = std::unique(outputValues.begin(), outputValues.end());
+            outputValues.resize(std::distance(outputValues.begin(), it));
+            if (iterator.isOver()) {
+                IntegerMatrix matrix(outputValues.size(), lengths[0].size());
+                for (size_t i = 0; i < outputValues.size(); ++i) {
+                    matrix.row(i) = IntegerVector(outputValues[i].begin(),
+                               outputValues[i].end());
+                }
+                return matrix;
+            }
+        }
+        if (iterator.getValues().max() >= minDepth) {
+            outputValues.push_back(iterator.getRawValuesVector());
+        }
+    }
+}
+*/

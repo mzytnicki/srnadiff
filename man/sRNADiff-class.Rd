@@ -30,6 +30,8 @@ An S4 class to represent sRNA-Seq data for differential expression.
 
 \item{\code{values}}{The values parts of the coverages.}
 
+\item{\code{logFC}}{The log fold change.}
+
 \item{\code{design}}{Experimental design, a \code{DataFrame} for
 \code{DESeq2}}
 

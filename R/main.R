@@ -456,7 +456,7 @@ reconcileRegions <- function(object, allSets) {
 #' Compute normalization factors
 #'
 #' @param object An \code{srnadiff} object.
-#' @return The normalization factor as a list of numeric.
+#' @return The same object, with the normalization factors
 computeNormalizationFactors <- function(object) {
     librarySize    <- vapply(lapply(object@coverages, sum), sum, integer(1))
     normalizationFactors <- rcpp_normalization(object@lengths, object@values,
@@ -466,6 +466,24 @@ computeNormalizationFactors <- function(object) {
     return(object)
 }
 
+#' Compute fold-change
+#'
+#' @param object An \code{srnadiff} object.
+#' @return The same object, with the fold change
+computeLogFoldChange <- function(object) {
+    avgCounts <- lapply(split(mapply('*',
+                                     object@coverages,
+                                     object@normalizationFactors),
+                              object@conditions),
+                    function (s) { round(Reduce('+', s) / length(s)) })
+    lowValues <- pmin(avgCounts[[1]], avgCounts[[2]]) < object@minDepth
+    avgCounts[[1]][lowValues] <- 0
+    avgCounts[[2]][lowValues] <- 0
+    logFC <- log2((avgCounts[[2]]+1)/(avgCounts[[1]]+1))
+    logFC[logFC >= -object@minLogFC & logFC <= object@minLogFC] <-0
+    object@logFC <- logFC
+    return(object)
+}
 
 #' Run the segmentation using 3 different methods, and reconcile them.
 #'
@@ -481,6 +499,7 @@ runAll <- function(object) {
         register(MulticoreParam(object@nThreads))
     }
     object         <- computeNormalizationFactors(object)
+    object         <- computeLogFoldChange(object)
     setAnnotation  <- runAllAnnotation(object)
     setNaive       <- runAllNaive(object)
     setHmm         <- runAllHmm(object)
