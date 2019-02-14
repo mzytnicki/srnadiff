@@ -501,9 +501,10 @@ runAll <- function(object) {
     object         <- computeNormalizationFactors(object)
     object         <- computeLogFoldChange(object)
     setAnnotation  <- runAllAnnotation(object)
-    setNaive       <- runAllNaive(object)
-    setHmm         <- runAllHmm(object)
+    #setNaive       <- runAllNaive(object)
+    setNaive       <- GRanges()
     setSlice       <- runAllSlice(object)
+    setHmm         <- runAllHmm(object)
     allSets        <- unique(sort(do.call("c", list(setAnnotation, setNaive,
                                                     setHmm, setSlice))))
     object@regions <- reconcileRegions(object, allSets)

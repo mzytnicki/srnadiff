@@ -25,9 +25,30 @@ runAllSlice <- function(object) {
         return(GRanges())
     }
     message("Starting slice step...")
-    intervals <- runSlice(object)
-    if (length(intervals) > 0)
-        names(intervals) <- paste("slice",seq(length(intervals)), sep="_")
+
+    up <- as(object@logFC >= object@minLogFC, "GRanges")
+    up <- up[up$score]
+    up <- reduce(up, min.gapwidth=object@mergeDistance)
+    down <- as(object@logFC <= -object@minLogFC, "GRanges")
+    down <- down[down$score]
+    down <- reduce(down, min.gapwidth=object@mergeDistance)
+    ranges <- c(up, down)
+    if (length(ranges) > 0) {
+        ranges <- ranges[(width(ranges) >= object@minSize &
+                              width(ranges) <= object@maxSize), ]
+        mcols(ranges) <- NULL
+        names(ranges) <- paste("naive", seq(length(ranges)), sep="_")
+    }
+
+    intervals <- rcpp_slice2(object@logFC, ranges, object@minSize, object@maxSize, object@minLogFC);
+    intervals <- GRanges(intervals)
+    if (length(intervals) > 0) {
+        names(intervals) <- paste("slice", seq(length(intervals)), sep="_")
+    }
+
+#    intervals <- runSlice(object)
+#    if (length(intervals) > 0)
+#        names(intervals) <- paste("slice",seq(length(intervals)), sep="_")
     message(paste0(c("  ... ", length(intervals), " regions found.")))
     message("... slice step done.")
     return(intervals)

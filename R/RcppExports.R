@@ -56,6 +56,10 @@ rcpp_naive <- function(lengths, values, chromosomeSizes, normalizationFactors, d
     .Call('_srnadiff_rcpp_naive', PACKAGE = 'srnadiff', lengths, values, chromosomeSizes, normalizationFactors, depth, distance, size)
 }
 
+rcpp_slice2 <- function(logFoldChanges, regions, minLength, maxLength, minLFC) {
+    .Call('_srnadiff_rcpp_slice2', PACKAGE = 'srnadiff', logFoldChanges, regions, minLength, maxLength, minLFC)
+}
+
 #' Compute unique counts.
 #'
 #' @param lengths          the sizes of the RLEs (one list per chromosome)
