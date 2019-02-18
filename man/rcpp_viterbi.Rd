@@ -4,12 +4,10 @@
 \alias{rcpp_viterbi}
 \title{Run the Viterbi algorithm on the HMM.}
 \usage{
-rcpp_viterbi(chromosomeSizes, transitions, emissions, emissionThreshold,
-  starts, counts, pvalues, lengths, values, minDepth, minSize, maxSize)
+rcpp_viterbi(coverages, transitions, emissions, emissionThreshold, starts,
+  counts, pvalues, minDepth, minSize, maxSize)
 }
 \arguments{
-\item{chromosomeSizes}{the sizes of the chromosomes}
-
 \item{transitions}{the transition log-probabilities}
 
 \item{emissions}{the emission log-probabilities}
@@ -22,15 +20,15 @@ rcpp_viterbi(chromosomeSizes, transitions, emissions, emissionThreshold,
 
 \item{pvalues}{the p-values of the counts}
 
-\item{lengths}{the sizes of the RLEs (one list per chromosome)}
-
-\item{values}{the values of the RLEs (one list per chromosome)}
-
 \item{minDepth}{the minimum read coverage}
 
 \item{minSize}{the minimum size region}
 
 \item{maxSize}{the maximum size region}
+
+\item{lengths}{the sizes of the RLEs (one list per chromosome)}
+
+\item{values}{the values of the RLEs (one list per chromosome)}
 }
 \value{
 a segmentation of the chromosomes

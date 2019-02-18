@@ -27,6 +27,7 @@ bool addElement(int start, int end, std::string &chromosome,
 		return true;
 }
 
+/*
 //' Compute naive method.
 //'
 //' @param lengths              the sizes of the RLEs (one list per chromosome)
@@ -88,3 +89,4 @@ DataFrame rcpp_naive(ListOf < ListOf < IntegerVector > > &lengths,
         }
     }
 }
+*/

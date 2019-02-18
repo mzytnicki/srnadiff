@@ -78,7 +78,7 @@ double getMeanLFC (int start, int end,
 }
 
 // [[Rcpp::export]]
-List rcpp_slice2(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, double minLFC) {
+List rcpp_slice(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, double minLFC) {
     IntegerVector outputStarts, outputEnds;
     StringVector outputChromosomes;
     S4 regionsSeqnames = regions.slot("seqnames");
@@ -240,6 +240,7 @@ List rcpp_slice2(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, 
                              _["end"]      = outputEnds);
 }
 
+/*
 //' Compute unique counts.
 //'
 //' @param lengths          the sizes of the RLEs (one list per chromosome)
@@ -337,3 +338,4 @@ List rcpp_slice(ListOf < ListOf < IntegerVector > > &lengths,
                              _["start"]    = starts ,
                              _["end"]      = ends);
 }
+*/

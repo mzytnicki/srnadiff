@@ -439,10 +439,9 @@ reconcileRegions <- function(object, allSets) {
     colData(counts)  <- object@design
     dds              <- DESeqDataSet(counts, design =~condition)
     names(dds)       <- names(allSets)
-    dds              <- dds[rowSums(counts(dds)) > 1, ]
     dds              <- DESeq(dds)
     regions          <- allSets[names(allSets) %in% names(dds),]
-    mcols(regions)   <- results(dds)
+    mcols(regions)   <- cbind(results(dds), mcols(regions))
     padj             <- mcols(regions)$padj
     regions          <- regions[! is.na(padj)]
     dds              <- dds[! is.na(padj)]
@@ -459,9 +458,7 @@ reconcileRegions <- function(object, allSets) {
 #' @return The same object, with the normalization factors
 computeNormalizationFactors <- function(object) {
     librarySize    <- vapply(lapply(object@coverages, sum), sum, integer(1))
-    normalizationFactors <- rcpp_normalization(object@lengths, object@values,
-                                               object@chromosomeSizes,
-                                               librarySize)
+    normalizationFactors <- rcpp_normalization(object@coverages, librarySize)
     object@normalizationFactors <- normalizationFactors
     return(object)
 }
@@ -485,7 +482,7 @@ computeLogFoldChange <- function(object) {
     return(object)
 }
 
-#' Run the segmentation using 3 different methods, and reconcile them.
+#' Run the segmentation using different methods, and reconcile them.
 #'
 #' @param object An \code{srnadiff} object.
 #' @return A \code{GRanges} object.

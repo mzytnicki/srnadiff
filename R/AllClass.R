@@ -8,8 +8,6 @@
 #' @slot replicates        The names of the replicates.
 #' @slot conditions        The condition to which each replicate belongs.
 #' @slot coverages         The coverages, a vector of \code{RLE}.
-#' @slot lengths           The lengths parts of the coverages.
-#' @slot values            The values parts of the coverages.
 #' @slot logFC             The log fold change.
 #' @slot design            Experimental design, a \code{DataFrame} for
 #'                           \code{DESeq2}
@@ -39,8 +37,6 @@ setClass("sRNADiff",
                 replicates          ="vector",
                 conditions          ="vector",
                 coverages           ="vector",
-                lengths             ="list",
-                values              ="list",
                 logFC               ="RleList",
                 design              ="DataFrame",
                 normalizationFactors="vector",
@@ -146,10 +142,6 @@ sRNADiffExp <- function(annotation=NULL,
                     minOverlap          =10,
                     nThreads            =1
     )
-    object@lengths <- lapply(object@chromosomes, function(chromosome)
-        lapply(lapply(object@coverages, `[[`, chromosome), slot, "lengths"))
-    object@values <- lapply(object@chromosomes, function(chromosome)
-        lapply(lapply(object@coverages, `[[`, chromosome), slot, "values"))
     rownames(object@design) <- object@replicates
     message("... done.")
     return(object)

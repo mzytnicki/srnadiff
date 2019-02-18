@@ -10,12 +10,13 @@ using namespace Rcpp;
 
 class GenomeIterator {
     private:
-        ListOf < ListOf < IntegerVector > > &lengths;
-        ListOf < ListOf < IntegerVector > > &values;
-        IntegerVector &chromosomeSizes;
+        List         &coverages;
+        StringVector  chromosomes;
         NumericVector normalizationFactors;
         int nSamples;
-        int nChromosomes;
+        std::vector < IntegerVector > lengths;
+        std::vector < IntegerVector > values;
+        std::vector < bool >     chromosomesOver;
         std::valarray < int >    indices;
         std::valarray < int >    remainings;
         std::valarray < int >    theseValues;
@@ -24,6 +25,7 @@ class GenomeIterator {
         std::valarray < int >    theseRawValues;
         std::vector < int >      theseRawValuesVector;
         std::valarray < double > theseRawValuesDouble;
+        std::vector   < int >    chromosomeSizes;
         int step;
         long pos;
         int chromosomeId;
@@ -31,15 +33,13 @@ class GenomeIterator {
         bool over;
 
     public:
-        GenomeIterator (ListOf < ListOf < IntegerVector > > &l,
-                ListOf < ListOf < IntegerVector > > &v,
-                IntegerVector &cs, NumericVector f):
-                    lengths(l),
-                    values(v),
-                    chromosomeSizes(cs),
+        GenomeIterator (List &c, NumericVector f):
+                    coverages(c),
                     normalizationFactors(f),
-                    nSamples(lengths[0].size()),
-                    nChromosomes(chromosomeSizes.size()),
+                    nSamples(coverages.size()),
+                    lengths(nSamples),
+                    values(nSamples),
+                    chromosomesOver(nSamples, false),
                     indices(nSamples),
                     remainings(nSamples),
                     theseValues(nSamples),
@@ -48,22 +48,38 @@ class GenomeIterator {
                     theseRawValues(nSamples),
                     theseRawValuesVector(nSamples),
                     theseRawValuesDouble(nSamples),
+                    chromosomeSizes(nSamples, 0),
                     pos(0),
                     chromosomeId(0),
                     chromosomeChange(false),
                     over(false) {
-                reset();
+            if (coverages.size() != 0) {
+                if (as<List>(coverages[0]).size() != 0) {
+                    chromosomes = as<List>(as<S4>(coverages[0]).slot("listData")).names();
+                }
+                for (int sampleId = 1; sampleId < nSamples; ++sampleId) {
+                    if (as<StringVector>(as<List>(as<S4>(coverages[0]).slot("listData")).names()).size() != chromosomes.size()) {
+                        stop("Number of chromosomes differ between samples!");
+                    }
+                    for (int chromosomeId = 0; chromosomeId < chromosomes.size(); ++ chromosomeId) {
+                        if (as<StringVector>(as<List>(as<S4>(coverages[0]).slot("listData")).names())[chromosomeId] != chromosomes[chromosomeId]) {
+                            stop("Chromosomes differ between samples!");
+                        }
+                    }
+                }
+            }
+            reset();
         }
 
-        GenomeIterator (ListOf < ListOf < IntegerVector > > &l,
-                ListOf < ListOf < IntegerVector > > &v, IntegerVector &cs):
-                    GenomeIterator(l, v, cs, NumericVector(l[0].size(), 1.0)) {}
+        GenomeIterator (List &c):
+                    GenomeIterator(c, NumericVector(as<List>(c[0]).size(), 1.0)) {}
 
         void reset (bool nextChromosome = false) {
+            std::fill(chromosomesOver.begin(), chromosomesOver.end(), false);
             if (nextChromosome) {
                 ++chromosomeId;
                 chromosomeChange = true;
-                if (chromosomeId == nChromosomes) {
+                if (chromosomeId == chromosomes.size()) {
                     over = true;
                     return;
                 }
@@ -72,12 +88,15 @@ class GenomeIterator {
                 chromosomeId = 0;
             }
             for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
+                S4 rle = as<S4>(as<List>(as<S4>(coverages[sampleId]).slot("listData"))[chromosomeId]);
+                lengths[sampleId]    = rle.slot("lengths");
+                values[sampleId]     = rle.slot("values");
                 indices[sampleId]    = 0;
-                remainings[sampleId] = lengths[chromosomeId][sampleId][0];
+                remainings[sampleId] = lengths[sampleId][0];
                 theseRawValuesDouble[sampleId] =
                     theseRawValues[sampleId] =
                     theseRawValuesVector[sampleId] =
-                        values[chromosomeId][sampleId][0];
+                        values[sampleId][0];
                 theseValuesDouble[sampleId] = theseRawValues[sampleId] *
                                                 normalizationFactors[sampleId];
                 theseValues[sampleId] =
@@ -130,9 +149,19 @@ class GenomeIterator {
         }
 
         std::string getChromosome () {
-            return as < std::string >(
-                    as< CharacterVector >(chromosomeSizes.names())
-                        [chromosomeId]);
+            return as < std::string >(chromosomes[chromosomeId]);
+        }
+
+        std::string getChromosome (int i) {
+            return as < std::string >(chromosomes[i]);
+        }
+
+        int getChromosomeSize () {
+            return chromosomeSizes[chromosomeId];
+        }
+
+        int getChromosomeSize (int i) {
+            return chromosomeSizes[i];
         }
 
         long getPosition () {
@@ -145,28 +174,38 @@ class GenomeIterator {
                 s = step;
             }
             pos += s;
-            if (pos >= chromosomeSizes[chromosomeId]) {
-                reset(true);
-                return;
-            }
             for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
-                remainings[sampleId] -= s;
-                if (remainings[sampleId] == 0) {
-                    ++indices[sampleId];
-                    remainings[sampleId] =
-                        lengths[chromosomeId][sampleId][indices[sampleId]];
-                    theseRawValuesDouble[sampleId] =
-                        theseRawValues[sampleId] =
-                        theseRawValuesVector[sampleId] =
-                            values[chromosomeId][sampleId][indices[sampleId]];
-                    theseValuesDouble[sampleId] =
-                        theseRawValues[sampleId] *
-                        normalizationFactors[sampleId];
-                    theseValues[sampleId] =
-                        theseValuesVector[sampleId] =
-                            round(theseValuesDouble[sampleId]);
+                if (! chromosomesOver[sampleId]) {
+                    remainings[sampleId] -= s;
+                    if (remainings[sampleId] == 0) {
+                        int value = 0;
+                        ++indices[sampleId];
+                        if (indices[sampleId] == lengths[sampleId].size()) {
+                            chromosomesOver[sampleId] = true;
+                            if (std::all_of(chromosomesOver.begin(), chromosomesOver.end(), [] (bool b) { return b; })) {
+                                reset(true);
+                                return;
+                            }
+                            value = 0;
+                            remainings[sampleId] = std::numeric_limits<int>::max();
+                        }
+                        else {
+                            value = values[sampleId][indices[sampleId]];
+                            remainings[sampleId] =
+                                lengths[sampleId][indices[sampleId]];
+                        }
+                        theseRawValuesDouble[sampleId] =
+                            theseRawValues[sampleId] =
+                            theseRawValuesVector[sampleId] = value;
+                        theseValuesDouble[sampleId] =
+                            value * normalizationFactors[sampleId];
+                        theseValues[sampleId] =
+                            theseValuesVector[sampleId] =
+                                round(theseValuesDouble[sampleId]);
+                    }
                 }
             }
             step = remainings.min();
+            chromosomeSizes[chromosomeId] = std::max<int>(chromosomeSizes[chromosomeId], pos);
         }
 };

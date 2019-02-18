@@ -28,16 +28,13 @@ double computeMedian(std::vector < std::pair < double, int > > &table){
 //' @param librarySizes     number of elements per sample
 //' @return                 the normalization factors
 // [[Rcpp::export]]
-NumericVector rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
-                        ListOf < ListOf < IntegerVector > > &values,
-                        IntegerVector &chromosomeSizes,
-                        IntegerVector &librarySizes) {
-    GenomeIterator iterator (lengths, values, chromosomeSizes);
+NumericVector rcpp_normalization(List &coverages, IntegerVector &librarySizes) {
+    GenomeIterator iterator (coverages);
     std::vector < std::pair < std::valarray < double >, int > > normValues;
     std::vector < std::pair < double, int > > normValuesPerSample;
     std::vector < std::pair < double, int > > avgValues;
     std::vector < std::pair < double, int > > avgNormValues;
-    int nSamples     = lengths[0].size();
+    int nSamples     = coverages.size();
     //int nChromosomes = chromosomeSizes.size();
     std::valarray < double > theseValues (nSamples);
     //std::valarray < double > sums (nSamples);
@@ -51,7 +48,7 @@ NumericVector rcpp_normalization(ListOf < ListOf < IntegerVector > > &lengths,
     }
     */
     for (; ! iterator.isOver(); iterator.getNext()) {
-        theseValues = iterator.getValuesDouble();
+        theseValues = iterator.getRawValuesDouble();
         if (theseValues.min() >= 1) {
             theseValues /= exp(log(theseValues).sum() / nSamples);
             normValues.emplace_back(theseValues, iterator.getStep());

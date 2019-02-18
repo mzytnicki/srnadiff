@@ -2,18 +2,18 @@
 #'
 #' @param object An \code{srnadiff} object.
 #' @return A GRanges.
-runSlice <- function(object) {
-    avgCounts <- lapply(split(object@coverages,
-                                object@conditions == object@conditions[[1]]),
-                            function (s) { round(Reduce('+', s) / length(s)) })
-    lengths <- lapply(avgCounts, function (x) {lapply(x, slot, "lengths") })
-    values  <- lapply(avgCounts, function (x) {lapply(x, slot, "values") })
-    ranges  <- rcpp_slice(lengths, values, object@chromosomeSizes,
-                            object@minDepth, object@minSize, object@maxSize,
-                            object@minDifferences)
-    if (length(ranges[[1]]) == 0) return(GRanges())
-    return(GRanges(ranges))
-}
+#runSlice <- function(object) {
+#    avgCounts <- lapply(split(object@coverages,
+#                                object@conditions == object@conditions[[1]]),
+#                            function (s) { round(Reduce('+', s) / length(s)) })
+#    lengths <- lapply(avgCounts, function (x) {lapply(x, slot, "lengths") })
+#    values  <- lapply(avgCounts, function (x) {lapply(x, slot, "values") })
+#    ranges  <- rcpp_slice(lengths, values, object@chromosomeSizes,
+#                            object@minDepth, object@minSize, object@maxSize,
+#                            object@minDifferences)
+#    if (length(ranges[[1]]) == 0) return(GRanges())
+#    return(GRanges(ranges))
+#}
 
 
 #' Segmentation of the genome using a slice method.
@@ -39,11 +39,11 @@ runAllSlice <- function(object) {
         mcols(ranges) <- NULL
         names(ranges) <- paste("naive", seq(length(ranges)), sep="_")
     }
-
-    intervals <- rcpp_slice2(object@logFC, ranges, object@minSize, object@maxSize, object@minLogFC);
+    intervals <- rcpp_slice(object@logFC, ranges, object@minSize, object@maxSize, object@minLogFC);
     intervals <- GRanges(intervals)
     if (length(intervals) > 0) {
         names(intervals) <- paste("slice", seq(length(intervals)), sep="_")
+        intervals$method <- "slice"
     }
 
 #    intervals <- runSlice(object)

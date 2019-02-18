@@ -4,8 +4,7 @@
 #' @return       The selected values: a \code{list} of \code{vector}s of
 #'                   \code{integer}s.
 buildDataHmm <- function (object) {
-    counts           <- rcpp_buildHmm(object@lengths, object@values,
-                                        object@chromosomeSizes, object@minDepth)
+    counts           <- rcpp_buildHmm(object@coverages, object@minDepth)
     colnames(counts) <- object@replicates
     rownames(counts) <- paste("data", seq(dim(counts)[1]), sep="_")
     return(counts)
@@ -45,10 +44,9 @@ runHmm <- function(object, counts, pvalues) {
     starts            <- c(object@noDiffToDiff / object@diffToNoDiff,
                             object@diffToNoDiff / object@noDiffToDiff)
     starts            <- -log10(starts / sum(starts))
-    ranges            <- rcpp_viterbi(object@chromosomeSizes, transitions,
+    ranges            <- rcpp_viterbi(object@coverages, transitions,
                                         emissions, object@emissionThreshold,
                                         starts, counts, pvalues,
-                                        object@lengths, object@values,
                                         object@minDepth, object@minSize,
                                         object@maxSize)
     if (nrow(ranges) == 0) return(GRanges())
@@ -73,8 +71,10 @@ runAllHmm <- function(object) {
     message("  Running HMM...")
     intervals <- runHmm(object, counts, pvalues)
     message("  ... HMM run.")
-    if (length(intervals) > 0)
+    if (length(intervals) > 0) {
         names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
+        intervals$method <- "HMM"
+    }
     message(paste0(c("  ... ", length(intervals), " regions found.")))
     message("... HMM step done.")
     return(intervals)

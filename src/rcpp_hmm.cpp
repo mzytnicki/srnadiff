@@ -12,23 +12,20 @@ using namespace Rcpp;
 //'
 //' @param lengths          the sizes of the RLEs (one list per chromosome)
 //' @param values           the values of the RLEs (one list per chromosome)
-//' @param chromosomeSizes  the sizes of the chromosomes
 //' @param minDepth         the minimum read coverage
 //' @return                 the unique counts
 // [[Rcpp::export]]
-IntegerMatrix rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
-                            ListOf < ListOf < IntegerVector > > &values,
-                            IntegerVector &chromosomeSizes, int minDepth) {
+IntegerMatrix rcpp_buildHmm(List &coverages, int minDepth) {
     std::vector < std::vector < int > > outputValues;
     std::vector < std::vector < int > >::iterator it;
-    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
+    for (GenomeIterator iterator (coverages); ;
          iterator.getNext()) {
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
             sort(outputValues.begin(), outputValues.end());
             auto it = std::unique(outputValues.begin(), outputValues.end());
             outputValues.resize(std::distance(outputValues.begin(), it));
             if (iterator.isOver()) {
-                IntegerMatrix matrix(outputValues.size(), lengths[0].size());
+                IntegerMatrix matrix(outputValues.size(), coverages.size());
                 for (size_t i = 0; i < outputValues.size(); ++i) {
                     matrix.row(i) = IntegerVector(outputValues[i].begin(),
                                outputValues[i].end());
@@ -44,7 +41,6 @@ IntegerMatrix rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
 
 //' Run the Viterbi algorithm on the HMM.
 //'
-//' @param chromosomeSizes   the sizes of the chromosomes
 //' @param transitions       the transition log-probabilities
 //' @param emissions         the emission log-probabilities
 //' @param emissionThreshold the emission threshold
@@ -58,20 +54,18 @@ IntegerMatrix rcpp_buildHmm(ListOf < ListOf < IntegerVector > > &lengths,
 //' @param maxSize           the maximum size region
 //' @return                  a segmentation of the chromosomes
 // [[Rcpp::export]]
-DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
+DataFrame rcpp_viterbi(List          &coverages,
                        NumericMatrix &transitions,
                        NumericMatrix &emissions,
                        float         emissionThreshold,
                        NumericVector &starts,
                        IntegerVector &counts,
                        NumericVector &pvalues,
-                       ListOf < ListOf < IntegerVector > > &lengths,
-                       ListOf < ListOf < IntegerVector > > &values,
                        int minDepth, int minSize, int maxSize) {
     static const int NO_DIFF_CLASS = 0;
     static const int DIFF_CLASS    = 1;
     static const int N_CLASSES     = 2;
-    int nSamples                   = lengths[0].size();
+    int nSamples                   = coverages.size();
     std::vector < double > startsArray (starts.begin(), starts.end());
     std::vector < double > previousP = startsArray;
     std::vector < double > currentP(2);
@@ -90,21 +84,18 @@ DataFrame rcpp_viterbi(IntegerVector &chromosomeSizes,
         }
         pvalueMap[row] = pvalues[i];
     }
-    for (GenomeIterator iterator (lengths, values, chromosomeSizes); ;
-         iterator.getNext(step)) {
+    for (GenomeIterator iterator (coverages); ; iterator.getNext(step)) {
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
             int chromosomeId     = iterator.getChromosomeId()-1;
-            int chromosomeSize   = chromosomeSizes[chromosomeId];
             int currentState     = (currentP[NO_DIFF_CLASS] <=
                                              currentP[DIFF_CLASS])?
                                              NO_DIFF_CLASS: DIFF_CLASS;
-            int pos, previousPos = chromosomeSize+1;
+            int pos, previousPos = iterator.getChromosomeSize(chromosomeId)+1;
             bool inDiff = (currentState == DIFF_CLASS);
             std::vector < int > diffStarts, diffEnds;
-            std::string chromosome = as < std::string >(as< CharacterVector >(
-                chromosomeSizes.names()) [chromosomeId]);
+            std::string chromosome = iterator.getChromosome(chromosomeId);
             if (inDiff) {
-                diffEnds.push_back(chromosomeSize);
+                diffEnds.push_back(iterator.getChromosomeSize(chromosomeId));
             }
             for (int i = previousStates.size(); i > 0; --i) {
                 pos = statePos[i-1];
