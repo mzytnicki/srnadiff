@@ -2,7 +2,7 @@
 % Please edit documentation in R/main.R
 \name{runAll}
 \alias{runAll}
-\title{Run the segmentation using 3 different methods, and reconcile them.}
+\title{Run the segmentation using different methods, and reconcile them.}
 \usage{
 runAll(object)
 }
@@ -13,7 +13,7 @@ runAll(object)
 A \code{GRanges} object.
 }
 \description{
-Run the segmentation using 3 different methods, and reconcile them.
+Run the segmentation using different methods, and reconcile them.
 }
 \examples{
 exp        <- sRNADiffExample()

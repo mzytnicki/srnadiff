@@ -1,4 +1,4 @@
-#' Initialize and run the slice method.
+#' Initialize and run the IR method.
 #'
 #' @param object An \code{srnadiff} object.
 #' @return A GRanges.
@@ -16,15 +16,15 @@
 #}
 
 
-#' Segmentation of the genome using a slice method.
+#' Segmentation of the genome using a IR method.
 #'
 #' @param object An \code{srnadiff} object.
 #' @return       A \code{GRanges} object.
-runAllSlice <- function(object) {
-    if (object@skipSlice) {
+runAllIR <- function(object) {
+    if (object@skipIR) {
         return(GRanges())
     }
-    message("Starting slice step...")
+    message("Starting IR step...")
 
     up <- as(object@logFC >= object@minLogFC, "GRanges")
     up <- up[up$score]
@@ -39,17 +39,17 @@ runAllSlice <- function(object) {
         mcols(ranges) <- NULL
         names(ranges) <- paste("naive", seq(length(ranges)), sep="_")
     }
-    intervals <- rcpp_slice(object@logFC, ranges, object@minSize, object@maxSize, object@minLogFC);
+    intervals <- rcpp_ir(object@logFC, ranges, object@minSize, object@maxSize, object@minLogFC);
     intervals <- GRanges(intervals)
     if (length(intervals) > 0) {
-        names(intervals) <- paste("slice", seq(length(intervals)), sep="_")
-        intervals$method <- "slice"
+        names(intervals) <- paste("IR", seq(length(intervals)), sep="_")
+        intervals$method <- "IR"
     }
 
 #    intervals <- runSlice(object)
 #    if (length(intervals) > 0)
 #        names(intervals) <- paste("slice",seq(length(intervals)), sep="_")
     message(paste0(c("  ... ", length(intervals), " regions found.")))
-    message("... slice step done.")
+    message("... IR step done.")
     return(intervals)
 }

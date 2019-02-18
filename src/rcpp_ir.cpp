@@ -78,7 +78,7 @@ double getMeanLFC (int start, int end,
 }
 
 // [[Rcpp::export]]
-List rcpp_slice(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, double minLFC) {
+List rcpp_ir(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, double minLFC) {
     IntegerVector outputStarts, outputEnds;
     StringVector outputChromosomes;
     S4 regionsSeqnames = regions.slot("seqnames");

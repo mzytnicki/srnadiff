@@ -162,25 +162,6 @@ In this case, no selection is performed on `source` or `feature`.
 If `name` is null, then a systematic name is given (`annotation_N`).
 
 
-### Naive
-
-This strategy is the simplest, most commonly used, to find transcription units.
-It proceeds in two steps.
-
-The first step merges all the BAM files.  Regions with a minimum number coverage
-(summing all the reads in all input BAM files) are kept.
-
-The second steps merges regions that are within a given distance (also provided
-by the user).  The default distance can be change using this function:
-
-```{r, set_merge_distance}
-exp <- setMergeDistance(exp, 100)
-```
-
-This method is efficient when a gene is differentially expressed on the whole
-transcript.
-
-
 ### HMM
 
 This strategy first computes the coverage of every input BAM file of every
@@ -239,12 +220,6 @@ where the distribution and the horizontal lines meet is a putative region.
 Obviously, many putative regions may have very similar start and end points.
 If two regions differ only by a few base pairs, the smallest regions will be
 discarded.
-
-The default values can be changed using these functions:
-
-```{r, slicing}
-exp <- setMinDifferences(exp, differences = 50)
-```
 
 This method is especially efficient when a differentially expressed region is
 large, even though the fold change is moderate.

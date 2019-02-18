@@ -3,24 +3,22 @@
 \docType{methods}
 \name{setStrategies}
 \alias{setStrategies}
-\alias{setStrategies,sRNADiff,logical,logical,logical,logical-method}
+\alias{setStrategies,sRNADiff,logical,logical,logical-method}
 \title{Set the different steps}
 \usage{
-setStrategies(object, annotation, naive, hmm, slice)
+setStrategies(object, annotation, hmm, ir)
 
-\S4method{setStrategies}{sRNADiff,logical,logical,logical,logical}(object,
-  annotation, naive, hmm, slice)
+\S4method{setStrategies}{sRNADiff,logical,logical,logical}(object,
+  annotation, hmm, ir)
 }
 \arguments{
 \item{object}{An \code{srnadiff} object.}
 
 \item{annotation}{The annotation step.}
 
-\item{naive}{The naive step.}
-
 \item{hmm}{The HMM step.}
 
-\item{slice}{The slice step.}
+\item{ir}{The IR step.}
 }
 \value{
 The same object

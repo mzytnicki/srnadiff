@@ -16,16 +16,13 @@
 #' @slot minDepth          Minimum depth to consider to find regions
 #' @slot minSize           Minimum region size
 #' @slot maxSize           Maximum region size
-#' @slot mergeDistance     Distance to merge consecutive region
-#' @slot minDifferences    Minimum number of different nt between two regions
 #' @slot noDiffToDiff      Transition probability
 #' @slot diffToNoDiff      Transition probability
 #' @slot emission          Emission probability
 #' @slot emissionThreshold Emission threshold
 #' @slot skipAnnotation    Whether to skip the annotation strategy step
-#' @slot skipNaive         Whether to skip the naive strategy step
 #' @slot skipHmm           Whether to skip the HMM strategy step
-#' @slot skipSlice         Whether to skip the slice strategy step
+#' @slot skipIR            Whether to skip the IR strategy step
 #' @slot nThreads          Number of threads
 setClass("sRNADiff",
             representation(
@@ -45,17 +42,14 @@ setClass("sRNADiff",
                 minSize             ="numeric",
                 maxSize             ="numeric",
                 minLogFC            ="numeric",
-                mergeDistance       ="numeric",
-                minDifferences      ="numeric",
                 noDiffToDiff        ="numeric",
                 diffToNoDiff        ="numeric",
                 emission            ="numeric",
                 emissionThreshold   ="numeric",
                 minOverlap          ="numeric",
                 skipAnnotation      ="logical",
-                skipNaive           ="logical",
                 skipHmm             ="logical",
-                skipSlice           ="logical",
+                skipIR              ="logical",
                 nThreads            ="numeric"),
             prototype(
                 annotation=GRanges()
@@ -126,15 +120,12 @@ sRNADiffExp <- function(annotation=NULL,
                     coverages           =lapply(bamFiles, coverage),
                     logFC               =RleList(),
                     skipAnnotation      =FALSE,
-                    skipNaive           =FALSE,
                     skipHmm             =FALSE,
-                    skipSlice           =FALSE,
+                    skipIR              =FALSE,
                     minDepth            =10,
                     minSize             =18,
                     maxSize             =1000000,
                     minLogFC            =0.5,
-                    mergeDistance       =100,
-                    minDifferences      =20,
                     noDiffToDiff        =0.001,
                     diffToNoDiff        =0.000001,
                     emission            =0.9,

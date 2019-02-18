@@ -26,10 +26,6 @@ An S4 class to represent sRNA-Seq data for differential expression.
 
 \item{\code{coverages}}{The coverages, a vector of \code{RLE}.}
 
-\item{\code{lengths}}{The lengths parts of the coverages.}
-
-\item{\code{values}}{The values parts of the coverages.}
-
 \item{\code{logFC}}{The log fold change.}
 
 \item{\code{design}}{Experimental design, a \code{DataFrame} for
@@ -44,10 +40,6 @@ expressed region}
 
 \item{\code{maxSize}}{Maximum region size}
 
-\item{\code{mergeDistance}}{Distance to merge consecutive region}
-
-\item{\code{minDifferences}}{Minimum number of different nt between two regions}
-
 \item{\code{noDiffToDiff}}{Transition probability}
 
 \item{\code{diffToNoDiff}}{Transition probability}
@@ -58,11 +50,9 @@ expressed region}
 
 \item{\code{skipAnnotation}}{Whether to skip the annotation strategy step}
 
-\item{\code{skipNaive}}{Whether to skip the naive strategy step}
-
 \item{\code{skipHmm}}{Whether to skip the HMM strategy step}
 
-\item{\code{skipSlice}}{Whether to skip the slice strategy step}
+\item{\code{skipIR}}{Whether to skip the IR strategy step}
 
 \item{\code{nThreads}}{Number of threads}
 }}

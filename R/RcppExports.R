@@ -29,6 +29,10 @@ rcpp_viterbi <- function(coverages, transitions, emissions, emissionThreshold, s
     .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', coverages, transitions, emissions, emissionThreshold, starts, counts, pvalues, minDepth, minSize, maxSize)
 }
 
+rcpp_ir <- function(logFoldChanges, regions, minLength, maxLength, minLFC) {
+    .Call('_srnadiff_rcpp_ir', PACKAGE = 'srnadiff', logFoldChanges, regions, minLength, maxLength, minLFC)
+}
+
 #' Normalize counts
 #'
 #' @param lengths          the sizes of the RLEs (one list per chromosome)
@@ -38,9 +42,5 @@ rcpp_viterbi <- function(coverages, transitions, emissions, emissionThreshold, s
 #' @return                 the normalization factors
 rcpp_normalization <- function(coverages, librarySizes) {
     .Call('_srnadiff_rcpp_normalization', PACKAGE = 'srnadiff', coverages, librarySizes)
-}
-
-rcpp_slice <- function(logFoldChanges, regions, minLength, maxLength, minLFC) {
-    .Call('_srnadiff_rcpp_slice', PACKAGE = 'srnadiff', logFoldChanges, regions, minLength, maxLength, minLFC)
 }
 

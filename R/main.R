@@ -33,12 +33,10 @@ setMethod(  f         ="show",
                     length(object@regions),
                     ")\nSkip annotation step: ",
                     object@skipAnnotation,
-                    "\nSkip naive step: ",
-                    object@skipNaive,
                     "\nSkip HMM step: ",
                     object@skipHmm,
-                    "\nSkip slice step: ",
-                    object@skipSlice,
+                    "\nSkip IR step: ",
+                    object@skipIR,
                     "\n", sep = "")
             }
 )
@@ -83,9 +81,8 @@ setMethod(  f        ="regions",
 #' @rdname setStrategies-method
 #' @param  object     An \code{srnadiff} object.
 #' @param  annotation The annotation step.
-#' @param  naive      The naive step.
 #' @param  hmm        The HMM step.
-#' @param  slice      The slice step.
+#' @param  ir         The IR step.
 #' @return         The same object
 #'
 #' @examples
@@ -94,7 +91,7 @@ setMethod(  f        ="regions",
 #'
 #' @export
 setGeneric( name="setStrategies",
-            def =function(object, annotation, naive, hmm, slice) {
+            def =function(object, annotation, hmm, ir) {
                 standardGeneric("setStrategies")
             }
 )
@@ -102,13 +99,11 @@ setGeneric( name="setStrategies",
 #' @rdname  setStrategies-method
 #' @export
 setMethod(  f        ="setStrategies",
-            signature= c("sRNADiff", "logical", "logical", "logical",
-                            "logical"),
-            definition=function(object, annotation, naive, hmm, slice) {
+            signature= c("sRNADiff", "logical", "logical", "logical"),
+            definition=function(object, annotation, hmm, ir) {
                                 object@skipAnnotation <- ! annotation
-                                object@skipNaive      <- ! naive
                                 object@skipHmm        <- ! hmm
-                                object@skipSlice      <- ! slice
+                                object@skipIR         <- ! ir
                 return(object)
             }
 )
@@ -173,7 +168,7 @@ setMethod(  f        ="setMinDepth",
 )
 
 
-#' Set the threshold to merge close regions (in the naive step)
+#' Set the threshold to merge close regions (in the IR step)
 #' @rdname setMergeDistance-method
 #' @param  object   An \code{srnadiff} object.
 #' @param  distance The maximum distance
@@ -187,44 +182,6 @@ setMethod(  f        ="setMinDepth",
 setGeneric( name="setMergeDistance",
             def =function(object, distance) {
                 standardGeneric("setMergeDistance")
-            }
-)
-
-#' @rdname  setMergeDistance-method
-#' @export
-setMethod(  f        ="setMergeDistance",
-            signature= c("sRNADiff", "numeric"),
-            definition=function(object, distance) {
-                                object@mergeDistance <- distance
-                return(object)
-            }
-)
-
-
-#' Set the threshold to remove similar regions (in the slice step)
-#' @rdname setMinDifferences-method
-#' @param  object      An \code{srnadiff} object.
-#' @param  differences The minimum number of different nt.
-#' @return             The same object
-#'
-#' @examples
-#' exp <- sRNADiffExample()
-#' exp <- setMinDifferences(exp, 10)
-#'
-#' @export
-setGeneric( name="setMinDifferences",
-            def =function(object, differences) {
-                standardGeneric("setMinDifferences")
-            }
-)
-
-#' @rdname  setMinDifferences-method
-#' @export
-setMethod(  f        ="setMinDifferences",
-            signature= c("sRNADiff", "numeric"),
-            definition=function(object, differences) {
-                                object@minDifferences <- differences
-                return(object)
             }
 )
 
@@ -498,12 +455,10 @@ runAll <- function(object) {
     object         <- computeNormalizationFactors(object)
     object         <- computeLogFoldChange(object)
     setAnnotation  <- runAllAnnotation(object)
-    #setNaive       <- runAllNaive(object)
-    setNaive       <- GRanges()
-    setSlice       <- runAllSlice(object)
+    setIR          <- runAllIR(object)
     setHmm         <- runAllHmm(object)
-    allSets        <- unique(sort(do.call("c", list(setAnnotation, setNaive,
-                                                    setHmm, setSlice))))
+    allSets        <- unique(sort(do.call("c", list(setAnnotation, setHmm,
+                                                    setIR))))
     object@regions <- reconcileRegions(object, allSets)
     return(object)
 }

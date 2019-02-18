@@ -7,7 +7,7 @@
 extern SEXP _srnadiff_rcpp_buildHmm(SEXP, SEXP);
 extern SEXP _srnadiff_rcpp_viterbi(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _srnadiff_rcpp_normalization(SEXP, SEXP);
-extern SEXP _srnadiff_rcpp_slice(SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _srnadiff_rcpp_ir(SEXP, SEXP, SEXP, SEXP, SEXP);
 //extern SEXP _srnadiff_rcpp_naive(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
@@ -17,8 +17,8 @@ static const R_CallMethodDef CallEntries[] = {
         (DL_FUNC) &_srnadiff_rcpp_viterbi,       10},
     {"_srnadiff_rcpp_normalization",
         (DL_FUNC) &_srnadiff_rcpp_normalization, 2},
-    {"_srnadiff_rcpp_slice",
-        (DL_FUNC) &_srnadiff_rcpp_slice,         5},
+    {"_srnadiff_rcpp_ir",
+        (DL_FUNC) &_srnadiff_rcpp_ir,            5},
 /*
     {"_srnadiff_rcpp_naive",
         (DL_FUNC) &_srnadiff_rcpp_naive,         7},

@@ -4,16 +4,16 @@
 \alias{rcpp_normalization}
 \title{Normalize counts}
 \usage{
-rcpp_normalization(lengths, values, chromosomeSizes, librarySizes)
+rcpp_normalization(coverages, librarySizes)
 }
 \arguments{
+\item{librarySizes}{number of elements per sample}
+
 \item{lengths}{the sizes of the RLEs (one list per chromosome)}
 
 \item{values}{the values of the RLEs (one list per chromosome)}
 
 \item{chromosomeSizes}{the sizes of the chromosomes}
-
-\item{librarySizes}{number of elements per sample}
 }
 \value{
 the normalization factors
