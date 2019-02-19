@@ -414,7 +414,7 @@ reconcileRegions <- function(object, allSets) {
 #' @param object An \code{srnadiff} object.
 #' @return The same object, with the normalization factors
 computeNormalizationFactors <- function(object) {
-    librarySize    <- vapply(lapply(object@coverages, sum), sum, integer(1))
+    librarySize <- unlist(lapply(lapply(object@coverages, sum), sum))
     normalizationFactors <- rcpp_normalization(object@coverages, librarySize)
     object@normalizationFactors <- normalizationFactors
     return(object)

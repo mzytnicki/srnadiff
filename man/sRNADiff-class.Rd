@@ -40,6 +40,8 @@ expressed region}
 
 \item{\code{maxSize}}{Maximum region size}
 
+\item{\code{mergeDistance}}{Distance to merge consecutive region}
+
 \item{\code{noDiffToDiff}}{Transition probability}
 
 \item{\code{diffToNoDiff}}{Transition probability}

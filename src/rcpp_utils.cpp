@@ -10,10 +10,11 @@ using namespace Rcpp;
 
 class GenomeIterator {
     private:
-        List         &coverages;
+        List          coverages;
         StringVector  chromosomes;
         NumericVector normalizationFactors;
         int nSamples;
+        int nChromosomes;
         std::vector < IntegerVector > lengths;
         std::vector < IntegerVector > values;
         std::vector < bool >     chromosomesOver;
@@ -33,7 +34,7 @@ class GenomeIterator {
         bool over;
 
     public:
-        GenomeIterator (List &c, NumericVector f):
+        GenomeIterator (List c, NumericVector f):
                     coverages(c),
                     normalizationFactors(f),
                     nSamples(coverages.size()),
@@ -48,7 +49,6 @@ class GenomeIterator {
                     theseRawValues(nSamples),
                     theseRawValuesVector(nSamples),
                     theseRawValuesDouble(nSamples),
-                    chromosomeSizes(nSamples, 0),
                     pos(0),
                     chromosomeId(0),
                     chromosomeChange(false),
@@ -56,6 +56,8 @@ class GenomeIterator {
             if (coverages.size() != 0) {
                 if (as<List>(coverages[0]).size() != 0) {
                     chromosomes = as<List>(as<S4>(coverages[0]).slot("listData")).names();
+                    nChromosomes = chromosomes.size();
+                    chromosomeSizes.resize(nChromosomes, 0);
                 }
                 for (int sampleId = 1; sampleId < nSamples; ++sampleId) {
                     if (as<StringVector>(as<List>(as<S4>(coverages[0]).slot("listData")).names()).size() != chromosomes.size()) {
@@ -71,7 +73,7 @@ class GenomeIterator {
             reset();
         }
 
-        GenomeIterator (List &c):
+        GenomeIterator (List c):
                     GenomeIterator(c, NumericVector(as<List>(c[0]).size(), 1.0)) {}
 
         void reset (bool nextChromosome = false) {
@@ -174,6 +176,7 @@ class GenomeIterator {
                 s = step;
             }
             pos += s;
+            //Rcout << "Position: " << getChromosome() << ":" << getPosition() << std::endl;
             for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
                 if (! chromosomesOver[sampleId]) {
                     remainings[sampleId] -= s;

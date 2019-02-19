@@ -10,6 +10,8 @@ annotation <- readWholeGenomeAnnotation(gtfFile)
 bamFiles   <- file.path(dir, data$FileName)
 replicates <- data$SampleName
 conditions <- factor(data$Condition)
+coverages  <- lapply(bamFiles, coverage)
+
 
 test_that("Running default constructor", {
     object      <- new("sRNADiff",
@@ -17,8 +19,9 @@ test_that("Running default constructor", {
                          bamFileNames     =bamFiles,
                          replicates       =replicates,
                          conditions       =conditions,
-                         design           =DataFrame(condition=conditions)
-    )
+                         design           =DataFrame(condition=conditions),
+                         coverages        =coverages,
+                         logFC            =RleList())
     expect_is(object, "sRNADiff")
 })
 

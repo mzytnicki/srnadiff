@@ -73,7 +73,7 @@ runAllHmm <- function(object) {
     message("  ... HMM run.")
     if (length(intervals) > 0) {
         names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
-        intervals$method <- "HMM"
+        intervals$method <- as.factor("HMM")
     }
     message(paste0(c("  ... ", length(intervals), " regions found.")))
     message("... HMM step done.")

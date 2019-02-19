@@ -27,7 +27,7 @@ readAnnotation <- function(fileName, source=NULL, feature=NULL, name=NULL) {
         names(annotation) <- mcols(annotation)[[name]]
     }
     mcols(annotation) <- NULL
-    annotation$method <- "annotation"
+    annotation$method <- as.factor("annotation")
     message(paste0(c("... ", length(annotation), " elements found...")))
     message("... Annotation step done.")
     return (annotation)

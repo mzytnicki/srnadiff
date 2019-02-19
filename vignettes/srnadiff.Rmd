@@ -1,32 +1,44 @@
 ---
-title: "The sRNADiff package"
-author: "Matthias Zytnicki"
+title: The srnadiff package
+author: 
+  - name: Matthias Zytnicki
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('srnadiff')`"
-output: rmarkdown::html_vignette
 bibliography: references.bib
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{The srnadiff package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+output: 
+    BiocStyle::html_document
 ---
 
-```{r setup_knitr, include = FALSE, cache = FALSE}
-library("srnadiff")
-library("BiocStyle")
-library("knitr")
-library("rmarkdown")
+```{r setup, echo=FALSE, results="hide", warning=FALSE}
+suppressPackageStartupMessages({
+    library("srnadiff")
+    library("BiocStyle")
+    library("knitr")
+    library("rmarkdown")
+})
 opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE,
                cache = FALSE, fig.width = 5, fig.height = 5)
 ```
+
+# Version info
+
+ - **R version**: `r R.version.string`
+ - **Bioconductor version**: `r BiocManager::version()`
+ - **Package version**: `r packageVersion("srnadiff")`
+
+
+# The srnadiff package
 
 sRNADiff aims at finding differentially expressed short RNAs with or without
 annotation.  To do so, sRNADiff uses up to 4 different strategies:
 
 - annotation-based,
-- naive,
-- HMM,
-- clustering.
+- irreducible regions of the log-fold change (IR),
+- HMM.
 
 
 ## Example
@@ -204,25 +216,21 @@ This method is efficient when a region is highly differentially expressed, even
 if it is concealed in a longer transcript.
 
 
-### Slicing
+### Irreducible Regions of the log-fold change
 
 This stretegy proceeds in three steps:
 
  * It normalizes counts using a CPM strategy developped in EdgeR.
  * The mean distribution of the coverage of the replicates is computed for each
 condition.
- * For each condition, we "slice" the mean coverage distribution: we add
-horizontal lines at height h (where h is the minimum depth parameter defined in
-the general parameter section), $h+1$, $h+2$, ..., $+\infty$, and the intervals
-where the distribution and the horizontal lines meet is a putative region.
+ * The log2 fold change of the mean distribution is computed.
+ * The irreducible regions above a given threshold are computed.
  * These putative regions are the output of the strategy.
 
-Obviously, many putative regions may have very similar start and end points.
-If two regions differ only by a few base pairs, the smallest regions will be
-discarded.
-
-This method is especially efficient when a differentially expressed region is
-large, even though the fold change is moderate.
+The irreducible regions are genomic intervals, such that, when split in two
+(wherever the split point), the average of the log-fold change of each
+sub-region is still above the threshold.
+The method has been published by [@rnaseqmap].
 
 
 ### General parameters
@@ -240,7 +248,7 @@ exp <- setSizes(exp, minSize = 15, maxSize = 1000)
 ```
 
 
-### Combination of the strategies
+### Combination of strategies
 
 #### Choice of the strategies
 
@@ -249,10 +257,10 @@ regions.
 You can choose not to use some strategies, use the function
 
 ```{r, strategies}
-exp <- setStrategies(exp, annotation = TRUE, naive = FALSE, hmm = TRUE, slice = TRUE)
+exp <- setStrategies(exp, annotation = TRUE, hmm = TRUE, ir = TRUE)
 ```
 
-where `annotation`, `naive`, `hmm` and `slice` are logical variables, set to
+where `annotation`, `hmm` and `ir` are logical variables, set to
 `FALSE` if you want to skip that step.
 
 

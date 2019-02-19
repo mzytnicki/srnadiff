@@ -16,6 +16,7 @@
 #' @slot minDepth          Minimum depth to consider to find regions
 #' @slot minSize           Minimum region size
 #' @slot maxSize           Maximum region size
+#' @slot mergeDistance     Distance to merge consecutive region
 #' @slot noDiffToDiff      Transition probability
 #' @slot diffToNoDiff      Transition probability
 #' @slot emission          Emission probability
@@ -41,6 +42,7 @@ setClass("sRNADiff",
                 minDepth            ="numeric",
                 minSize             ="numeric",
                 maxSize             ="numeric",
+                mergeDistance       ="numeric",
                 minLogFC            ="numeric",
                 noDiffToDiff        ="numeric",
                 diffToNoDiff        ="numeric",
@@ -58,6 +60,7 @@ setClass("sRNADiff",
                 nBams  <- length(object@bamFileNames)
                 nReps  <- length(object@replicates)
                 nConds <- length(object@conditions)
+                nCovs  <- length(object@coverages)
                 if (nBams != nReps) {
                     return(paste0("The number of input BAM files should be ",
                         "equal to the number of replicates (", nBams, " and ",
@@ -67,6 +70,11 @@ setClass("sRNADiff",
                     return(paste0("The number of input BAM files should be ",
                         "equal to the number of conditions (", nBams, " and ",
                         nConds, " resp.)."))
+                }
+                if (nBams != nCovs) {
+                    return(paste0("The number of input BAM files should be ",
+                        "equal to the number of coverages (", nBams, " and ",
+                        nCovs, " resp.)."))
                 }
                 return(TRUE)
             }
@@ -95,6 +103,7 @@ sRNADiffExp <- function(annotation=NULL,
                         bamFileNames,
                         replicates,
                         conditions,
+                        coverages=NULL,
                         lazyload=FALSE) {
     message("Constructing object...")
     indexFileNames <- paste0(bamFileNames, ".bai")
@@ -107,17 +116,24 @@ sRNADiffExp <- function(annotation=NULL,
     if (is.null(annotation)) {
         annotation <- GRanges()
     }
+    if (is.null(coverages)) {
+        coverages <- lapply(bamFiles, coverage)
+    }
+    else {
+        coverages <- lapply(as.character(coverages), import, as='RleList')
+        names(coverages) <- names(bamFiles)
+    }
     object <- new("sRNADiff",
                     annotation          =annotation,
                     bamFileNames        =bamFileNames,
                     bamFiles            =bamFiles,
                     replicates          =replicates,
                     conditions          =conditions,
+                    coverages           =coverages,
                     design              =DataFrame(condition=conditions),
                     normalizationFactors=rep(0.0, length(replicates)),
                     chromosomes         =seqlevels(bamFiles[[1]]),
                     chromosomeSizes     =seqlengths(bamFiles[[1]]),
-                    coverages           =lapply(bamFiles, coverage),
                     logFC               =RleList(),
                     skipAnnotation      =FALSE,
                     skipHmm             =FALSE,
@@ -125,6 +141,7 @@ sRNADiffExp <- function(annotation=NULL,
                     minDepth            =10,
                     minSize             =18,
                     maxSize             =1000000,
+                    mergeDistance       =100,
                     minLogFC            =0.5,
                     noDiffToDiff        =0.001,
                     diffToNoDiff        =0.000001,

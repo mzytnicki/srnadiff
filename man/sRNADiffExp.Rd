@@ -5,7 +5,7 @@
 \title{Constructor.}
 \usage{
 sRNADiffExp(annotation = NULL, bamFileNames, replicates, conditions,
-  lazyload = FALSE)
+  coverages = NULL, lazyload = FALSE)
 }
 \arguments{
 \item{annotation}{The GRanges annotation}
