@@ -29,8 +29,8 @@ rcpp_viterbi <- function(coverages, transitions, emissions, emissionThreshold, s
     .Call('_srnadiff_rcpp_viterbi', PACKAGE = 'srnadiff', coverages, transitions, emissions, emissionThreshold, starts, counts, pvalues, minDepth, minSize, maxSize)
 }
 
-rcpp_ir <- function(logFoldChanges, regions, minLength, maxLength, minLFC) {
-    .Call('_srnadiff_rcpp_ir', PACKAGE = 'srnadiff', logFoldChanges, regions, minLength, maxLength, minLFC)
+rcpp_ir <- function(logFoldChanges, minLength, maxLength, minLFC) {
+    .Call('_srnadiff_rcpp_ir', PACKAGE = 'srnadiff', logFoldChanges, minLength, maxLength, minLFC)
 }
 
 #' Normalize counts

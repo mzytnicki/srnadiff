@@ -82,7 +82,9 @@ DataFrame rcpp_viterbi(List          &coverages,
         for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
             row[sampleId] = counts(i, sampleId);
         }
-        pvalueMap[row] = pvalues[i];
+        if (! isnan(pvalues[i])) {
+            pvalueMap[row] = pvalues[i];
+        }
     }
     for (GenomeIterator iterator (coverages); ; iterator.getNext(step)) {
         if (iterator.hasChangedChromosome() || iterator.isOver()) {
@@ -126,8 +128,8 @@ DataFrame rcpp_viterbi(List          &coverages,
             for (size_t i = 0; i < diffStarts.size(); ++i) {
                 int size = diffEnds[i] - diffStarts[i] + 1;
                 if ((minSize <= size) && (size <= maxSize)) {
-                    allDiffStarts.push_back(diffStarts[i]);
-                    allDiffEnds.push_back(diffEnds[i]);
+                    allDiffStarts.push_back(diffStarts[i]-1);
+                    allDiffEnds.push_back(diffEnds[i]-1);
                     allDiffChromosomes.push_back(chromosome);
                     ++cpt;
                 }
@@ -144,11 +146,12 @@ DataFrame rcpp_viterbi(List          &coverages,
         }
         std::vector < int > previousState(2);
         if (valueChange) {
+            pvalue = 1.0;
             if (iterator.getValues().max() >= minDepth) {
-                pvalue = pvalueMap[iterator.getRawValuesVector()];
-            }
-            else {
-                pvalue = 1.0;
+                auto pvalueIt = pvalueMap.find(iterator.getRawValuesVector());
+                if (pvalueIt != pvalueMap.end()) {
+                    pvalue = pvalueMap[iterator.getRawValuesVector()];
+                }
             }
         }
         currentP[NO_DIFF_CLASS] = currentP[DIFF_CLASS] = INFINITY;

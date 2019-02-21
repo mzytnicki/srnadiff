@@ -72,7 +72,7 @@ setMethod(  f        ="regions",
 setMethod(  f        ="regions",
             signature= c("sRNADiff"),
             definition=function(object) {
-                return(object@regions)
+                return(regions(object, 0.05))
             }
 )
 
@@ -388,14 +388,16 @@ removeRedundant <- function(regions, padj) {
 reconcileRegions <- function(object, allSets) {
     message("Computing differential expression...")
     counts           <- summarizeOverlaps(allSets, object@bamFiles,
-                            inter.feature=FALSE,
-                            mode=function(features, reads, ignore.strand,
-                                inter.feature)
-                                countOverlaps(features, reads,
-                                    minoverlap=object@minOverlap))
+                                          inter.feature=FALSE,
+                                          mode=function(features, reads,
+                                                        ignore.strand,
+                                                        inter.feature)
+                                         countOverlaps(features, reads,
+                                                       minoverlap=object@minOverlap))
     colData(counts)  <- object@design
     dds              <- DESeqDataSet(counts, design =~condition)
     names(dds)       <- names(allSets)
+    sizeFactors(dds) <- object@normalizationFactors
     dds              <- DESeq(dds)
     regions          <- allSets[names(allSets) %in% names(dds),]
     mcols(regions)   <- cbind(results(dds), mcols(regions))
@@ -458,7 +460,7 @@ runAll <- function(object) {
     setIR          <- runAllIR(object)
     setHmm         <- runAllHmm(object)
     allSets        <- unique(sort(do.call("c", list(setAnnotation, setHmm,
-                                                    setIR))))
+                                                    setIR)), ignore.strand=FALSE))
     object@regions <- reconcileRegions(object, allSets)
     return(object)
 }

@@ -78,22 +78,56 @@ double getMeanLFC (int start, int end,
 }
 
 // [[Rcpp::export]]
-List rcpp_ir(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, double minLFC) {
+List rcpp_ir(S4 &logFoldChanges, int minLength, int maxLength, double minLFC) {
+    List          rleList      = logFoldChanges.slot("listData");
+    StringVector  chromosomes  = rleList.names();
+    int           nChromosomes = chromosomes.size();
     IntegerVector outputStarts, outputEnds;
     StringVector outputChromosomes;
-    S4 regionsSeqnames = regions.slot("seqnames");
-    IntegerVector regionsSeqnamesValues = regionsSeqnames.slot("values");
-    StringVector regionsSeqnamesLevels = regionsSeqnamesValues.attr("levels");
-    IntegerVector regionsSeqnamesLengths = regionsSeqnames.slot("lengths");
-    S4 regionsRanges = regions.slot("ranges");
-    IntegerVector regionStarts = regionsRanges.slot("start");
-    IntegerVector regionWidths = regionsRanges.slot("width");
-    List rleList = logFoldChanges.slot("listData");
-    int seqnamesId = 0;
-    int regionStart, regionEnd;
-    //Rcout << "regionsSeqnamesValues: " << regionsSeqnamesValues << std::endl;
-    //Rcout << "regionsSeqnamesLevels: " << regionsSeqnamesLevels << std::endl;
-    //Rcout << "regionsSeqnamesLengths: " << regionsSeqnamesLengths << std::endl;
+    for (int chromosomeId = 0; chromosomeId < nChromosomes; ++chromosomeId) {
+        S4            rle           = rleList[chromosomeId];
+        NumericVector values        = rle.slot("values");
+        IntegerVector lengths       = rle.slot("lengths");
+        int           regionStart   = -1;
+        int           pos           = 1;
+        double        currentSum    = 0.0, nextSum;
+        int           currentLength = 0,   nextLength;
+        double        currentValue  = 0;
+        int           currentSign   = 0;
+        for (int rleId = 0; rleId < values.size(); ++rleId) {
+            if ((regionStart == -1) || (currentSign * values[rleId] >= 0)) {
+                currentValue = abs(values[rleId]);
+            }
+            else {
+                currentValue = 0;
+            }
+            nextLength = currentLength + lengths[rleId];
+            nextSum    = currentSum    + currentValue * lengths[rleId];
+            if ((currentValue >= minLFC) && (regionStart == -1)) {
+                regionStart   = pos;
+                nextSum       = currentValue;
+                nextLength    = lengths[rleId];
+                currentSign   = (values[rleId] >= 0)? 1: -1;
+            }
+            else if ((currentValue < minLFC) && (regionStart != -1) && (nextSum / nextLength < minLFC)) {
+                if ((minLength <= pos - regionStart - 1) && (pos - regionStart - 1 <= maxLength)) {
+                    outputChromosomes.push_back(chromosomes[chromosomeId]);
+                    outputStarts.push_back(regionStart);
+                    outputEnds.push_back(pos-1);
+                }
+                regionStart = -1;
+            }
+            currentLength = nextLength;
+            currentSum    = nextSum;
+            pos           += lengths[rleId];
+        }
+        if ((regionStart != -1) && (minLength <= pos - regionStart - 1) && (pos - regionStart - 1 <= maxLength)) {
+            outputChromosomes.push_back(chromosomes[chromosomeId]);
+            outputStarts.push_back(regionStart);
+            outputEnds.push_back(pos-1);
+        }
+    }
+    /*
     String chromosome = regionsSeqnamesLevels[regionsSeqnamesValues[0]-1];
     int seqnamesRemaining = regionsSeqnamesLengths[0];
     for (int regionId = 0; regionId < regionStarts.size(); ++regionId) {
@@ -107,9 +141,7 @@ List rcpp_ir(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, doub
         regionStart = regionStarts[regionId];
         regionEnd   = regionStarts[regionId] + regionWidths[regionId] - 1;
         --seqnamesRemaining;
-        S4     rle        = rleList[chromosome];
-        NumericVector values  = rle.slot("values");
-        IntegerVector lengths = rle.slot("lengths");
+
         int startId, endId, currentId, currentStart, currentPos;
         double currentLength, currentSum, nextLength, nextSum;
         getPositions(regionStart, regionEnd, values, lengths, startId, endId);
@@ -149,6 +181,7 @@ List rcpp_ir(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, doub
                 outputEnds.push_back(currentPos);
             }
         }
+     */
         /*
         double meanLFC = getMeanLFC(regionStart, regionEnd, values, lengths, startId, startPos, endId, endPos);
         ValuedRegion firstRegion = { startId, endId, meanLFC };
@@ -232,8 +265,8 @@ List rcpp_ir(S4 &logFoldChanges, S4 &regions, int minLength, int maxLength, doub
             }
             previousMinLFC = minLFC;
         }
-     */
     }
+     */
     //Rcout << "Output:\n\t" << outputChromosomes << "\n\t" << outputStarts << "\n\t" << outputEnds << std::endl;
     return DataFrame::create(_["seqnames"] = outputChromosomes,
                              _["start"]    = outputStarts,

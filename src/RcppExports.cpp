@@ -38,17 +38,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_ir
-List rcpp_ir(S4& logFoldChanges, S4& regions, int minLength, int maxLength, double minLFC);
-RcppExport SEXP _srnadiff_rcpp_ir(SEXP logFoldChangesSEXP, SEXP regionsSEXP, SEXP minLengthSEXP, SEXP maxLengthSEXP, SEXP minLFCSEXP) {
+List rcpp_ir(S4& logFoldChanges, int minLength, int maxLength, double minLFC);
+RcppExport SEXP _srnadiff_rcpp_ir(SEXP logFoldChangesSEXP, SEXP minLengthSEXP, SEXP maxLengthSEXP, SEXP minLFCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< S4& >::type logFoldChanges(logFoldChangesSEXP);
-    Rcpp::traits::input_parameter< S4& >::type regions(regionsSEXP);
     Rcpp::traits::input_parameter< int >::type minLength(minLengthSEXP);
     Rcpp::traits::input_parameter< int >::type maxLength(maxLengthSEXP);
     Rcpp::traits::input_parameter< double >::type minLFC(minLFCSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_ir(logFoldChanges, regions, minLength, maxLength, minLFC));
+    rcpp_result_gen = Rcpp::wrap(rcpp_ir(logFoldChanges, minLength, maxLength, minLFC));
     return rcpp_result_gen;
 END_RCPP
 }

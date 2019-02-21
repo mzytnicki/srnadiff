@@ -146,7 +146,7 @@ sRNADiffExp <- function(annotation=NULL,
                     noDiffToDiff        =0.001,
                     diffToNoDiff        =0.000001,
                     emission            =0.9,
-                    emissionThreshold   =0.1,
+                    emissionThreshold   =0.5,
                     minOverlap          =10,
                     nThreads            =1
     )
