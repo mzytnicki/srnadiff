@@ -8,6 +8,8 @@ rcpp_viterbi(coverages, transitions, emissions, emissionThreshold, starts,
   counts, pvalues, minDepth, minSize, maxSize)
 }
 \arguments{
+\item{coverages}{the coverages (a list of RLEs)}
+
 \item{transitions}{the transition log-probabilities}
 
 \item{emissions}{the emission log-probabilities}
@@ -25,10 +27,6 @@ rcpp_viterbi(coverages, transitions, emissions, emissionThreshold, starts,
 \item{minSize}{the minimum size region}
 
 \item{maxSize}{the maximum size region}
-
-\item{lengths}{the sizes of the RLEs (one list per chromosome)}
-
-\item{values}{the values of the RLEs (one list per chromosome)}
 }
 \value{
 a segmentation of the chromosomes

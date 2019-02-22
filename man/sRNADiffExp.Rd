@@ -16,6 +16,8 @@ sRNADiffExp(annotation = NULL, bamFileNames, replicates, conditions,
 
 \item{conditions}{The condition to which each replicate belongs.}
 
+\item{coverages}{The coverages, a vector of \code{RLE}.}
+
 \item{lazyload}{Usual for S4 functions.}
 }
 \value{

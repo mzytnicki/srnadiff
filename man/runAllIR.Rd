@@ -2,21 +2,16 @@
 % Please edit documentation in R/ir.R
 \name{runAllIR}
 \alias{runAllIR}
-\title{Initialize and run the IR method.}
+\title{Segmentation of the genome using a IR method.}
 \usage{
 runAllIR(object)
 }
 \arguments{
 \item{object}{An \code{srnadiff} object.}
-
-\item{object}{An \code{srnadiff} object.}
 }
 \value{
-A GRanges.
-Segmentation of the genome using a IR method.
-
 A \code{GRanges} object.
 }
 \description{
-Initialize and run the IR method.
+Segmentation of the genome using a IR method.
 }

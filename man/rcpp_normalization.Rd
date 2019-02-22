@@ -7,13 +7,9 @@
 rcpp_normalization(coverages, librarySizes)
 }
 \arguments{
+\item{coverages}{the coverages (a list of RLEs)}
+
 \item{librarySizes}{number of elements per sample}
-
-\item{lengths}{the sizes of the RLEs (one list per chromosome)}
-
-\item{values}{the values of the RLEs (one list per chromosome)}
-
-\item{chromosomeSizes}{the sizes of the chromosomes}
 }
 \value{
 the normalization factors

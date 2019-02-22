@@ -1,4 +1,8 @@
-#' Segmentation using an annotation file.
+#' Extraction of regions using an annotation file.
+#'
+#' Extract putative regions from a GTF/GFF file.
+#' You can select lines based on the the second or third field.
+#' You can extract the gene name based on the tag name (9th field).
 #'
 #' @param fileName The annotation file name in GFF/GTF format.
 #' @param source   If not NULL, only lines with this source (2nd field) are
@@ -33,8 +37,10 @@ readAnnotation <- function(fileName, source=NULL, feature=NULL, name=NULL) {
     return (annotation)
 }
 
-#' Segmentation using an annotation file that contains every genomic feature;
-#'     it extracts the miRNAs.
+#' Extraction of miRNAs using an GTF/GFF annotation file
+#'
+#' Extract miRNAs regions from a GTF/GFF file.
+#' The second field of the miRNAs should be \code{miRNA}.
 #'
 #' @param fileName The annotation file name in GFF/GTF format.
 #' @return A GRanges.
@@ -49,7 +55,9 @@ readWholeGenomeAnnotation <- function(fileName) {
                             source="miRNA", feature="gene", name="gene_name"))
 }
 
-#' Segmentation using an miRBase annotation file and use precursor miRNAs.
+#' Extraction of precursor miRNAs using a miRBase-formatted file
+#'
+#' The file should have the usual GFF3 miRBase format.
 #'
 #' @param fileName The annotation file name in GFF/GTF format.
 #' @return A GRanges.
@@ -64,7 +72,9 @@ readMiRBasePreAnnotation <- function(fileName) {
                             feature="miRNA_primary_transcript", name="Name"))
 }
 
-#' Segmentation using an miRBase annotation file and use mature miRNAs.
+#' Extraction of mature miRNAs using a miRBase-formatted file
+#'
+#' The file should have the usual GFF3 miRBase format.
 #'
 #' @param fileName The annotation file name in GFF/GTF format.
 #' @return A GRanges.

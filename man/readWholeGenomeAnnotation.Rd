@@ -2,8 +2,7 @@
 % Please edit documentation in R/annotation.R
 \name{readWholeGenomeAnnotation}
 \alias{readWholeGenomeAnnotation}
-\title{Segmentation using an annotation file that contains every genomic feature;
-    it extracts the miRNAs.}
+\title{Extraction of miRNAs using an GTF/GFF annotation file}
 \usage{
 readWholeGenomeAnnotation(fileName)
 }
@@ -14,8 +13,8 @@ readWholeGenomeAnnotation(fileName)
 A GRanges.
 }
 \description{
-Segmentation using an annotation file that contains every genomic feature;
-    it extracts the miRNAs.
+Extract miRNAs regions from a GTF/GFF file.
+The second field of the miRNAs should be \code{miRNA}.
 }
 \examples{
 dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)

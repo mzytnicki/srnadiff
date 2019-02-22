@@ -6,7 +6,7 @@
 \alias{srnadiff-package}
 \title{srnadiff: A package for differential expression of sRNA-Seq.}
 \description{
-The srnadiff package provides uses four strategies to find differentially
+The srnadiff package provides uses several strategies to find differentially
     expressed loci.
 }
 \author{

@@ -24,10 +24,10 @@ setStrategies(object, annotation, hmm, ir)
 The same object
 }
 \description{
-Set the different steps
+\code{setStrategies} makes it possible to skip a region-finding step.
 }
 \examples{
 exp <- sRNADiffExample()
-exp <- setStrategies(exp, TRUE, FALSE, TRUE, TRUE)
+exp <- setStrategies(exp, TRUE, FALSE, TRUE)
 
 }

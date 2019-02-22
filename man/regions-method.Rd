@@ -22,7 +22,7 @@ regions(object, pvalue = 0.05)
 The selected regions
 }
 \description{
-Get the output regions
+\code{regions} provides the regions previously computed by srnadiff.
 }
 \examples{
 exp <- sRNADiffExample()

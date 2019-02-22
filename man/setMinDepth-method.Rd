@@ -19,7 +19,8 @@ setMinDepth(object, depth)
 The same object
 }
 \description{
-Set min minimum depth to localize regions
+Control the acceptable minimum coverage to detect a sRNA with
+\code{setMinDepth}.
 }
 \examples{
 exp <- sRNADiffExample()

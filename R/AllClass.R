@@ -7,7 +7,7 @@
 #' @slot chromosomeSizes   The sizes of the chromosomes.
 #' @slot replicates        The names of the replicates.
 #' @slot conditions        The condition to which each replicate belongs.
-#' @slot coverages         The coverages, a vector of \code{RLE}.
+#' @slot coverages         The coverages, a list of \code{RLE}.
 #' @slot logFC             The log fold change.
 #' @slot design            Experimental design, a \code{DataFrame} for
 #'                           \code{DESeq2}
@@ -16,7 +16,6 @@
 #' @slot minDepth          Minimum depth to consider to find regions
 #' @slot minSize           Minimum region size
 #' @slot maxSize           Maximum region size
-#' @slot mergeDistance     Distance to merge consecutive region
 #' @slot noDiffToDiff      Transition probability
 #' @slot diffToNoDiff      Transition probability
 #' @slot emission          Emission probability
@@ -42,7 +41,6 @@ setClass("sRNADiff",
                 minDepth            ="numeric",
                 minSize             ="numeric",
                 maxSize             ="numeric",
-                mergeDistance       ="numeric",
                 minLogFC            ="numeric",
                 noDiffToDiff        ="numeric",
                 diffToNoDiff        ="numeric",
@@ -86,6 +84,7 @@ setClass("sRNADiff",
 #' @param bamFileNames The name of one read file in BAM format.
 #' @param replicates   The names of the replicates.
 #' @param conditions   The condition to which each replicate belongs.
+#' @param coverages    The coverages, a vector of \code{RLE}.
 #' @param lazyload     Usual for S4 functions.
 #' @return             An \code{sRNADiff} object.
 #' @examples
@@ -141,7 +140,6 @@ sRNADiffExp <- function(annotation=NULL,
                     minDepth            =10,
                     minSize             =18,
                     maxSize             =1000000,
-                    mergeDistance       =100,
                     minLogFC            =0.5,
                     noDiffToDiff        =0.001,
                     diffToNoDiff        =0.000001,

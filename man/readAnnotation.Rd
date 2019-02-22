@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation.R
 \name{readAnnotation}
 \alias{readAnnotation}
-\title{Segmentation using an annotation file.}
+\title{Extraction of regions using an annotation file.}
 \usage{
 readAnnotation(fileName, source = NULL, feature = NULL, name = NULL)
 }
@@ -21,7 +21,9 @@ imported.}
 A GRanges.
 }
 \description{
-Segmentation using an annotation file.
+Extract putative regions from a GTF/GFF file.
+You can select lines based on the the second or third field.
+You can extract the gene name based on the tag name (9th field).
 }
 \examples{
 dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)

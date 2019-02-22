@@ -24,7 +24,7 @@ An S4 class to represent sRNA-Seq data for differential expression.
 
 \item{\code{conditions}}{The condition to which each replicate belongs.}
 
-\item{\code{coverages}}{The coverages, a vector of \code{RLE}.}
+\item{\code{coverages}}{The coverages, a list of \code{RLE}.}
 
 \item{\code{logFC}}{The log fold change.}
 
@@ -39,8 +39,6 @@ expressed region}
 \item{\code{minSize}}{Minimum region size}
 
 \item{\code{maxSize}}{Maximum region size}
-
-\item{\code{mergeDistance}}{Distance to merge consecutive region}
 
 \item{\code{noDiffToDiff}}{Transition probability}
 

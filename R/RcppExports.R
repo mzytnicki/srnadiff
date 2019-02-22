@@ -3,8 +3,7 @@
 
 #' Compute unique counts.
 #'
-#' @param lengths          the sizes of the RLEs (one list per chromosome)
-#' @param values           the values of the RLEs (one list per chromosome)
+#' @param coverages        the coverages (a list of RLEs)
 #' @param minDepth         the minimum read coverage
 #' @return                 the unique counts
 rcpp_buildHmm <- function(coverages, minDepth) {
@@ -13,14 +12,13 @@ rcpp_buildHmm <- function(coverages, minDepth) {
 
 #' Run the Viterbi algorithm on the HMM.
 #'
+#' @param coverages        the coverages (a list of RLEs)
 #' @param transitions       the transition log-probabilities
 #' @param emissions         the emission log-probabilities
 #' @param emissionThreshold the emission threshold
 #' @param starts            the start log-probabilities
 #' @param counts            the unique counts
 #' @param pvalues           the p-values of the counts
-#' @param lengths           the sizes of the RLEs (one list per chromosome)
-#' @param values            the values of the RLEs (one list per chromosome)
 #' @param minDepth          the minimum read coverage
 #' @param minSize           the minimum size region
 #' @param maxSize           the maximum size region
@@ -35,9 +33,7 @@ rcpp_ir <- function(logFoldChanges, minLength, maxLength, minLFC) {
 
 #' Normalize counts
 #'
-#' @param lengths          the sizes of the RLEs (one list per chromosome)
-#' @param values           the values of the RLEs (one list per chromosome)
-#' @param chromosomeSizes  the sizes of the chromosomes
+#' @param coverages        the coverages (a list of RLEs)
 #' @param librarySizes     number of elements per sample
 #' @return                 the normalization factors
 rcpp_normalization <- function(coverages, librarySizes) {

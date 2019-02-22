@@ -19,7 +19,7 @@ setNThreads(object, nThreads)
 The same object
 }
 \description{
-Set number of threads to use
+This only accelerates the \code{DESeq2} calls.
 }
 \examples{
 exp <- sRNADiffExample()

@@ -8,14 +8,14 @@ exp <- setStrategies(exp, TRUE, TRUE, TRUE)
 exp <- runAll(exp)
 
 test_that("Testing regions method", {
-    expect_equal(length(regions(exp)), 11)
+    expect_equal(length(regions(exp)), 7)
 })
 
 test_that("Running with different strategies", {
     exp2 <- sRNADiffExample()
     exp2 <- setStrategies(exp2, TRUE, FALSE, TRUE)
     exp2 <- runAll(exp2)
-    expect_equal(length(regions(exp2)), 10)
+    expect_equal(length(regions(exp2)), 7)
 })
 
 test_that("Running with different sizes", {
@@ -23,7 +23,7 @@ test_that("Running with different sizes", {
     exp2 <- setStrategies(exp2, TRUE, TRUE, TRUE)
     exp2 <- setSizes(exp2, 15, 30)
     exp2 <- runAll(exp2)
-    expect_equal(length(regions(exp2)), 15)
+    expect_equal(length(regions(exp2)), 7)
 })
 
 test_that("Running with different minimum depth", {
@@ -31,7 +31,7 @@ test_that("Running with different minimum depth", {
     exp2 <- setStrategies(exp2, TRUE, TRUE, TRUE)
     exp2 <- setMinDepth(exp2, 1)
     exp2 <- runAll(exp2)
-    expect_equal(length(regions(exp2)), 35)
+    expect_equal(length(regions(exp2)), 12)
 })
 
 test_that("Running with different transition probabilities", {
@@ -63,7 +63,7 @@ test_that("Running with different number of overlapping base pairs", {
     exp2 <- setStrategies(exp2, TRUE, TRUE, TRUE)
     exp2 <- setMinOverlap(exp2, 20)
     exp2 <- runAll(exp2)
-    expect_equal(length(regions(exp2)), 10)
+    expect_equal(length(regions(exp2)), 6)
 })
 
 test_that("Running several threads", {
@@ -75,7 +75,7 @@ test_that("Running several threads", {
 })
 
 test_that("Running main function", {
-    expect_equal(length(regions(exp)), 11)
+    expect_equal(length(regions(exp)), 7)
 })
 
 test_that("Running redundant removal", {

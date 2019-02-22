@@ -21,7 +21,7 @@ setSizes(object, minSize, maxSize)
 The same object
 }
 \description{
-Set min and max sizes of the regions
+Control the acceptable minimum and maximum sRNA sizes with \code{setSizes}.
 }
 \examples{
 exp <- sRNADiffExample()

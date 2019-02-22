@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation.R
 \name{readMiRBaseMatureAnnotation}
 \alias{readMiRBaseMatureAnnotation}
-\title{Segmentation using an miRBase annotation file and use mature miRNAs.}
+\title{Extraction of mature miRNAs using a miRBase-formatted file}
 \usage{
 readMiRBaseMatureAnnotation(fileName)
 }
@@ -13,7 +13,7 @@ readMiRBaseMatureAnnotation(fileName)
 A GRanges.
 }
 \description{
-Segmentation using an miRBase annotation file and use mature miRNAs.
+The file should have the usual GFF3 miRBase format.
 }
 \examples{
 dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)

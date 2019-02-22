@@ -4,10 +4,7 @@
 \name{setEmissionThreshold}
 \alias{setEmissionThreshold}
 \alias{setEmissionThreshold,sRNADiff,numeric-method}
-\title{Set emission threshold (for the HMM step): the emission distribution being
-   binomial, all the p-values less than this threshold belong to one class,
-   and all the p-values greater than this threshold belong to the
-   other class.}
+\title{Set emission threshold (for the HMM step)}
 \usage{
 setEmissionThreshold(object, threshold)
 
@@ -22,10 +19,9 @@ setEmissionThreshold(object, threshold)
 The same object
 }
 \description{
-Set emission threshold (for the HMM step): the emission distribution being
-   binomial, all the p-values less than this threshold belong to one class,
-   and all the p-values greater than this threshold belong to the
-   other class.
+The emission probabilities follow a binomial distribution for each state.
+Each state, depending whether the p-value is greater or equal to the
+second parameter of this function, emits one or another probability.
 }
 \examples{
 exp <- sRNADiffExample()

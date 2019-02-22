@@ -13,7 +13,13 @@ runAll(object)
 A \code{GRanges} object.
 }
 \description{
-Run the segmentation using different methods, and reconcile them.
+This is the main function of the code, and calls all the methods:
+\itemize{
+  \item find normalization factors;
+  \item compute the log fold-change;
+  \item call all the segmentation methods (annotation, HMM, IR);
+  \item reconcile the regions found by the different methods.
+}
 }
 \examples{
 exp        <- sRNADiffExample()

@@ -7,11 +7,9 @@
 rcpp_buildHmm(coverages, minDepth)
 }
 \arguments{
+\item{coverages}{the coverages (a list of RLEs)}
+
 \item{minDepth}{the minimum read coverage}
-
-\item{lengths}{the sizes of the RLEs (one list per chromosome)}
-
-\item{values}{the values of the RLEs (one list per chromosome)}
 }
 \value{
 the unique counts

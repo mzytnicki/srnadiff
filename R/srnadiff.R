@@ -1,6 +1,6 @@
 #' srnadiff: A package for differential expression of sRNA-Seq.
 #'
-#' The srnadiff package provides uses four strategies to find differentially
+#' The srnadiff package provides uses several strategies to find differentially
 #'     expressed loci.
 #'
 #' @docType package

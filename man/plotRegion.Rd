@@ -12,10 +12,11 @@ plotRegion(object, region)
 \item{region}{A \code{GenomicRange} object.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot2} object.
 }
 \description{
-Plot a region
+\code{plotRegion} provides the coverage of the replicates in a
+\code{ggplot2} object.
 }
 \examples{
 exp <- sRNADiffExample()

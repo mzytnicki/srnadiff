@@ -1,4 +1,8 @@
 #' Overloading the show method
+#'
+#' \code{show} prints the parameters used for this experiments, and some
+#' stats of the regions found.
+#'
 #' @param object An \code{srnadiff} object.
 #' @return       A description of the object.
 #'
@@ -42,6 +46,9 @@ setMethod(  f         ="show",
 )
 
 #' Get the output regions
+#'
+#' \code{regions} provides the regions previously computed by srnadiff.
+#'
 #' @rdname regions-method
 #' @param  object  An \code{srnadiff} object.
 #' @param  pvalue  A minimum p-value
@@ -78,6 +85,9 @@ setMethod(  f        ="regions",
 
 
 #' Set the different steps
+#'
+#' \code{setStrategies} makes it possible to skip a region-finding step.
+#'
 #' @rdname setStrategies-method
 #' @param  object     An \code{srnadiff} object.
 #' @param  annotation The annotation step.
@@ -87,7 +97,7 @@ setMethod(  f        ="regions",
 #'
 #' @examples
 #' exp <- sRNADiffExample()
-#' exp <- setStrategies(exp, TRUE, FALSE, TRUE, TRUE)
+#' exp <- setStrategies(exp, TRUE, FALSE, TRUE)
 #'
 #' @export
 setGeneric( name="setStrategies",
@@ -110,6 +120,9 @@ setMethod(  f        ="setStrategies",
 
 
 #' Set min and max sizes of the regions
+#'
+#' Control the acceptable minimum and maximum sRNA sizes with \code{setSizes}.
+#'
 #' @rdname setSizes-method
 #' @param  object  An \code{srnadiff} object.
 #' @param  minSize The minimum size.
@@ -141,6 +154,10 @@ setMethod(  f        ="setSizes",
 
 
 #' Set min minimum depth to localize regions
+#'
+#' Control the acceptable minimum coverage to detect a sRNA with
+#' \code{setMinDepth}.
+#'
 #' @rdname setMinDepth-method
 #' @param  object An \code{srnadiff} object.
 #' @param  depth  The minimum depth
@@ -167,26 +184,15 @@ setMethod(  f        ="setMinDepth",
             }
 )
 
-
-#' Set the threshold to merge close regions (in the IR step)
-#' @rdname setMergeDistance-method
-#' @param  object   An \code{srnadiff} object.
-#' @param  distance The maximum distance
-#' @return          The same object
+#' Set transition probabilities (for the HMM step)
 #'
-#' @examples
-#' exp <- sRNADiffExample()
-#' exp <- setMergeDistance(exp, 1000)
+#' The second parameter gives the probability to go from a not-differentially
+#' expressed state to a differentially expressed state.
+#' The third parameter gives the probability to go from a differentially
+#' expressed state to a not-differentially expressed state.
+#' These parameters effectively shape the expected sizes of the sRNAs in the HMM
+#' step.
 #'
-#' @export
-setGeneric( name="setMergeDistance",
-            def =function(object, distance) {
-                standardGeneric("setMergeDistance")
-            }
-)
-
-
-#' Set transition probabilities (for the HMM step).
 #' @rdname setTransitionProbabilities-method
 #' @param  object       An \code{srnadiff} object.
 #' @param  noDiffToDiff probability to change from the "not-differentially
@@ -220,10 +226,15 @@ setMethod(  f        ="setTransitionProbabilities",
 )
 
 
-#' Set emission probabilities (for the HMM step): probability to have a p-value
-#'    not less than a threshold in the "not-differentially expressed" state,
-#'    and a p-value not greater than this threshold in the "differentially
-#'    expressed" state (supposed equal).
+#' Set emission probabilities (for the HMM step)
+#'
+#' The emission probabilities follow a binomial distribution for each state.
+#' The second parameter is the probability emitted when the observed p-value
+#' is not less than a given threshold (\code{emissionThreshold}) in the
+#' "not-differentially expressed" state.
+#' This parameter is also the prability emitted when the observed p-value is
+#' not greater than this threshold in the "differentially expressed" state.
+#'
 #' @rdname setEmissionProbabilities-method
 #' @param  object       An \code{srnadiff} object.
 #' @param  probability  The emission probability
@@ -251,10 +262,12 @@ setMethod(  f        ="setEmissionProbabilities",
 )
 
 
-#' Set emission threshold (for the HMM step): the emission distribution being
-#'    binomial, all the p-values less than this threshold belong to one class,
-#'    and all the p-values greater than this threshold belong to the
-#'    other class.
+#' Set emission threshold (for the HMM step)
+#'
+#' The emission probabilities follow a binomial distribution for each state.
+#' Each state, depending whether the p-value is greater or equal to the
+#' second parameter of this function, emits one or another probability.
+#'
 #' @rdname setEmissionThreshold-method
 #' @param  object    An \code{srnadiff} object.
 #' @param  threshold The emission threshold
@@ -283,9 +296,13 @@ setMethod(  f        ="setEmissionThreshold",
 )
 
 
-#' Set minimum overlap (for the last quantification step): all the reads with
-#'    at least n nucleotides shared with a feature will be used for
-#'    quantification of this feature.
+#' Set minimum overlap (for the last quantification step)
+#'
+#' In the last step, the expression of the potential regions is assessed by
+#' counting the number of reads overlapping each region.
+#' The minimum number of common nucleotides between a read and a region is
+#' controlled by this parameter.
+#'
 #' @rdname setMinOverlap-method
 #' @param  object     An \code{srnadiff} object.
 #' @param  minOverlap The minimum overlap
@@ -314,6 +331,9 @@ setMethod(  f        ="setMinOverlap",
 
 
 #' Set number of threads to use
+#'
+#' This only accelerates the \code{DESeq2} calls.
+#'
 #' @rdname setNThreads-method
 #' @param  object   An \code{srnadiff} object.
 #' @param  nThreads The number of threads
@@ -388,12 +408,12 @@ removeRedundant <- function(regions, padj) {
 reconcileRegions <- function(object, allSets) {
     message("Computing differential expression...")
     counts           <- summarizeOverlaps(allSets, object@bamFiles,
-                                          inter.feature=FALSE,
-                                          mode=function(features, reads,
-                                                        ignore.strand,
-                                                        inter.feature)
-                                         countOverlaps(features, reads,
-                                                       minoverlap=object@minOverlap))
+                            inter.feature=FALSE,
+                            mode=function(features, reads,
+                                ignore.strand,
+                                inter.feature)
+                            countOverlaps(features, reads,
+                                minoverlap=object@minOverlap))
     colData(counts)  <- object@design
     dds              <- DESeqDataSet(counts, design =~condition)
     names(dds)       <- names(allSets)
@@ -428,10 +448,10 @@ computeNormalizationFactors <- function(object) {
 #' @return The same object, with the fold change
 computeLogFoldChange <- function(object) {
     avgCounts <- lapply(split(mapply('*',
-                                     object@coverages,
-                                     object@normalizationFactors),
-                              object@conditions),
-                    function (s) { round(Reduce('+', s) / length(s)) })
+                        object@coverages,
+                        object@normalizationFactors),
+                        object@conditions),
+                        function (s) { round(Reduce('+', s) / length(s)) })
     lowValues <- pmin(avgCounts[[1]], avgCounts[[2]]) < object@minDepth
     avgCounts[[1]][lowValues] <- 0
     avgCounts[[2]][lowValues] <- 0
@@ -442,6 +462,14 @@ computeLogFoldChange <- function(object) {
 }
 
 #' Run the segmentation using different methods, and reconcile them.
+#'
+#' This is the main function of the code, and calls all the methods:
+#' \itemize{
+#'   \item find normalization factors;
+#'   \item compute the log fold-change;
+#'   \item call all the segmentation methods (annotation, HMM, IR);
+#'   \item reconcile the regions found by the different methods.
+#' }
 #'
 #' @param object An \code{srnadiff} object.
 #' @return A \code{GRanges} object.
@@ -460,7 +488,7 @@ runAll <- function(object) {
     setIR          <- runAllIR(object)
     setHmm         <- runAllHmm(object)
     allSets        <- unique(sort(do.call("c", list(setAnnotation, setHmm,
-                                                    setIR)), ignore.strand=FALSE))
+                                setIR)), ignore.strand=FALSE))
     object@regions <- reconcileRegions(object, allSets)
     return(object)
 }

@@ -14,7 +14,8 @@
 A description of the object.
 }
 \description{
-Overloading the show method
+\code{show} prints the parameters used for this experiments, and some
+stats of the regions found.
 }
 \examples{
 exp <- sRNADiffExample()

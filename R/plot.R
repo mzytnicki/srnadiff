@@ -1,8 +1,11 @@
 #' Plot a region
 #'
+#' \code{plotRegion} provides the coverage of the replicates in a
+#' \code{ggplot2} object.
+#'
 #' @param object An \code{srnadiff} object.
 #' @param region A \code{GenomicRange} object.
-#' @return A \code{ggplot} object.
+#' @return A \code{ggplot2} object.
 #' @examples
 #' exp <- sRNADiffExample()
 #' exp <- runAll(exp)

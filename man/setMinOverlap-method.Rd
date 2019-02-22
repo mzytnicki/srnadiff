@@ -4,9 +4,7 @@
 \name{setMinOverlap}
 \alias{setMinOverlap}
 \alias{setMinOverlap,sRNADiff,numeric-method}
-\title{Set minimum overlap (for the last quantification step): all the reads with
-   at least n nucleotides shared with a feature will be used for
-   quantification of this feature.}
+\title{Set minimum overlap (for the last quantification step)}
 \usage{
 setMinOverlap(object, minOverlap)
 
@@ -21,9 +19,10 @@ setMinOverlap(object, minOverlap)
 The same object
 }
 \description{
-Set minimum overlap (for the last quantification step): all the reads with
-   at least n nucleotides shared with a feature will be used for
-   quantification of this feature.
+In the last step, the expression of the potential regions is assessed by
+counting the number of reads overlapping each region.
+The minimum number of common nucleotides between a read and a region is
+controlled by this parameter.
 }
 \examples{
 exp <- sRNADiffExample()

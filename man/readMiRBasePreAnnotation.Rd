@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotation.R
 \name{readMiRBasePreAnnotation}
 \alias{readMiRBasePreAnnotation}
-\title{Segmentation using an miRBase annotation file and use precursor miRNAs.}
+\title{Extraction of precursor miRNAs using a miRBase-formatted file}
 \usage{
 readMiRBasePreAnnotation(fileName)
 }
@@ -13,7 +13,7 @@ readMiRBasePreAnnotation(fileName)
 A GRanges.
 }
 \description{
-Segmentation using an miRBase annotation file and use precursor miRNAs.
+The file should have the usual GFF3 miRBase format.
 }
 \examples{
 dir        <- system.file("extdata", package="srnadiff", mustWork = TRUE)

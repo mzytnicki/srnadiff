@@ -4,7 +4,7 @@
 \name{setTransitionProbabilities}
 \alias{setTransitionProbabilities}
 \alias{setTransitionProbabilities,sRNADiff,numeric,numeric-method}
-\title{Set transition probabilities (for the HMM step).}
+\title{Set transition probabilities (for the HMM step)}
 \usage{
 setTransitionProbabilities(object, noDiffToDiff, diffToNoDiff)
 
@@ -26,7 +26,12 @@ state}
 The same object
 }
 \description{
-Set transition probabilities (for the HMM step).
+The second parameter gives the probability to go from a not-differentially
+expressed state to a differentially expressed state.
+The third parameter gives the probability to go from a differentially
+expressed state to a not-differentially expressed state.
+These parameters effectively shape the expected sizes of the sRNAs in the HMM
+step.
 }
 \examples{
 exp <- sRNADiffExample()
