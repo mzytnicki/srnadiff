@@ -1,7 +1,8 @@
 ---
-title: The srnadiff package
+title: "Finding differentially expressed unannotated genomic regions from RNA-seq data with srnadiff"
 author: 
   - name: Matthias Zytnicki
+  - name: Ignacio González
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('srnadiff')`"
 bibliography: references.bib
@@ -9,19 +10,23 @@ vignette: >
   %\VignetteIndexEntry{The srnadiff package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-output: 
-    BiocStyle::html_document
+output:
+  BiocStyle::html_document:
+    toc_float: true
 ---
 
 ```{r setup, echo=FALSE, results="hide", warning=FALSE}
 suppressPackageStartupMessages({
     library("srnadiff")
+    library("BiocManager")
     library("BiocStyle")
     library("knitr")
     library("rmarkdown")
 })
-opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE,
-               cache = FALSE, fig.width = 5, fig.height = 5)
+opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE,
+               tidy=FALSE, cache=TRUE, fig.width=8, fig.height=5)
+#opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE,
+#               cache = FALSE, fig.width = 8, fig.height = 5)
 ```
 
 # Version info
@@ -31,63 +36,19 @@ opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE,
  - **Package version**: `r packageVersion("srnadiff")`
 
 
-# The srnadiff package
+# Abstract
 
-sRNADiff aims at finding differentially expressed short RNAs with or without
-annotation.  To do so, sRNADiff uses up to 4 different strategies:
-
-- annotation-based,
-- irreducible regions of the log-fold change (IR),
-- HMM.
-
-
-## Example
-
-Raw data have been downloaded from the GEO data set
-[GSE62830](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62830),
-provided in
-[Viollet *et al.*, 2015](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0126439)
-[@data].
-Adapters were removed with
-[fastx_clipper](http://hannonlab.cshl.edu/fastx_toolkit/commandline.html)
-and mapped with
-[bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml) [@bowtie2]
-on the human genome version GRCh38.
-
-This example provides this data, restricted to a small locus on chr14.
-It uses the whole genome annotation (with coding genes, etc.)
-and extracts miRNAs.
-
-The file `data.csv` contains three columns for each BAM file:
-
-- the file name (`FileName`)
-- a human readable sample name (`SampleName`)
-- a condition, e.g. `WT` (`Condition`)
-
-```{r, standard, results="hide", warning=FALSE}
-dir         <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-data        <- read.csv(file.path(dir, "data.csv"))
-gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
-annotation  <- readWholeGenomeAnnotation(gtfFile)
-bamFiles    <- file.path(dir, data$FileName)
-replicates  <- data$SampleName
-conditions  <- factor(data$Condition)
-exp         <- sRNADiffExp(annotation, bamFiles, replicates, conditions)
-diffRegions <- runAll(exp)
-```
-
-For your conveniance, the sample can be loaded with an only command
-`exp <- sRNADiffExample()`, so the script boils down to:
-
-```{r, example}
-exp         <- sRNADiffExample()
-diffRegions <- runAll(exp)
-```
+`r Biocpkg("srnadiff")` is an *R* package that finds differently expressed
+regions from RNA-seq data at *base-resolution* level without relying
+on existing annotation. To do so, the package implements the
+*identify-then-annotate* methodology that builds on the idea of
+combining two pipelines approach: differential expressed regions detection
+and differential expression quantification.
 
 
-## Rationale and scope of the package
+# Introdution
 
-There is no real method for finding differentially expressed short RNAs.  The
+There is no real method for finding differentially expressed short RNAs. The
 most used method focusses on miRNAs, and only uses a standard RNA-Seq pipe-line
 on these genes.
 
@@ -95,28 +56,470 @@ However, annotated tRF, siRNAs, piRNA, etc. are thus out of the scope of these
 analyses.  Several ad hoc method have been used, and this package implements a
 unifying method, finding differentially expressed genes or regions of any kind.
 
+The `r Biocpkg("srnadiff")` package implements two major methods to produce
+potential differentially expressed regions: the HMM and Slice method.
+Briefly, these methods identify contiguous base-pairs in the genome that
+present differential expression signal, then these are regrouped into
+genomic intervals called differentially expressed regions (DERs).
 
-## Explanation of the different strategies
+Once DERs are detected, the second step in a *sRNA-diff* approach is to
+quantify the signification of these. To do so, reads (including fractions
+of reads) that overlap each expressed region are counted to arrive at a
+count matrix with one row per region and one column per sample. Then, this
+count matrix is analyzed using the standard workflow of `r Biocpkg("DESeq2")`
+for differential expression of RNA-seq data, assigning a p-value to each
+candidate DER.
 
-Each strategy segments the genome its own way and finds potential differentially
-expressed regions.
-Every strategy makes assumption of the profiles of the differentially expressed
+The main functions for finds differently expressed regions are
+`srnadiffExp`  and `srnadiff`. The first one
+creates an S4 class providing the infrastructure (slots) to store the
+input data, methods parameters, intermediate calculations and results
+of an *sRNA-diff* approach. The second one implement four methods to find
+candidate differentially expressed regions and quantify the statistic
+signification of the finded regions.
+
+This vignette explains the basics of using `r Biocpkg("srnadiff")` by showing an
+example, including advanced material for fine tuning some options.
+The vignette also includes description of the methods behind the package.
+
+
+## Citing `r Biocpkg("srnadiff")`
+
+We hope that `r Biocpkg("srnadiff")` will be useful for your research. Please
+use [@srnadiff] to cite `r Biocpkg("srnadiff")` and the overall approach
+when you publish results obtained using this package, as such citation is the
+main means by which the authors receive credit for their work. Thank you!
+
+
+## How to get help for `r Biocpkg("srnadiff")`
+
+Most questions about individual functions will hopefully be answered by the
+documentation. To get more information on any specific named function, for
+example `MIMFA`, you can bring up the documentation by typing at the
+*R*.
+
+```{r eval=FALSE}
+help("srnadiff")
+```
+
+or
+
+```{r eval=FALSE}
+?srnadiff
+```
+
+The authors of `r Biocpkg("srnadiff")` always appreciate receiving reports
+of bugs in the package functions or in the documentation. The same goes
+for well-considered suggestions for improvements. If you've run into a
+question that isn't addressed by the documentation, or you've found a
+conflict between the documentation and what the software does, then there
+is an active community that can offer help. Send your questions or problems
+concerning `r Biocpkg("srnadiff")` to the Bioconductor support site at
+\url{https://support.bioconductor.org}.
+
+Please send requests for general assistance and advice to the support site,
+rather than to the individual authors. It is particularly critical that you
+provide a small reproducible example and your session information so package
+developers can track down the source of the error. Users posting to the
+support site for the first time will find it helpful to read the posting
+guide at
+[the BioConductor help page](http://www.bioconductor.org/help/support/posting-guide).
+
+
+## Quick start
+
+A typical *sRNA-diff* session can be divided into three steps:
+
+* *Data preparation:* In this first step, a convenient *R* object of
+class `srnadiffExp` is created containing all the information required
+for the two remaining steps. The user needs to provide a vector with the full
+paths to the BAM files, a `data.frame` with sample and experimental
+design information and optionally annotated regions as a `GRanges`
+object.
+* *Performing srnadiff:* Using the object created in the first step
+the user can perform `srnadiff` to find potential DERs and quantify the
+statistic signification of these.
+* *Visualization of the results:* The DERs obtained in the second
+step are visualized by plotting the coverage information surrounding genomic
 regions.
-These assumptions differ between strategies, and thus it is useful to combined
-them.
 
-### Annotation
+A typical `r Biocpkg("srnadiff")` session might look like the following.
+Here we assume that `bamFiles` is a vector with the full paths to the
+BAM files and the sample and experimental design information are stored in a
+data frame `sampleInfo`.
 
-This is the standard pipe-line, and the method simply provides the list of miRNA
-genes extracted from the given GTF file.
+```{r, quickStart, eval=FALSE}
+#-- Data preparation
+srnaExp <- srnadiffExp(bamFiles, sampleInfo)
 
-If you do not provide a GTF file, this step is skipped.
+#-- Performing srnadiff
+srnaExp <- srnadiff(srnaExp)
 
-Unfortunately, there is no clear standard for an annotation format.
-We provide here four ways to parse the annotation file.
+#-- Visualization of the results
+plotRegions(srnaExp, regions(srnaExp)[1])
+```
 
 
-#### Whole genome file annotation
+# Using `r Biocpkg("srnadiff")`
+
+## Installation
+
+We assume that the user has the *R* program (see the
+[*R* project](http://www.r-project.org)) already installed.
+
+The `r Biocpkg("srnadiff")` package is available from the
+[Bioconductor repository](http://www.bioconductor.org).
+To be able to install the package one needs first to install the core
+`r CRANpkg("BioConductor")` packages. If you have already installed
+`r CRANpkg("BioConductor")` packages on your system then you can
+skip the two lines below.
+
+```{r, bioconductor, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+```
+
+Once the core `r CRANpkg("BioConductor")` packages are installed, you can
+install the `r Biocpkg("srnadiff")` package by
+
+```{r, install, eval=FALSE}
+BiocManager::install("srnadiff", version = "3.8")
+```
+
+Load the `r Biocpkg("srnadiff")` package in your *R* session:
+
+```{r, loadLibrary, eval=TRUE, message=FALSE, warning=FALSE}
+library(srnadiff)
+```
+
+A list of all accessible vignettes and methods is available with the
+following command:
+
+```{r, helpSearch, eval=TRUE}
+help.search("srnadiff")
+```
+
+
+## Data overview
+
+To help demonstrate the functionality of `r Biocpkg("srnadiff")`, the package
+includes datasets of published by [@data].
+
+Briefly, these data consist of three replicates of sRNA-Seq of SLK (human) cell
+lines, and three replicates of SLK cell lines infected with Kaposi's sarcoma
+associated herpesvirus.  The analysis shows that several loci are repressed in
+the infected cell lines, including the 14q32 miRNA cluster.
+
+Raw data have been downloaded from the GEO data set
+[GSE62830](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62830).
+Adapters were removed with
+[fastx\_clipper](http://hannonlab.cshl.edu/fastx_toolkit/commandline.html)
+and mapped with [@bowtie2] on the human genome version GRCh38.
+
+This data is restricted to a small locus on chr14.
+It uses the whole genome annotation (with coding genes, etc.)
+and extracts miRNAs.
+
+The file `dataInfo.csv` contains three columns for each BAM file:
+
+* the file name (`FileName`)
+* a human readable sample name (`SampleName`)
+* a condition, e.g. `WT` (`Condition`)
+
+
+## Data preparation: the `srnadiffExp` object
+
+The first step in an *sRNA-diff* approach is to create a
+`srnadiffExp` object. `srnadiffExp` is an `S4` class
+providing the infrastructure to store the input data, methods parameters,
+intermediate calculations and results of a *sRNA-diff* approach. This
+object will be also the input of the visualization function.
+
+The object `srnadiffExp` will usually be represented in the code here
+as `srnaExp`. To build such an object the user needs the following:
+
+* *paths to the BAM files:* a vector with the full paths to the sample BAM
+files.
+* *sample information:* a `data.frame` with three columns labelled
+`FileName`, `SampleName` and `Condition`. The first column
+is the BAM file name (without extension), the second column the sample name,
+and the third column the condition to which sample belongs. Each row describes
+one sample.
+* *annotation:* optionally annotation information. A `r Biocpkg("GRanges")`
+object containing annotated regions.
+
+Here, we demonstrate how to construct a `srnadiffExp` object from [@data].
+
+```{r, eval=FALSE}
+## Determine the path to data files
+basedir <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+
+## Vector with the full paths to the BAM files to use
+bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam",
+                  sep = ".")
+
+## Reads sample information file and creates a data frame from it
+sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
+
+## Creates an srnadiffExp object
+srnaExp <- srnadiffExp(bamFiles, sampleInfo)
+```
+
+Optionally, if annotation information is available as a `r Biocpkg("GRanges")`
+object, `annotReg` say, then a `srnadiffExp` object can be
+created by 
+
+```{r, eval=FALSE}
+srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
+```
+
+or by
+
+```{r, eval=FALSE}
+srnaExp <- srnadiffExp(bamFiles, sampleInfo)
+annotReg(srnaExp) <- annotReg
+```
+
+A summary of the `srnaExp` object can be seen by typing the object name
+at the *R* prompt \medskip
+
+```{r, eval=FALSE}
+srnaExp
+```
+
+For your conveniance and illustrative purposes, an example of an
+`srnadiffExp` object can be loaded with an only command, so the script
+boils down to:
+
+```{r}
+srnaExp <- srnadiffExample()
+```
+
+The `srnadiffExp` object in this example was constructed by:
+
+```{r, eval=FALSE}
+basedir    <- system.file("extdata", package="srnadiff", mustWork=TRUE)
+sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
+gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
+annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
+bamFiles   <- paste(file.path(basedir, sampleInfo$FileName),
+                    "bam", sep=".")
+srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
+```
+
+
+## Read annotation
+
+`r Biocpkg("srnadiff")` offers the `readAnnotation` function related to
+loading annotation data. This accepts two annotation format files: GTF and GFF
+formats. Specification of GTF/GFF format can be found at the
+[UCSC dedicated page](https://genome.ucsc.edu/FAQ/FAQformat.html).
+
+`readAnnotation` reads and parses content of GTF/GFF files
+and stores annotated genomic features (regions) in a `GRanges`
+object. This has three main arguments: the first argument indicates the path,
+URL or connection to the GTF/GFF annotation file. The second and third
+argument, `feature` and `source` respectively, are of type
+character string, these specify the feature and attribute type used to
+select rows in the GTF/GFF annotation which will be imported. `feature`
+and `source` can be `NULL`, in this case, no selection is
+performed and all content into the file is imported.
+
+
+### Extraction of miRNAs using an GTF annotation file
+
+This GTF file can be found in the central repositories (NCBI, Ensembl) and
+contains all the annotation found in an organism (coding genes, tranposable
+element, etc.).
+
+```{r, eval=FALSE}
+## Determine the path to data files
+basedir <- system.file("extdata", package="srnadiff", mustWork=TRUE)
+```
+
+The following function reads the annotation file and extracts the miRNAs.
+
+```{r, eval=FALSE}
+gtfFile  <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
+annotReg <- readAnnotation(gtfFile, feature="gene", source="miRNA")
+```
+
+### Extraction of mature miRNAs using a miRBase-formatted GFF file
+
+```{r, eval=FALSE}
+gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
+annotReg <- readAnnotation(gffFile, feature="miRNA")
+```
+
+
+### Extraction of precursor miRNAs using a miRBase-formatted GFF file
+
+
+```{r, eval=FALSE}
+gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
+annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
+```
+
+
+## Performing *sRNA-diff*
+
+The main function for performing an *sRNA-diff* analysis is
+`srnadiff`, this the wrapper for running several key functions from
+this package. `srnadiff` implement four methods to produce potential
+DERs: the *annotation*, *naive*, *hmm* and *slice* method
+(see bellow).
+Once potential DERs are detected, the second step in `srnadiff` is to
+quantify the statistic signification of these.
+
+`srnadiff` has three main arguments. The first argument is an instance
+of class `srnadiffExp`. The second argument is of type character
+vector, it specify whether to skip a method, one of `annotation`,
+`naive`, `hmm`, `slice` or combinations thereof.
+The default `none`, no method is skipped.
+The third arguments is of type list, it contain named components for the
+methods parameters to use. If missing, default parameter values are supplied.
+Details about the methods parameters are further described in the manual page
+of the `parameters` function and in *Methods to produce
+differentially expressed regions* section.
+
+We then performs an *sRNA-diff* analysis on the input data contained in
+`srnaExp` by
+
+```{r}
+srnaExp <- srnadiff(srnaExp)
+```
+
+`srnadiff` returns an object of class `srnadiffExp` again
+containing additional slots for:
+
+* `regions`
+* `parameters`
+* `countMatrix`
+
+
+# Working with the `srnadiffExp` object
+
+Once the `srnadiffExp` object is created the user can use the methods
+defined for this class to access the information encapsulated in the object.
+
+By example, the sample information is accessed by
+
+```{r, eval=FALSE}
+#modify here
+sampleInfo(srnaExp)
+```
+
+For accessing the `chromosomeSize` slot
+
+```{r, eval=FALSE}
+#modify here
+chromosomeSizes(srnaExp)
+```
+
+The list of parameters can be exported by the function
+`parameters`
+
+```{r, eval=FALSE}
+#modify here
+parameters(srnaExp)
+```
+
+
+## Data visualization
+
+An insightful way of looking at the results of `srnadiff` is to
+investigate how the coverage information surrounding finded regions
+are distributed on the genomic coordinates.
+
+`plotRegions` provides a flexible genomic visualization framework by
+displaying tracks in the sense of the `Gviz` package. Given
+a region (or regions), four separate tracks are represented:
+
+1. `GenomeAxisTrack`, a horizontal axis with genomic
+coordinate tickmarks for reference location to the displayed genomic
+regions;
+2. `GeneRegionTrack`, if the `annot` argument is
+passed, a track displaying all gene and/or sRNA annotation information
+in a particular region;
+3. `AnnotationTrack`, regions are plotted as simple
+boxes if no strand information is available, or as arrows to indicate
+their direction; and
+4. `DataTrack`, plot the sample coverages surrounding
+the genomic regions.
+
+The sample coverages can be plotted in various different forms as well
+as combinations thereof. Supported plotting types are:
+
+`p`: simple dot plot
+
+```{r, eval=FALSE}
+#modify here
+plotRegions(srnaExp, regions(srnaExp)[1], type = "p")
+```
+
+`l`: lines plot
+
+```{r, eval=FALSE}
+#modify here
+plotRegions(srnaExp, regions(srnaExp)[1], type = "l")
+```
+
+`b`: combination of dot and lines plot \medskip
+
+```{r, eval=FALSE}
+#modify here
+plotRegions(srnaExp, regions(srnaExp)[1], type = "b")
+```
+
+`a`: lines plot of the sample-groups average (i.e., mean) values
+
+```{r, eval=FALSE}
+#modify here
+plotRegions(srnaExp, regions(srnaExp)[1], type = "a")
+```
+
+`confint`: confidence intervals for average values
+
+```{r, eval=FALSE}
+#modify here
+plotRegions(srnaExp, regions(srnaExp)[1], type = c("a", "confint"))
+```
+
+
+# Methods behind `r Biocpkg("srnadiff")`
+
+## Pre-processing data
+
+As input, `srnadiffExp` expects BAM files as obtained, *e.g.*, from
+RNA-Seq or another high-throughput sequencing experiment. Reading and
+processing of BAM files uses current `r CRANpkg("BioConductor")` infrastructure
+for processing sequencing reads: `r Biocpkg("RSamtools")`,
+`r Biocpkg("IRanges")` and `r Biocpkg("GenomicRanges")` libraries.
+At this stage BAM files are summarized into base-resolution coverage and
+stored in a run-length encoding format in order to enhance computational
+performance. Run-length encoding is a compact way to store an atomic vector
+as a pairs of vectors (value, length).  It is based on the `rle`
+function from the base *R* package.
+
+As a second pre-processing step, `srnadiffExp` estimate the size
+factors (the effective library size) from the coverage data, such that
+count values in each sample coverage can be brought to a common scale by
+dividing by the corresponding size (normalization) factor. This step is
+also called normalization, its purpose is to render coverages (counts)
+from different samples, which may have been sequenced to different depths,
+comparable. Normalization factors are estimated using the *median ratio
+method* described by Equation 5 in [@deseq].
+
+
+# Methods to produce differentially expressed regions
+
+## Annotation method: `annotation`
+
+This method simply provides the genomic regions corresponding to the
+annotation file that is optionally given by the user. It can be a set
+of known miRNAs, siRNAs, piRNAs, genes, or a combination thereof.
+
+### Whole genome file annotation
 
 This GTF file can be found in the central repositories
 ([NCBI](https://www.ncbi.nlm.nih.gov/), 
@@ -127,13 +530,13 @@ The following function reads the annotation file and extracts the miRNAs.
 Annotation files may have different formats, but this command has been tested
 on several model organisms (including human) from Ensembl.
 
-```{r, read_whole_genome}
+```{r, read_whole_genome, eval=FALSE}
+#modify here
 gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotation  <- readWholeGenomeAnnotation(gtfFile)
 ```
 
-
-#### miRBase annotation
+### miRBase annotation
 
 [miRBase](http://www.mirbase.org/) [@mirbase] is the central repository for
 miRNAs.
@@ -142,26 +545,29 @@ format (check the "Browse" tab).
 The following function parses a GFF3 miRBase file, and extracts the precursor
 miRNAs.
 
-```{r, read_mirbase_pre}
+```{r, read_mirbase_pre, eval=FALSE}
+#modify here
 gffFile    <- file.path(dir, "mirbase21_GRCh38.gff3")
 annotation <- readMiRBasePreAnnotation(gffFile)
 ```
 
 As a result, the reads will be counted per pre-miRNA, and the 5' and 3' arms,
-the miRNA and the miRNA* will be merged in the same feature.
+the miRNA and the miRNA\* will be merged in the same feature.
 If you want to separate the two, use:
 
-```{r, read_mirbase_mature}
+```{r, read_mirbase_mature, eval=FALSE}
+#modify here
 annotation <- readMiRBaseMatureAnnotation(gffFile)
 ```
 
-
-#### Other format
+### Other format
 
 When the previous functions do not work, you can use your own parser with:
 
-```{r, read_annotation}
-annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene", name="gene_name")
+```{r, read_annotation, eval=FALSE}
+#modify here
+annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene",
+                             name="gene_name")
 ```
 
 The `source` parameter keeps all the lines such that the second field matches
@@ -174,63 +580,123 @@ In this case, no selection is performed on `source` or `feature`.
 If `name` is null, then a systematic name is given (`annotation_N`).
 
 
-### HMM
 
-This strategy first computes the coverage of every input BAM file of every
-nucleotide of the genome.
-If two genome nucleotides have exactly the same coverage profile, we merge them.
-We give these coverage profiles to `r Biocpkg("DESeq2")` [@deseq2], and compute
-the p-values.
-We thus have a p-value for each position of the genome.
-We then use a very crude hidden Markov model (HMM) on each chromosome of the
-genome.
-The HMM has two states: "not differentially expressed", and "differentially
-expressed".
-Each state uses a binomial distribution, the probability to emit a p-value
-< $t$, and the probability to emit a p-value >= $t$ (where $t$ is a threshold
-that can be tuned, initially set to 0.1).
-We did not try to optimize the parameters of the HMM, because it takes times,
-and do not improve the results.
-Instead, the HMM is used a crude (but effective) way to segment the genome.
+## HMM method: `hmm`
 
-The parameters of the HMM can be changed using these functions:
+The first step in HMM method is quantifying the evidence for differential
+expression at the base-resolution level. To do this, `srnadiff` use
+the common approach in comparative analysis of transcriptomics data:  test
+the null hypothesis that the logarithmic fold change between condition groups
+for a nucleotide expression is exactly zero.
 
-```{r, hmm}
-exp <- setTransitionProbabilities(exp, noDiffToDiff = 0.0001, diffToNoDiff = 0.01)
-exp <- setEmissionProbabilities(exp, probability = 0.9)
-exp <- setEmissionThreshold(exp, threshold = 0.1)
+The next step in the HMM approach enforces a smoothness assumption over the
+state of nucleotides: differential expression does not randomly switch along
+the chromosome, rather, continuous regions of RNA are either "differentially
+expressed" or "not". This is captured with a hidden Markov model (HMM) with
+binary latent state corresponding to the true state of each nucleotide:
+differentially expressed or not differentially expressed.
+
+The observations of the HMM are then the empirical p-values arising from the
+differential expression analysis corresponding to each nucleotide position.
+Modelling p-values directly enabled us to define the emission of each state
+as follows: the differentially expressed state emits a p-value $< t$ with
+probability $p$, and the not differentially expressed state emits a p-value
+$\geqslant t$ with probability $1-p$, where $t$ is a real number between 0
+and 1.
+
+The HMM approach normally needs emission, transition, and starting
+probabilities values. They can be tuned by the user according to the
+overall p-values from differential analysis. We then run the Viterbi
+algorithm [ref] in order to finding the most likely sequence of states
+from the HMM. This essentially segments the genome into regions, where
+a region is defined as a set of consecutive bases showing a common expression
+signature. A region of bases with differentially expressed state is referred
+as an expressed region and is given as output of the method.
+
+To run the HMM approach, `srnadiff` first form a large matrix, with
+rows corresponding to bases, columns corresponding to samples and entries
+are the coverage from a nucleotide of a particular sample. This count matrix
+is then analyzed as into feature-level counts using the feature-level RNA-seq
+differential expression analysis from `r Biocpkg("DESeq2")`. In practice, the
+p-value is not computed for every nucleotide. Nucleotides for which the sum
+of the coverage across all samples is less than a threshold are given a
+p-value of 1, because these poorly expressed bases are unlikely to provide a
+differentially expressed sRNA.
+
+The parameters for the HMM method are:
+
+* `noDiffToDiff`: Initial transition probability from
+        "no differentially expressed" state to "differentially expressed"
+        state.
+* `diffToNoDiff`: Initial transition probability from
+        "differentially expressed" state to no "differentially expressed"
+        state.
+* `emission`: Is the probability to emit a p-value $<t$ in
+        the "differentially expressed" state, and a p-value $\geq t$ in the
+        "not differentially expressed" state.
+* `emissionThreshold`: Is the threshold $t$ that limits each
+        state.
+
+This parameters can be changed using using the assignment function
+`parameters<-`
+
+
+```{r, eval=FALSE}
+parameters(srnaExp) <- list(noDiffToDiff = 0.01,
+                            emissionThreshold = 0.2)
+
+
+## Slice method: `slice`
+
+In this approach, for each base, the average from the normalized coverage is
+calculated across all samples into each condition. This generates a vector of
+(normalized) mean coverage expression per condition. These two vectors are
+then used to compute per-nucleotide log-ratios (in absolute value) across the
+genome. For the computed log-ratio expression, the method uses a sliding
+threshold *h* that run across the log-ratio levels identifying bases with
+log-ratio value above of *h*.
+Regions of contiguous bases passing this threshold are then analyzed using an
+adaptation of Aumann and Lindell algorithm for irreducibility property 
+[@irreducible].
+
+The minimun sliding threshold, `minLogFC`, used in the Slice method can
+be changed using the assignment function `parameters<-`
+
+```{r, eval=FALSE}
+parameters(srnaExp) <- list(minLogFC = 1)
 ```
 
-where:
+## Naive method: `naive`
 
- * `noDiffToDiff` is the probability to move from the "not differentially
-expressed" state to the "differentially expressed" state,
- * `diffToNoDiff` is the probability to move from the "differentially expressed"
-state to the "not differentially expressed" state,
- * `probability` is the probability to emit a p-value < $t$ in the
-"differentially expressed" state, and a p-value >= $t$ in the "not
-differentially expressed" state, where $t$ is the next threshold,
- * `threshold` is the threshold that limits each state.
+This method is the simplest, gived a fixed threshold *h*, contiguous
+bases with log-ratio expression (in absolute value) passing this threshold
+are then considered as candidate differentially expressed regions.
 
-This method is efficient when a region is highly differentially expressed, even
-if it is concealed in a longer transcript.
+The fixed threshold, `cutoff`, used in this method can be changed using
+the assignment function `parameters<-`
+
+```{r, eval=FALSE}
+parameters(srnaExp) <- list(cutoff = 1.5)
+```
 
 
-### Irreducible Regions of the log-fold change
+# Quantifying DERs
 
-This stretegy proceeds in three steps:
+The result of the ER step is a list of genomic regions which were chosen
+with a specific use, to quantify their expression for subsequent testing
+for differential expression. The selected regions are then quantified using
+the `summarizeOverlaps` function of the `r Biocpkg("GenomicAlignments")`
+package. Notice that a read can overlap two different regions (*e.g.* extracted
+from the HMM and the Slice methods), and thus can be counted twice for the
+quantification. The result is ultimately a matrix with rows corresponding
+to ERs and columns corresponding to samples; entries of this matrix are the
+number of aligned reads from a particular sample that overlap a particular
+region. Then, this count matrix is analyzed using the standard
+`r Biocpkg("DESeq2")` workflow for differential expression of RNA-seq data,
+assigning a p-value to each DER.
 
- * It normalizes counts using a CPM strategy developped in EdgeR.
- * The mean distribution of the coverage of the replicates is computed for each
-condition.
- * The log2 fold change of the mean distribution is computed.
- * The irreducible regions above a given threshold are computed.
- * These putative regions are the output of the strategy.
 
-The irreducible regions are genomic intervals, such that, when split in two
-(wherever the split point), the average of the log-fold change of each
-sub-region is still above the threshold.
-The method has been published by [@rnaseqmap].
+
 
 
 ### General parameters
@@ -242,7 +708,7 @@ The three last strategies can be tuned by specifying:
 
 The default values can be changed using these functions:
 
-```{r, general_parameters}
+```{r, general_parameters, eval=FALSE}
 exp <- setMinDepth(exp, depth = 10)
 exp <- setSizes(exp, minSize = 15, maxSize = 1000)
 ```
@@ -256,7 +722,7 @@ All the regions given by each strategies are then combined into a list of
 regions.
 You can choose not to use some strategies, use the function
 
-```{r, strategies}
+```{r, strategies, eval=FALSE}
 exp <- setStrategies(exp, annotation = TRUE, hmm = TRUE, ir = TRUE)
 ```
 
@@ -274,7 +740,7 @@ quantification.
 
 You can adjust the minimum number of overlapping nucleotides between a read and
 a region to declare a hit, using:
-```{r, minOverlap}
+```{r, minOverlap, eval=FALSE}
 exp <- setMinOverlap(exp, minOverlap = 20)
 ```
 
@@ -289,7 +755,7 @@ The regions, with corresponding information provided by `r Biocpkg("DESeq2")`
 (mean expression, fold-change, p-value, adjusted p-value, etc.), can be
 extracted with this command:
 
-```{r regions}
+```{r, regions, eval=FALSE}
 exp     <- sRNADiffExample()
 exp     <- runAll(exp)
 regions <- regions(exp, pvalue = 0.5)
@@ -300,18 +766,6 @@ where `pvalue` is the (adjusted) p-value threshold.  The output in a
 `mcols()` function.
 
 
-## Visualization
-
-You can get the read coverage profile of your selected regions using the
-`plotRegion` method.  For instance, if `exp` is your `srnadiff` object, you
-can type:
-
-```{r, plot}
-plotRegion(exp, regions[1])
-```
-
-Each line provides the read density on an input sample.
-The dark grey rectangle emphasizes the selected region.
 
 
 ## Misc
@@ -321,7 +775,7 @@ The dark grey rectangle emphasizes the selected region.
 The conditions can be sorted (`WT` before `mutant`, `untreated` before
 `treated`) this way:
 
-```{r, conditions}
+```{r, conditions, eval=FALSE}
 conditions  <- factor(c("wt", "wt", "ko", "ko"), levels=c("wt", "ko"))
 ```
 
@@ -331,7 +785,7 @@ conditions  <- factor(c("wt", "wt", "ko", "ko"), levels=c("wt", "ko"))
 The quantification and differential expression steps can be accelerated using
 several cores and the following command:
 
-```{r, threads}
+```{r, threads, eval=FALSE}
 exp <- setNThreads(exp, nThreads = 4)
 ```
 

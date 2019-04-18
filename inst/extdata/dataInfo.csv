@@ -1,0 +1,7 @@
+FileName,SampleName,Condition
+SRR1634756,ctr_1,control
+SRR1634757,ctr_2,control
+SRR1634758,ctr_3,control
+SRR1634759,inf_1,infected
+SRR1634760,inf_2,infected
+SRR1634761,inf_3,infected

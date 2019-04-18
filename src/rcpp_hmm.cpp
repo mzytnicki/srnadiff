@@ -8,11 +8,6 @@ using namespace Rcpp;
 
 // [[Rcpp::plugins(cpp11)]]
 
-//' Compute unique counts.
-//'
-//' @param coverages        the coverages (a list of RLEs)
-//' @param minDepth         the minimum read coverage
-//' @return                 the unique counts
 // [[Rcpp::export]]
 IntegerMatrix rcpp_buildHmm(List &coverages, int minDepth) {
     std::vector < std::vector < int > > outputValues;
@@ -38,19 +33,7 @@ IntegerMatrix rcpp_buildHmm(List &coverages, int minDepth) {
     }
 }
 
-//' Run the Viterbi algorithm on the HMM.
-//'
-//' @param coverages        the coverages (a list of RLEs)
-//' @param transitions       the transition log-probabilities
-//' @param emissions         the emission log-probabilities
-//' @param emissionThreshold the emission threshold
-//' @param starts            the start log-probabilities
-//' @param counts            the unique counts
-//' @param pvalues           the p-values of the counts
-//' @param minDepth          the minimum read coverage
-//' @param minSize           the minimum size region
-//' @param maxSize           the maximum size region
-//' @return                  a segmentation of the chromosomes
+
 // [[Rcpp::export]]
 DataFrame rcpp_viterbi(List          &coverages,
                        NumericMatrix &transitions,

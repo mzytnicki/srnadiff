@@ -20,11 +20,7 @@ double computeMedian(std::vector < std::pair < double, int > > &table){
     return table[i].first;
 }
 
-//' Normalize counts
-//'
-//' @param coverages        the coverages (a list of RLEs)
-//' @param librarySizes     number of elements per sample
-//' @return                 the normalization factors
+
 // [[Rcpp::export]]
 NumericVector rcpp_normalization(List &coverages, IntegerVector &librarySizes) {
     GenomeIterator iterator (coverages);

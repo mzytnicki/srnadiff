@@ -1,15 +1,22 @@
 Package: srnadiff
 Type: Package
-Title: Differential Expression of Small RNA-Seq
+Title: Finding differentially expressed unannotated genomic regions from RNA-seq
+       data
 Version: 0.99.4
-Authors@R: person("Zytnicki", "Matthias", email = "matthias.zytnicki@inra.fr",
-  role = c("aut", "cre"))
+Date: 2019-02-23
+Authors@R: c(
+    person("Zytnicki", "Matthias", email = "matthias.zytnicki@inra.fr",
+            role = c("aut", "cre")),
+    person("Gonzalez", "Ignacio", role = "aut"))
 Maintainer: Matthias Zytnicki <matthias.zytnicki@inra.fr>
-Description: Differential expression of small RNA-seq
-    when reference annotation is not given.
+Description: srnadiff is a package that finds differently expressed regions from
+   RNA-seq data at base-resolution level without relying on existing annotation.
+   To do so, the package implements the identify-then-annotate methodology that
+   builds on the idea of combining two pipelines approachs differential
+   expressed regions detection and differential expression quantification.
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Depends: R (>= 3.5)
 SystemRequirements: C++11
 Imports:
@@ -17,7 +24,6 @@ Imports:
     methods,
     utils,
     devtools,
-    BiocStyle,
     S4Vectors,
     GenomeInfoDb,
     rtracklayer,
@@ -28,8 +34,9 @@ Imports:
     Rsamtools,
     GenomicFeatures,
     GenomicAlignments,
-    ggplot2,
-    BiocParallel
+    Gviz,
+    BiocParallel,
+    BiocStyle
 LinkingTo: Rcpp
 RoxygenNote: 6.1.1
 biocViews:
