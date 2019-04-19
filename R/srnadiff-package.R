@@ -107,7 +107,7 @@
 #' }
 #'
 #' @docType package
-#' @name srnadiff-package
+#' @name srnadiff
 #' @aliases srnadiff-package
 #'
 #' @author Matthias Zytnicki and Ignacio González

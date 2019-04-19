@@ -23,10 +23,23 @@ suppressPackageStartupMessages({
     library("knitr")
     library("rmarkdown")
 })
-opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE,
-               tidy=FALSE, cache=TRUE, fig.width=8, fig.height=5)
-#opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE,
-#               cache = FALSE, fig.width = 8, fig.height = 5)
+knitr::opts_chunk$set(
+	error = FALSE,
+	fig.height = 5,
+	fig.width = 8,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	tidy = FALSE
+)
+```
+
+```{r echo=FALSE, eval=TRUE}
+basedir    <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
+bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
+gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
+annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 ```
 
 # Version info
@@ -46,7 +59,7 @@ combining two pipelines approach: differential expressed regions detection
 and differential expression quantification.
 
 
-# Introdution
+# Introduction
 
 There is no real method for finding differentially expressed short RNAs. The
 most used method focusses on miRNAs, and only uses a standard RNA-Seq pipe-line
@@ -188,14 +201,14 @@ BiocManager::install("srnadiff", version = "3.8")
 
 Load the `r Biocpkg("srnadiff")` package in your *R* session:
 
-```{r, loadLibrary, eval=TRUE, message=FALSE, warning=FALSE}
+```{r, loadLibrary, eval=FALSE}
 library(srnadiff)
 ```
 
 A list of all accessible vignettes and methods is available with the
 following command:
 
-```{r, helpSearch, eval=TRUE}
+```{r, helpSearch}
 help.search("srnadiff")
 ```
 
@@ -269,7 +282,7 @@ Optionally, if annotation information is available as a `r Biocpkg("GRanges")`
 object, `annotReg` say, then a `srnadiffExp` object can be
 created by 
 
-```{r, eval=FALSE}
+```{r}
 srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 ```
 
@@ -281,9 +294,9 @@ annotReg(srnaExp) <- annotReg
 ```
 
 A summary of the `srnaExp` object can be seen by typing the object name
-at the *R* prompt \medskip
+at the *R* prompt
 
-```{r, eval=FALSE}
+```{r}
 srnaExp
 ```
 
@@ -404,23 +417,20 @@ defined for this class to access the information encapsulated in the object.
 
 By example, the sample information is accessed by
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 sampleInfo(srnaExp)
 ```
 
 For accessing the `chromosomeSize` slot
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 chromosomeSizes(srnaExp)
 ```
 
 The list of parameters can be exported by the function
 `parameters`
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 parameters(srnaExp)
 ```
 
@@ -452,36 +462,31 @@ as combinations thereof. Supported plotting types are:
 
 `p`: simple dot plot
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 plotRegions(srnaExp, regions(srnaExp)[1], type = "p")
 ```
 
 `l`: lines plot
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 plotRegions(srnaExp, regions(srnaExp)[1], type = "l")
 ```
 
-`b`: combination of dot and lines plot \medskip
+`b`: combination of dot and lines plot
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 plotRegions(srnaExp, regions(srnaExp)[1], type = "b")
 ```
 
 `a`: lines plot of the sample-groups average (i.e., mean) values
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 plotRegions(srnaExp, regions(srnaExp)[1], type = "a")
 ```
 
 `confint`: confidence intervals for average values
 
-```{r, eval=FALSE}
-#modify here
+```{r, eval=TRUE}
 plotRegions(srnaExp, regions(srnaExp)[1], type = c("a", "confint"))
 ```
 
@@ -530,8 +535,7 @@ The following function reads the annotation file and extracts the miRNAs.
 Annotation files may have different formats, but this command has been tested
 on several model organisms (including human) from Ensembl.
 
-```{r, read_whole_genome, eval=FALSE}
-#modify here
+```{r, read_whole_genome, eval=TRUE}
 gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotation  <- readWholeGenomeAnnotation(gtfFile)
 ```
@@ -642,8 +646,7 @@ This parameters can be changed using using the assignment function
 
 
 ```{r, eval=FALSE}
-parameters(srnaExp) <- list(noDiffToDiff = 0.01,
-                            emissionThreshold = 0.2)
+parameters(srnaExp) <- list(noDiffToDiff = 0.01, emissionThreshold = 0.2)
 
 
 ## Slice method: `slice`
