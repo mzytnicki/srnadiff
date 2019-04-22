@@ -66,6 +66,9 @@
 #'                     individual plotting types.
 #' @param trNames      Title for the tracks. By default \code{"DER"} and
 #'                     \code{"coverage"}.
+#' @param chrTitle     Boolean or character vector of length one. Defaults
+#'                     \code{TRUE}, the chromosome name is added to the plot.
+#'                     If character, this will be used for title.
 #' @param legend       Boolean triggering the addition of a legend to the
 #'                     (coverage) data track to indicate groups.
 #' @param ...          Additional display parameters to control the look and
@@ -95,6 +98,7 @@ plotRegions <- function(object, region,
                         fillReg = c("darkgreen", "darkred"),
                         fillAnnot = "#FFD58A",
                         type = "a",
+                        chrTitle = TRUE,
                         trNames = c("DER", "coverage"),
                         legend = TRUE,
                         ...) {
@@ -218,6 +222,29 @@ plotRegions <- function(object, region,
              " or combinations thereof.", call.=FALSE)
     }
 
+    ##- chrTitle
+    if (length(chrTitle) != 1) {
+        stop("'chrTitle' must be either boolean or character vector of ",
+            "length one.", call.=FALSE)
+    }
+
+    if (is.na(chrTitle) | is.null(chrTitle)) {
+        stop("'chrTitle' must be either boolean or character vector of ",
+             "length one.", call.=FALSE)
+    }
+
+    if (is.logical(chrTitle)) {
+        if (chrTitle) {
+            chrTitle <- paste0("Chromosome ",
+                                levels(runValue(seqnames(region))))
+            showTitles <- TRUE
+        } else {
+            showTitles <- FALSE
+        }
+    } else {
+        showTitles <- TRUE
+    }
+
     ##- trNames
     if (length(trNames) != 2) {
         stop("'trNames' must be a character vector of length 2.",
@@ -314,7 +341,19 @@ plotRegions <- function(object, region,
     ##------------------------------------------------------------------------#
     trackList <- list()
 
-    trackList[[1]] <- GenomeAxisTrack()
+    if (showTitles) {
+        pos <- round((startReg + endReg) / 2)
+        titleTrack <- AnnotationTrack(start = pos - 1, end = pos + 1,
+                                      chromosome = regChr, id = chrTitle,
+                                      name = "", fill = "white",
+                                      col = "white",
+                                      fontcolor.item = "darkgray",
+                                      background.title = "white",
+                                      featureAnnotation = "id")
+        trackList <- c(trackList, titleTrack)
+    }
+
+    trackList <- c(trackList, GenomeAxisTrack())
 
     if (!is.null(annot)) {
         track <- GeneRegionTrack(as.data.frame(annot),
