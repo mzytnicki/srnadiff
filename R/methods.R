@@ -558,11 +558,11 @@ print.srnadiff_par <- function(x, ...) {
 
     cat("\n Slice method parameter: \n",
         "----------------------- \n")
-    df <- data.frame(value = unlist(x[11]))
+    df <- data.frame(value = unlist(x[12]))
     print(df)
 
     cat("\n Naive method parameter: \n",
         "----------------------- \n")
-    df <- data.frame(value = unlist(x[12]))
+    df <- data.frame(value = unlist(x[11]))
     print(df)
 }
