@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 	comment = "",
 	cache = TRUE,
 	tidy = FALSE,
-	eval = TRUE
+	eval = FALSE
 )
 ```
 
@@ -341,7 +341,9 @@ performed and all content into the file is imported.
 
 ### Extraction of miRNAs using an GTF annotation file
 
-This GTF file can be found in the central repositories (NCBI, Ensembl) and
+This GTF file can be found in the central repositories
+([NCBI](https://www.ncbi.nlm.nih.gov/), 
+[Ensembl](https://www.ensembl.org/index.html)) and
 contains all the annotation found in an organism (coding genes, tranposable
 element, etc.).
 
@@ -350,27 +352,31 @@ element, etc.).
 basedir <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 ```
 
-The following function reads the annotation file and extracts the miRNAs.
+The following code can be used for read the annotation file and extracts the
+miRNAs.
 
 ```{r, eval=FALSE}
 gtfFile  <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 ```
 
+### Extraction of precursor miRNAs using a miRBase-formatted GFF file
+
+[miRBase](http://www.mirbase.org/) [@mirbase] is the central repository for
+miRNAs. If your organism is available, you can download their miRNA annotation
+in GFF3 format (check the "Browse" tab). The following code parses a GFF3
+miRBase file, and extracts the precursor miRNAs.
+
+```{r, eval=FALSE}
+gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
+annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
+```
 
 ### Extraction of mature miRNAs using a miRBase-formatted GFF file
 
 ```{r, eval=FALSE}
 gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
 annotReg <- readAnnotation(gffFile, feature="miRNA")
-```
-
-
-### Extraction of precursor miRNAs using a miRBase-formatted GFF file
-
-```{r, eval=FALSE}
-gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
-annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
 ```
 
 
@@ -386,9 +392,9 @@ quantify the statistic signification of these.
 
 `srnadiff` has three main arguments. The first argument is an instance
 of class `srnadiffExp`. The second argument is of type character
-vector, it specify whether to skip a method, one of `annotation`,
+vector, it specify the segmentation methods to use, one of `annotation`,
 `naive`, `hmm`, `slice` or combinations thereof.
-The default `none`, no method is skipped.
+The default `all`, all methods are used.
 The third arguments is of type list, it contain named components for the
 methods parameters to use. If missing, default parameter values are supplied.
 Details about the methods parameters are further described in the manual page
@@ -431,7 +437,8 @@ The list of parameters can be exported by the function
 `parameters`
 
 ```{r}
-parameters(srnaExp)
+parList <- parameters(srnaExp)
+print(parList)
 ```
 
 
@@ -480,7 +487,7 @@ plotRegions(srnaExp, regions(srnaExp)[1])
 Displayed below are the same sample data as before but plotted with the
 different type settings:
 
-```{r, echo=FALSE, fig.height=10}
+```{r, echo=FALSE, fig.height=9}
 types <- list("p", "l", "b", "a", c("a", "confint"), c("a", "p", "confint"))
 
 ncols <- 2
@@ -489,12 +496,12 @@ grid.newpage()
 pushViewport(viewport(layout=grid.layout(nrows, ncols)))
 
 for(i in 1:length(types)){
-    pushViewport(viewport(layout.pos.col=((i-1)%%ncols)+1,
-                          layout.pos.row=(((i)-1)%/%ncols)+1))
+    pushViewport(viewport(layout.pos.col=((i - 1) %% ncols) + 1,
+                          layout.pos.row=(((i) - 1) %/% ncols) + 1))
 
-    trN <- paste(types[[i]], collapse = ", ")
-    plotRegions(srnaExp, regions(srnaExp)[1], type = types[[i]],
-                trNames = c("DER", trN), add=TRUE)
+    trN <- paste(types[[i]], collapse=", ")
+    plotRegions(srnaExp, regions(srnaExp)[1], type=types[[i]],
+                trNames=c("DER", trN), chrTitle=FALSE, add=TRUE)
 
     popViewport(1)
 }
