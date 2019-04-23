@@ -394,6 +394,8 @@ setMethod(f="regions", signature="srnadiffExp",
 #'
 #' @param object An \code{srnadiffExp} object.
 #' @param value  A named \code{list} containing valid parameters. See details.
+#' @param x      An list as returned by \code{\link{parameters}} function.
+#' @param ...    Not used currently.
 #'
 #' @seealso
 #' \code{useParameters} argument in \code{\link{srnadiff}} function.
@@ -401,10 +403,9 @@ setMethod(f="regions", signature="srnadiffExp",
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' srnaExp <- srnadiff(srnaExp)
-#' parameters(srnaExp)
+#' print(parameters(srnaExp))
 #'
 #' parameters(srnaExp) <- list("minSize" = 1, "maxSize" = 1500)
-#' parameters(srnaExp)
 #'
 #' @export
 setMethod(f="parameters", signature="srnadiffExp",
@@ -416,6 +417,8 @@ setMethod(f="parameters", signature="srnadiffExp",
                             " for details.")
                 } else {
                     object@parameters
+                    class(object@parameters) <- "srnadiff_par"
+                    return(invisible(object@parameters))
                 }
             }
 )
@@ -532,3 +535,34 @@ setMethod(f="show", signature ="srnadiffExp",
                 print(object@sampleInfo)
             }
 )
+
+
+##- print method for parameters ----------------------------------------------#
+##----------------------------------------------------------------------------#
+#' @name parameters
+#' @rdname parameters
+#'
+#'
+#' @export
+print.srnadiff_par <- function(x, ...) {
+
+    cat("\n Global parameters: \n",
+        "------------------ \n")
+    df <- data.frame(value = unlist(x[1:6]))
+    print(df)
+
+    cat("\n HMM method parameters: \n",
+        "---------------------- \n")
+    df <- data.frame(value = unlist(x[7:10]))
+    print(df)
+
+    cat("\n Slice method parameter: \n",
+        "----------------------- \n")
+    df <- data.frame(value = unlist(x[11]))
+    print(df)
+
+    cat("\n Naive method parameter: \n",
+        "----------------------- \n")
+    df <- data.frame(value = unlist(x[12]))
+    print(df)
+}
