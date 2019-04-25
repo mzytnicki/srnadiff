@@ -1,7 +1,7 @@
 ##- Creates a matrix of unique counts ----------------------------------------#
 ##----------------------------------------------------------------------------#
-buildDataHmm <- function (object, minDepth) {
-    counts <- rcpp_buildHmm(object@coverages, minDepth)
+buildDataHmm <- function (object) {
+    counts <- rcpp_buildHmm(object@coverages, parameters(object)$minDepth)
     colnames(counts) <- sampleInfo(object)$SampleName
     rownames(counts) <- paste("data", seq(dim(counts)[1]), sep="_")
 
@@ -58,7 +58,7 @@ runHmm <- function(object, nThreads) {
 
     message("Starting HMM step...")
     message("  Building data...")
-    counts <- buildDataHmm(object, parameters(object)$minDepth)
+    counts <- buildDataHmm(object)
     message("  ... data built")
 
     message("  Computing p-values...")

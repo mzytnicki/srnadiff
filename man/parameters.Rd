@@ -17,6 +17,9 @@
 
 \item{value}{A named \code{list} containing valid parameters. See details.}
 }
+\value{
+The named list of the parameters used in the analysis.
+}
 \description{
 The \code{parameters} slot holds the parameter values
 used in an sRNA-diff approach as a named \code{list}. Default values

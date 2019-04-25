@@ -11,6 +11,9 @@
 \arguments{
 \item{object}{An \code{srnadiffExp} object.}
 }
+\value{
+The paths to the BAM files.
+}
 \description{
 The \code{bamFiles} slot holds the full paths to the BAM files as a
 \code{\link[Rsamtools]{BamFileList}}.

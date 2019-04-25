@@ -11,8 +11,11 @@
 \arguments{
 \item{object}{An \code{srnadiffExp} object.}
 }
+\value{
+A matrix with the number of reads for each regions, and each sample.
+}
 \description{
-The \code{countMatrix} slot holds the count matrix from the finded DERs.
+The \code{countMatrix} slot holds the count matrix from the DERs found.
 }
 \details{
 In the last step of an sRNA-diff approach, the potential DERs is assessed.

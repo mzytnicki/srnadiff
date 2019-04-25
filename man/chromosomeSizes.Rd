@@ -11,6 +11,9 @@
 \arguments{
 \item{object}{An \code{srnadiffExp} object.}
 }
+\value{
+A list containing the chromosome sizes.
+}
 \description{
 The \code{chromosomeSizes} slot holds the sizes of the chromosomes
 as a named vector with chromosome names.

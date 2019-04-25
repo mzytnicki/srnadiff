@@ -125,7 +125,9 @@
 #' @import GenomicAlignments
 #' @import BiocParallel
 #' @import GenomicRanges
+#' @import BiocStyle
 #' @import Gviz
+#' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp
 #' @importFrom grDevices col2rgb
 #' @useDynLib srnadiff

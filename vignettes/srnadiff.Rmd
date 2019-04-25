@@ -1,5 +1,7 @@
 ---
-title: "Finding differentially expressed unannotated genomic regions from RNA-seq data with srnadiff"
+title: >
+  "Finding differentially expressed unannotated genomic regions from
+  RNA-seq data with srnadiff"
 author: 
   - name: Matthias Zytnicki
   - name: Ignacio González
@@ -24,20 +26,19 @@ suppressPackageStartupMessages({
     library("rmarkdown")
 })
 knitr::opts_chunk$set(
-	error = FALSE,
-	fig.height = 5,
-	fig.width = 8,
-	message = FALSE,
-	warning = FALSE,
-	cache = TRUE,
-	tidy = FALSE
+    error=FALSE,
+    fig.height=5,
+    fig.width=8,
+    message=FALSE,
+    warning=FALSE,
+    tidy=FALSE
 )
 ```
 
-```{r echo=FALSE, eval=TRUE}
-basedir    <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+```{r echo=FALSE}
+basedir    <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
-bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
+bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
 gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 ```
@@ -111,13 +112,13 @@ documentation. To get more information on any specific named function, for
 example `MIMFA`, you can bring up the documentation by typing at the
 *R*.
 
-```{r eval=FALSE}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 help("srnadiff")
 ```
 
 or
 
-```{r eval=FALSE}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 ?srnadiff
 ```
 
@@ -161,7 +162,7 @@ Here we assume that `bamFiles` is a vector with the full paths to the
 BAM files and the sample and experimental design information are stored in a
 data frame `sampleInfo`.
 
-```{r, quickStart, eval=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE, results="hide"}
 #-- Data preparation
 srnaExp <- srnadiffExp(bamFiles, sampleInfo)
 
@@ -188,7 +189,7 @@ To be able to install the package one needs first to install the core
 skip the two lines below.
 
 ```{r, bioconductor, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 ```
 
@@ -196,7 +197,7 @@ Once the core `r CRANpkg("BioConductor")` packages are installed, you can
 install the `r Biocpkg("srnadiff")` package by
 
 ```{r, install, eval=FALSE}
-BiocManager::install("srnadiff", version = "3.8")
+BiocManager::install("srnadiff", version="3.8")
 ```
 
 Load the `r Biocpkg("srnadiff")` package in your *R* session:
@@ -263,13 +264,13 @@ object containing annotated regions.
 
 Here, we demonstrate how to construct a `srnadiffExp` object from [@data].
 
-```{r, eval=FALSE}
+```{r message=FALSE, warning=FALSE}
 ## Determine the path to data files
-basedir <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+basedir <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 
 ## Vector with the full paths to the BAM files to use
 bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam",
-                  sep = ".")
+                  sep=".")
 
 ## Reads sample information file and creates a data frame from it
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
@@ -288,7 +289,7 @@ srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 
 or by
 
-```{r, eval=FALSE}
+```{r message=FALSE, warning=FALSE}
 srnaExp <- srnadiffExp(bamFiles, sampleInfo)
 annotReg(srnaExp) <- annotReg
 ```
@@ -310,7 +311,7 @@ srnaExp <- srnadiffExample()
 
 The `srnadiffExp` object in this example was constructed by:
 
-```{r, eval=FALSE}
+```{r message=FALSE, warning=FALSE}
 basedir    <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
@@ -339,39 +340,69 @@ and `source` can be `NULL`, in this case, no selection is
 performed and all content into the file is imported.
 
 
-### Extraction of miRNAs using an GTF annotation file
+### Extraction of putative regions using an GTF annotation file
 
-This GTF file can be found in the central repositories (NCBI, Ensembl) and
+This method simply provides the genomic regions corresponding to the
+annotation file that is optionally given by the user. It can be a set
+of known miRNAs, siRNAs, piRNAs, genes, or a combination thereof.
+
+### Whole genome file annotation
+
+This GTF file can be found in the central repositories
+([NCBI](https://www.ncbi.nlm.nih.gov/), 
+[Ensembl](https://www.ensembl.org/index.html)) and
 contains all the annotation found in an organism (coding genes, tranposable
 element, etc.).
-
-```{r, eval=FALSE}
-## Determine the path to data files
-basedir <- system.file("extdata", package="srnadiff", mustWork=TRUE)
-```
-
 The following function reads the annotation file and extracts the miRNAs.
+Annotation files may have different formats, but this command has been tested
+on several model organisms (including human) from Ensembl.
 
-```{r, eval=FALSE}
+```{r message=FALSE, warning=FALSE}
 gtfFile  <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 ```
 
-### Extraction of mature miRNAs using a miRBase-formatted GFF file
 
-```{r, eval=FALSE}
+### miRBase annotation
+
+[miRBase](http://www.mirbase.org/) [@mirbase] is the central repository for
+miRNAs.
+If your organism is available, you can download their miRNA annotation in GFF3
+format (check the "Browse" tab).
+The following function parses a GFF3 miRBase file, and extracts the precursor
+miRNAs.
+
+```{r message=FALSE, warning=FALSE}
 gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
 annotReg <- readAnnotation(gffFile, feature="miRNA")
 ```
 
+As a result, the reads will be counted per pre-miRNA, and the 5' and 3' arms,
+the miRNA and the miRNA\* will be merged in the same feature.
+If you want to separate the two, use:
 
-### Extraction of precursor miRNAs using a miRBase-formatted GFF file
-
-
-```{r, eval=FALSE}
+```{r message=FALSE, warning=FALSE}
 gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
 annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
 ```
+
+### Other format
+
+When the previous functions do not work, you can use your own parser with:
+
+```{r message=FALSE, warning=FALSE}
+annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene")
+```
+
+The `source` parameter keeps all the lines such that the second field matches
+the given parameter (e.g. `miRNA`).
+The `feature` parameter keeps all the lines such that the third field matches
+the given parameter (e.g. `gene`).
+The name of the feature will be given by the tag `name` (e.g. `gene_name`).
+`source`, `feature` and `name` can be `NULL`.
+In this case, no selection is performed on `source` or `feature`.
+If `name` is null, then a systematic name is given (`annotation_N`).
+
 
 
 ## Performing *sRNA-diff*
@@ -417,22 +448,37 @@ defined for this class to access the information encapsulated in the object.
 
 By example, the sample information is accessed by
 
-```{r, eval=TRUE}
+```{r}
 sampleInfo(srnaExp)
 ```
 
 For accessing the `chromosomeSize` slot
 
-```{r, eval=TRUE}
+```{r}
 chromosomeSizes(srnaExp)
 ```
 
 The list of parameters can be exported by the function
 `parameters`
 
-```{r, eval=TRUE}
+```{r}
 parameters(srnaExp)
 ```
+
+
+## Extracting regions
+
+The regions, with corresponding information provided by `r Biocpkg("DESeq2")`
+(mean expression, fold-change, p-value, adjusted p-value, etc.), can be
+extracted with this command:
+
+```{r message=FALSE, warning=FALSE}
+regions <- regions(srnaExp, pvalue=0.5)
+```
+
+where `pvalue` is the (adjusted) p-value threshold.  The output in a
+`r Biocpkg("GenomicRanges")` object, and the information is accessible with the
+`mcols()` function.
 
 
 ## Data visualization
@@ -462,32 +508,32 @@ as combinations thereof. Supported plotting types are:
 
 `p`: simple dot plot
 
-```{r, eval=TRUE}
-plotRegions(srnaExp, regions(srnaExp)[1], type = "p")
+```{r}
+plotRegions(srnaExp, regions(srnaExp)[1], type="p")
 ```
 
 `l`: lines plot
 
-```{r, eval=TRUE}
-plotRegions(srnaExp, regions(srnaExp)[1], type = "l")
+```{r}
+plotRegions(srnaExp, regions(srnaExp)[1], type="l")
 ```
 
 `b`: combination of dot and lines plot
 
-```{r, eval=TRUE}
-plotRegions(srnaExp, regions(srnaExp)[1], type = "b")
+```{r}
+plotRegions(srnaExp, regions(srnaExp)[1], type="b")
 ```
 
 `a`: lines plot of the sample-groups average (i.e., mean) values
 
-```{r, eval=TRUE}
-plotRegions(srnaExp, regions(srnaExp)[1], type = "a")
+```{r}
+plotRegions(srnaExp, regions(srnaExp)[1], type="a")
 ```
 
 `confint`: confidence intervals for average values
 
-```{r, eval=TRUE}
-plotRegions(srnaExp, regions(srnaExp)[1], type = c("a", "confint"))
+```{r}
+plotRegions(srnaExp, regions(srnaExp)[1], type=c("a", "confint"))
 ```
 
 
@@ -516,76 +562,10 @@ comparable. Normalization factors are estimated using the *median ratio
 method* described by Equation 5 in [@deseq].
 
 
-# Methods to produce differentially expressed regions
-
-## Annotation method: `annotation`
-
-This method simply provides the genomic regions corresponding to the
-annotation file that is optionally given by the user. It can be a set
-of known miRNAs, siRNAs, piRNAs, genes, or a combination thereof.
-
-### Whole genome file annotation
-
-This GTF file can be found in the central repositories
-([NCBI](https://www.ncbi.nlm.nih.gov/), 
-[Ensembl](https://www.ensembl.org/index.html)) and
-contains all the annotation found in an organism (coding genes, tranposable
-element, etc.).
-The following function reads the annotation file and extracts the miRNAs.
-Annotation files may have different formats, but this command has been tested
-on several model organisms (including human) from Ensembl.
-
-```{r, read_whole_genome, eval=TRUE}
-gtfFile     <- file.path(dir, "Homo_sapiens.GRCh38.76.gtf.gz")
-annotation  <- readWholeGenomeAnnotation(gtfFile)
-```
-
-### miRBase annotation
-
-[miRBase](http://www.mirbase.org/) [@mirbase] is the central repository for
-miRNAs.
-If your organism is available, you can download their miRNA annotation in GFF3
-format (check the "Browse" tab).
-The following function parses a GFF3 miRBase file, and extracts the precursor
-miRNAs.
-
-```{r, read_mirbase_pre, eval=FALSE}
-#modify here
-gffFile    <- file.path(dir, "mirbase21_GRCh38.gff3")
-annotation <- readMiRBasePreAnnotation(gffFile)
-```
-
-As a result, the reads will be counted per pre-miRNA, and the 5' and 3' arms,
-the miRNA and the miRNA\* will be merged in the same feature.
-If you want to separate the two, use:
-
-```{r, read_mirbase_mature, eval=FALSE}
-#modify here
-annotation <- readMiRBaseMatureAnnotation(gffFile)
-```
-
-### Other format
-
-When the previous functions do not work, you can use your own parser with:
-
-```{r, read_annotation, eval=FALSE}
-#modify here
-annotation <- readAnnotation(gtfFile, source="miRNA", feature="gene",
-                             name="gene_name")
-```
-
-The `source` parameter keeps all the lines such that the second field matches
-the given parameter (e.g. `miRNA`).
-The `feature` parameter keeps all the lines such that the third field matches
-the given parameter (e.g. `gene`).
-The name of the feature will be given by the tag `name` (e.g. `gene_name`).
-`source`, `feature` and `name` can be `NULL`.
-In this case, no selection is performed on `source` or `feature`.
-If `name` is null, then a systematic name is given (`annotation_N`).
+## Methods to produce differentially expressed regions
 
 
-
-## HMM method: `hmm`
+### HMM method: `hmm`
 
 The first step in HMM method is quantifying the evidence for differential
 expression at the base-resolution level. To do this, `srnadiff` use
@@ -646,10 +626,11 @@ This parameters can be changed using using the assignment function
 
 
 ```{r, eval=FALSE}
-parameters(srnaExp) <- list(noDiffToDiff = 0.01, emissionThreshold = 0.2)
+parameters(srnaExp) <- list(noDiffToDiff=0.01, emissionThreshold=0.2)
+```
 
 
-## Slice method: `slice`
+### Slice method: `slice`
 
 In this approach, for each base, the average from the normalized coverage is
 calculated across all samples into each condition. This generates a vector of
@@ -666,10 +647,10 @@ The minimun sliding threshold, `minLogFC`, used in the Slice method can
 be changed using the assignment function `parameters<-`
 
 ```{r, eval=FALSE}
-parameters(srnaExp) <- list(minLogFC = 1)
+parameters(srnaExp) <- list(minLogFC=1)
 ```
 
-## Naive method: `naive`
+### Naive method: `naive`
 
 This method is the simplest, gived a fixed threshold *h*, contiguous
 bases with log-ratio expression (in absolute value) passing this threshold
@@ -679,11 +660,11 @@ The fixed threshold, `cutoff`, used in this method can be changed using
 the assignment function `parameters<-`
 
 ```{r, eval=FALSE}
-parameters(srnaExp) <- list(cutoff = 1.5)
+parameters(srnaExp) <- list(cutoff=1.5)
 ```
 
 
-# Quantifying DERs
+## Quantifying DERs
 
 The result of the ER step is a list of genomic regions which were chosen
 with a specific use, to quantify their expression for subsequent testing
@@ -700,9 +681,7 @@ assigning a p-value to each DER.
 
 
 
-
-
-### General parameters
+## General parameters
 
 The three last strategies can be tuned by specifying:
 
@@ -711,29 +690,28 @@ The three last strategies can be tuned by specifying:
 
 The default values can be changed using these functions:
 
-```{r, general_parameters, eval=FALSE}
-exp <- setMinDepth(exp, depth = 10)
-exp <- setSizes(exp, minSize = 15, maxSize = 1000)
+```{r, general_parameter}
+parameters(srnaExp) <- list(minDepth=1)
+parameters(srnaExp) <- list(minSize=15, maxSize=1000)
 ```
 
 
-### Combination of strategies
+## Combination of strategies
 
-#### Choice of the strategies
+### Choice of the strategies
 
 All the regions given by each strategies are then combined into a list of
 regions.
-You can choose not to use some strategies, use the function
+You can choose not to use some strategies, use the parameter `segMethod` of the
+function `srnadiff`.
 
-```{r, strategies, eval=FALSE}
-exp <- setStrategies(exp, annotation = TRUE, hmm = TRUE, ir = TRUE)
+```{r, strategies}
+srnaExp <- srnadiffExample()
+srnaExp <- srnadiff(srnaExp, segMethod=c("hmm", "slice"))
 ```
 
-where `annotation`, `hmm` and `ir` are logical variables, set to
-`FALSE` if you want to skip that step.
 
-
-#### Quantification of the features
+### Quantification of the features
 
 The selected regions are then quantified using of the `summarizeOverlaps`
 function of the `r Biocpkg("GenomicAlignments")` package.
@@ -743,8 +721,8 @@ quantification.
 
 You can adjust the minimum number of overlapping nucleotides between a read and
 a region to declare a hit, using:
-```{r, minOverlap, eval=FALSE}
-exp <- setMinOverlap(exp, minOverlap = 20)
+```{r, minOverlap}
+parameters(srnaExp) <- list(minOverlap=1000)
 ```
 
 `r Biocpkg("DESeq2")` is then used to get the adjusted p-values of these
@@ -752,48 +730,19 @@ regions.
 
 
 
-### Extracting regions
+# Misc
 
-The regions, with corresponding information provided by `r Biocpkg("DESeq2")`
-(mean expression, fold-change, p-value, adjusted p-value, etc.), can be
-extracted with this command:
-
-```{r, regions, eval=FALSE}
-exp     <- sRNADiffExample()
-exp     <- runAll(exp)
-regions <- regions(exp, pvalue = 0.5)
-```
-
-where `pvalue` is the (adjusted) p-value threshold.  The output in a
-`r Biocpkg("GenomicRanges")` object, and the information is accessible with the
-`mcols()` function.
-
-
-
-
-## Misc
-
-### Naming the conditions
-
-The conditions can be sorted (`WT` before `mutant`, `untreated` before
-`treated`) this way:
-
-```{r, conditions, eval=FALSE}
-conditions  <- factor(c("wt", "wt", "ko", "ko"), levels=c("wt", "ko"))
-```
-
-
-### Using several cores
+## Using several cores
 
 The quantification and differential expression steps can be accelerated using
 several cores and the following command:
 
 ```{r, threads, eval=FALSE}
-exp <- setNThreads(exp, nThreads = 4)
+exp <- setNThreads(exp, nThreads=4)
 ```
 
 
-### Troubleshooting
+## Troubleshooting
 
 While installing the package, if the compiler complains and says
 

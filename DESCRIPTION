@@ -22,7 +22,6 @@ SystemRequirements: C++11
 Imports:
     Rcpp (>= 0.12.8),
     methods,
-    utils,
     devtools,
     S4Vectors,
     GenomeInfoDb,
@@ -34,8 +33,10 @@ Imports:
     Rsamtools,
     GenomicFeatures,
     GenomicAlignments,
+    grDevices,
     Gviz,
     BiocParallel,
+    BiocManager,
     BiocStyle
 LinkingTo: Rcpp
 RoxygenNote: 6.1.1

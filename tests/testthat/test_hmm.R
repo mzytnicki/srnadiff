@@ -3,10 +3,11 @@ library(testthat)
 
 context("Checking HMM strategy")
 
-exp       <- sRNADiffExample()
-counts    <- buildDataHmm(exp)
-pvalues   <- computePvalues(exp, counts)
-intervals <- runHmm(exp, counts, pvalues)
+object    <- srnadiffExample()
+parameters(object) <- srnadiffDefaultParameters
+counts    <- buildDataHmm(object)
+pvalues   <- computePvalues(object, counts, 1)
+intervals <- hmm(object, counts, pvalues)
 
 test_that("Building data", {
     expect_equal(dim(counts), c(271, 6))
@@ -17,5 +18,5 @@ test_that("Computing p-values", {
 })
 
 test_that("Running HMM", {
-    expect_equal(length(intervals), 4)
+    expect_equal(length(intervals), 20)
 })

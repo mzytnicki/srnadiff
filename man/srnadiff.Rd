@@ -7,7 +7,8 @@
 \title{Finding differentially expressed unannotated genomic regions from
 RNA-seq data}
 \usage{
-srnadiff(object, segMethod = "all", useParameters, nThreads = 1)
+srnadiff(object, segMethod = "all",
+  useParameters = srnadiffDefaultParameters, nThreads = 1)
 }
 \arguments{
 \item{object}{An \code{\link{srnadiffExp}} object.}

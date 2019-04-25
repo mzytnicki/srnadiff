@@ -1,41 +1,41 @@
 ##- Remove redundant regions -------------------------------------------------#
 ##----------------------------------------------------------------------------#
-# removeRedundant <- function(regions, padj) {
-#     names(regions) <- paste0(seqnames(regions), "_", start(regions),
-#                                 "_", end(regions))
-#     sizes          <- width(regions)
-#     overlaps       <- findOverlaps(regions, regions)
-#     overlaps       <- overlaps[queryHits(overlaps) != subjectHits(overlaps)]
-#
-#     if (length(overlaps) == 0) {
-#         return(regions)
-#     }
-#
-#     from      <- queryHits(overlaps)
-#     to        <- subjectHits(overlaps)
-#     dominance <- padj[from] < padj[to] |
-#                         (padj[from] == padj[to] & sizes[from] < sizes[to]) |
-#                            (padj[from] == padj[to] & sizes[from] == sizes[to]
-#                                 & from < to)
-#     toBeRemoved <- c()
-#
-#     while (TRUE) {
-#         dominated   <- table(to[dominance])
-#         dominator   <- table(from[dominance])
-#         both        <- intersect(names(dominated), names(dominator))
-#         if (length(both) == 0) break
-#         toBeRemoved <- union(toBeRemoved,
-#                                 intersect(both, names(dominated[dominated ==
-#                                         min(dominated[both])])))
-#         dominance[(queryHits(overlaps) %in% toBeRemoved |
-#                     subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
-#     }
-#
-#     toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
-#     regions        <- regions[- toBeRemoved]
-#
-#     return(regions)
-# }
+removeRedundant <- function(regions, padj) {
+    names(regions) <- paste0(seqnames(regions), "_", start(regions),
+                                "_", end(regions))
+    sizes          <- width(regions)
+    overlaps       <- findOverlaps(regions, regions)
+    overlaps       <- overlaps[queryHits(overlaps) != subjectHits(overlaps)]
+
+    if (length(overlaps) == 0) {
+        return(regions)
+    }
+
+    from      <- queryHits(overlaps)
+    to        <- subjectHits(overlaps)
+    dominance <- padj[from] < padj[to] |
+                        (padj[from] == padj[to] & sizes[from] < sizes[to]) |
+                           (padj[from] == padj[to] & sizes[from] == sizes[to]
+                                & from < to)
+    toBeRemoved <- c()
+
+    while (TRUE) {
+        dominated   <- table(to[dominance])
+        dominator   <- table(from[dominance])
+        both        <- intersect(names(dominated), names(dominator))
+        if (length(both) == 0) break
+        toBeRemoved <- union(toBeRemoved,
+                                intersect(both, names(dominated[dominated ==
+                                        min(dominated[both])])))
+        dominance[(queryHits(overlaps) %in% toBeRemoved |
+                    subjectHits(overlaps) %in% toBeRemoved)] <- FALSE
+    }
+
+    toBeRemoved    <- union(as.numeric(toBeRemoved), to[dominance])
+    regions        <- regions[- toBeRemoved]
+
+    return(regions)
+}
 
 
 ##- Statistic quantification of the DERs -------------------------------------#
@@ -65,7 +65,7 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
     recRegions <- recRegions[!is.na(padj)]
     dds <- dds[!is.na(padj)]
     padj <- padj[!is.na(padj)]
-    # recRegions <- removeRedundant(recRegions, padj)
+    recRegions <- removeRedundant(recRegions, padj)
     message("... done.")
 
     return(list(regions = recRegions, countMatrix = countM))
@@ -89,7 +89,7 @@ cvgNormalization <- function(object) {
     md <- median(librarySize / sum(chromosomeSizes(object)))
     librarySize <- librarySize * normFactors(object)
 
-    #--	normalization
+    #-- normalization
     normCvg <- mapply('/', coverages(object), librarySize)
 
     normLibSize <- unlist(lapply(lapply(normCvg, sum), sum))
@@ -129,7 +129,7 @@ computeLogFoldChange <- function(object) {
 IRlist2GR <- function(IRlist) {
     res <- NULL
 
-    for (i in 1:length(IRlist)) {
+    for (i in seq_along(IRlist)) {
         df <- as.data.frame(IRlist[[i]])
         df$seqnames <- rep(names(IRlist)[i], nrow(df))
         res <- rbind(res, df)

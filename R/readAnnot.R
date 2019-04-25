@@ -28,8 +28,6 @@
 #' \code{\link[rtracklayer]{GFFFile-class}}
 #'
 #' @examples
-#' \dontrun{
-#'
 #' ##-----------------------------------------------------------------------
 #' ## Extraction of miRNAs using an GTF annotation file
 #' ##-----------------------------------------------------------------------
@@ -53,11 +51,13 @@
 #' gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
 #' annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
 #' annotReg
-#' }
 #'
 #' @export
 readAnnotation <- function(fileName, feature=NULL, source=NULL, tagName=NULL) {
 
+    if (!file.exists(fileName)) {
+        stop(paste0("File '", fileName, "' cannot be opened."))
+    }
     annot <- import(fileName)
 
     ##- checking input arguments and initialize variables --------------------#
@@ -97,9 +97,9 @@ readAnnotation <- function(fileName, feature=NULL, source=NULL, tagName=NULL) {
         if (!isSingleString(tagName)) {
             stop("'tagName' should be a single character.", call.=FALSE)
         }
-        names(annot) <- paste(tagName, 1:length(annot), sep=".")
+        names(annot) <- paste(tagName, seq_along(annot), sep=".")
     } else {
-        names(annot) <- paste("annot", 1:length(annot), sep=".")
+        names(annot) <- paste("annot", seq_along(annot), sep=".")
     }
 
     ##- end checking ---------------------------------------------------------#

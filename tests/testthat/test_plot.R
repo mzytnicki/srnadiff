@@ -3,11 +3,14 @@ library(testthat)
 
 context("Checking plot")
 
-exp  <- sRNADiffExample()
-exp  <- runAll(exp)
-plot <- plotRegion(exp, regions(exp, 0.05)[1])
+exp <- srnadiffExample()
+exp <- srnadiff(exp)
+plot <- plotRegions(exp, regions(exp, 0.05)[1])
 
 test_that("Running plot", {
-    expect_equal(1, 1)
-    #expect_is(plot, "ggplot2")
+    expect_true(is.list(plot))
+    expect_equal(length(plot), 3)
+    expect_is(plot[[1]], "GenomeAxisTrack")
+    expect_is(plot[[2]], "AnnotationTrack")
+    expect_is(plot[[3]], "DataTrack")
 })

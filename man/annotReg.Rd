@@ -17,6 +17,9 @@
 
 \item{value}{Annotated regions as a \code{GRanges} object.}
 }
+\value{
+The regions given by the user, as a \code{GRanges}.
+}
 \description{
 The \code{annotReg} slot holds the annotated regions as a \code{GRanges}
 object.

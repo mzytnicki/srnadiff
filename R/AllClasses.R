@@ -1,3 +1,27 @@
+#' List of srnadiff default parameters.
+#'
+#' @name srnadiffDefaultParameters
+#' @docType data
+#' @keywords data
+#' @examples
+#' srnaExp <- srnadiffExample()
+#' srnaExp <- srnadiff(srnaExp, useParameters=srnadiffDefaultParameters)
+#'
+#' @export
+srnadiffDefaultParameters <- list(minDepth=10,
+                                    minSize=18,
+                                    maxSize=1000000,
+                                    minGap=100,
+                                    maxDiff=20,
+                                    minOverlap=10,
+                                    noDiffToDiff=0.001,
+                                    diffToNoDiff=0.000001,
+                                    emission=0.9,
+                                    emissionThreshold=0.1,
+                                    cutoff=1,
+                                    minLogFC=0.5)
+
+
 ###############################################################################
 ### srnadiffExp S4 class definition
 ###############################################################################
@@ -38,6 +62,7 @@
 #' @slot parameters      An named \code{list}. The parameters for the
 #'                       segmentation methods. See \code{\link{parameters}}.
 #'
+#' @export
 setClass("srnadiffExp", slots=c(bamFiles="ANY",
                                 sampleInfo="ANY",
                                 annotReg="ANY",
@@ -76,7 +101,7 @@ setClass("srnadiffExp", slots=c(bamFiles="ANY",
 #' sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 #' gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-#' bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
+#' bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
 #'
 #' srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 #' srnaExp
@@ -105,7 +130,7 @@ srnadiffExp <- function(bamFiles=NULL,
         stop("'sampleInfo' must be a 'data.frame'.", call.=FALSE)
     }
 
-    if (class(sampleInfo) != "data.frame") {
+    if (!is(sampleInfo, "data.frame")) {
         stop("'sampleInfo' must be a 'data.frame'.", call.=FALSE)
     }
 
@@ -188,7 +213,7 @@ srnadiffExp <- function(bamFiles=NULL,
         } else {
             if (any(factorNames != sampleName)) {
                 stop("'normFactors' names must be to match the",
-                     " 'SampleName' column in sampleInfo.", call.=FALSE)
+                        " 'SampleName' column in sampleInfo.", call.=FALSE)
             }
         }
     }
@@ -202,10 +227,8 @@ srnadiffExp <- function(bamFiles=NULL,
     if (length(unIndexedFiles) > 0) { indexBam(unIndexedFiles) }
 
     bamFiles <- BamFileList(lapply(bamFiles,
-                                   function (b) {
-                                        BamFile(b, yieldSize=500000,
-                                                paste0(b, ".bai"))
-                                    }))
+                    function (b) { BamFile(b, yieldSize=500000,
+                        paste0(b, ".bai")) }))
 
     object <- new("srnadiffExp")
 
@@ -268,7 +291,7 @@ srnadiffExp <- function(bamFiles=NULL,
 #' sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 #' gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-#' bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
+#' bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
 #' srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 #' }
 #'

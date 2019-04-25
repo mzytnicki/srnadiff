@@ -11,6 +11,9 @@
 \arguments{
 \item{object}{An \code{srnadiffExp} object.}
 }
+\value{
+The coverages, as a list of \code{RleList}.
+}
 \description{
 The \code{coverages} slot holds the coverages as a named
 \code{\link[IRanges]{RleList}} object with one coverage vector

@@ -8,11 +8,9 @@
 #' @docType methods
 #' @name bamFiles
 #' @rdname bamFiles
-#'
 #' @aliases bamFiles bamFiles,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
-#'
+#' @return The paths to the BAM files.
 #' @examples
 #' require(Rsamtools)
 #'
@@ -41,11 +39,9 @@ setMethod(f="bamFiles", signature="srnadiffExp",
 #' @docType methods
 #' @name sampleInfo
 #' @rdname sampleInfo
-#'
 #' @aliases sampleInfo sampleInfo,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
-#'
+#' @return A table containing information on the samples
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' sampleInfo(srnaExp)
@@ -68,13 +64,11 @@ setMethod(f="sampleInfo", signature="srnadiffExp",
 #' @docType methods
 #' @name annotReg
 #' @rdname annotReg
-#'
 #' @aliases annotReg annotReg,srnadiffExp-method
 #' annotReg<- annotReg<-,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
 #' @param value Annotated regions as a \code{GRanges} object.
-#'
+#' @return The regions given by the user, as a \code{GRanges}.
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' annotReg(srnaExp)
@@ -122,11 +116,9 @@ setReplaceMethod("annotReg",
 #' @docType methods
 #' @name chromosomeSizes
 #' @rdname chromosomeSizes
-#'
 #' @aliases chromosomeSizes chromosomeSizes,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
-#'
+#' @return A list containing the chromosome sizes.
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' chromosomeSizes(srnaExp)
@@ -160,18 +152,15 @@ setMethod(f="chromosomeSizes", signature="srnadiffExp",
 #' @references
 #' Simon Anders, and Wolfgang Huber (2010). Differential expression analysis
 #' for sequence count data. \emph{Genome Biology}, 11:106.
-#'
 #' @docType methods
 #' @name normFactors
 #' @rdname normFactors
-#'
 #' @aliases normFactors normFactors,srnadiffExp-method
 #' normFactors<- normFactors<-,srnadiffExp,numeric-method
-#'
 #' @param object An \code{srnadiffExp} object.
 #' @param value A numeric vector, one size factor for each sample
 #'              in the coverage data.
-#'
+#' @return The normalization factors, in a list.
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' normFactors(srnaExp)
@@ -249,11 +238,9 @@ setReplaceMethod("normFactors",
 #' @docType methods
 #' @name coverages
 #' @rdname coverages
-#'
 #' @aliases coverages coverages,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
-#'
+#' @return The coverages, as a list of \code{RleList}.
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' coverages(srnaExp)
@@ -388,16 +375,13 @@ setMethod(f="regions", signature="srnadiffExp",
 #' @docType methods
 #' @name parameters
 #' @rdname parameters
-#'
 #' @aliases parameters parameters,srnadiffExp-method
 #' parameters<- parameters<-,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
 #' @param value  A named \code{list} containing valid parameters. See details.
-#'
+#' @return The named list of the parameters used in the analysis.
 #' @seealso
 #' \code{useParameters} argument in \code{\link{srnadiff}} function.
-#'
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' srnaExp <- srnadiff(srnaExp)
@@ -429,26 +413,16 @@ setReplaceMethod("parameters",
 
                     ##- checking input value ---------------------------------#
                     ##--------------------------------------------------------#
-                    usualParameters <- list(minDepth=10,
-                                            minSize=18,
-                                            maxSize=1000000,
-                                            minGap=100,
-                                            maxDiff=20,
-                                            minOverlap=10,
-                                            noDiffToDiff=0.001,
-                                            diffToNoDiff=0.000001,
-                                            emission=0.9,
-                                            emissionThreshold=0.1,
-                                            cutoff=1,
-                                            minLogFC=0.5)
-
-                     usualParNames <- names(usualParameters)
+                     defaultParNames <- names(srnadiffDefaultParameters)
 
                      if (!is.null(object@parameters)) {
-                         usualParameters <- object@parameters
+                         srnadiffDefaultParameters <- object@parameters
                      }
 
                      if (!is(value, "list")) {
+                         print(value)
+                         print(typeof(value))
+                         print(class(value))
                          stop("'value' must be a named list. See",
                              " help(parameters) for details.", call.=FALSE)
                      }
@@ -460,19 +434,19 @@ setReplaceMethod("parameters",
                               " help(parameters) for details.", call.=FALSE)
                      }
 
-                     if (!all(valueNames %in% usualParNames)) {
+                     if (!all(valueNames %in% defaultParNames)) {
                          stop("'value' must be a named list of valid",
                             " parameters. See help(parameters) for details.",
                             call.=FALSE)
                      }
 
                      ##- individual parameters
-                     usualParameters[valueNames] <- value
-                     checkParameters(usualParameters)
+                     srnadiffDefaultParameters[valueNames] <- value
+                     checkParameters(srnadiffDefaultParameters)
 
                      ##- end check -------------------------------------------#
 
-                     object@parameters <- usualParameters
+                     object@parameters <- srnadiffDefaultParameters
                      object
                  }
 )
@@ -482,7 +456,7 @@ setReplaceMethod("parameters",
 ##----------------------------------------------------------------------------#
 #' Accessors for the 'countMatrix' slot of an srnadiffExp object
 #'
-#' The \code{countMatrix} slot holds the count matrix from the finded DERs.
+#' The \code{countMatrix} slot holds the count matrix from the DERs found.
 #'
 #' In the last step of an sRNA-diff approach, the potential DERs is assessed.
 #' Reads (including fractions of reads) that overlap each expressed region
@@ -493,11 +467,9 @@ setReplaceMethod("parameters",
 #' @docType methods
 #' @name countMatrix
 #' @rdname countMatrix
-#'
 #' @aliases countMatrix countMatrix,srnadiffExp-method
-#'
 #' @param object An \code{srnadiffExp} object.
-#'
+#' @return A matrix with the number of reads for each regions, and each sample.
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' srnaExp <- srnadiff(srnaExp)
@@ -519,11 +491,8 @@ setMethod(f="countMatrix", signature="srnadiffExp",
 ##- show ---------------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' @rdname srnadiffExp
-#'
 #' @param object An \code{srnadiffExp} object.
-#'
 #' @return The \code{show} method informatively display object contents.
-#'
 #' @export
 setMethod(f="show", signature ="srnadiffExp",
             definition=function(object) {

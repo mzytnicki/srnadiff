@@ -11,6 +11,9 @@
 \arguments{
 \item{object}{An \code{srnadiffExp} object.}
 }
+\value{
+A table containing information on the samples
+}
 \description{
 The \code{sampleInfo} slot holds the sample information as a
 \code{data.frame} with three columns labelled \code{FileName},

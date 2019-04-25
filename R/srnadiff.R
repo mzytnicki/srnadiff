@@ -86,7 +86,7 @@
 #' @export
 srnadiff <- function(object,
                      segMethod="all",
-                     useParameters,
+                     useParameters=srnadiffDefaultParameters,
                      nThreads=1) {
 
     ##- checking general input arguments -------------------------------------#
@@ -124,24 +124,11 @@ srnadiff <- function(object,
     }
 
     ##- useParameters
-    usualParameters <- list(minDepth=10,
-                            minSize=18,
-                            maxSize=1000000,
-                            minGap=100,
-                            maxDiff=20,
-                            minOverlap=10,
-                            noDiffToDiff=0.001,
-                            diffToNoDiff=0.000001,
-                            emission=0.9,
-                            emissionThreshold=0.1,
-                            cutoff=1,
-                            minLogFC=0.5)
-
-    usualParNames <- names(usualParameters)
+    defaultparnames <- names(srnadiffDefaultParameters)
 
     if (is.null(object@parameters)) {
         if (missing(useParameters)) {
-            parameters(object) <- usualParameters
+            parameters(object) <- srnadiffDefaultParameters
         } else {
             if (!is(useParameters, "list")) {
                 stop("'useParameters' must be a named list. See",
@@ -155,7 +142,7 @@ srnadiff <- function(object,
                      " help(parameters) for details.", call.=FALSE)
             }
 
-            if (!all(valueNames %in% usualParNames)) {
+            if (!all(valueNames %in% defaultparnames)) {
                 stop("'useParameters' must be a named list of valid",
                      " parameters. See help(parameters) for details.",
                      call.=FALSE)

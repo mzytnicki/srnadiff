@@ -10,23 +10,27 @@ annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
 
 test_that("Running default constructor", {
-    object      <- new("sRNADiffExp",
+    object      <- new("srnadiffExp",
                          bamFiles  =bamFiles,
                          sampleInfo=sampleInfo,
                          annotReg  =annotReg)
-    expect_is(object, "sRNADiff")
+    expect_is(object, "srnadiffExp")
 })
 
 test_that("Running implemented constructor", {
-    srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
-    expect_is(exp, "sRNADiffExp")
+    object <- srnadiffExp(bamFiles, sampleInfo, annotReg)
+    expect_is(object, "srnadiffExp")
 })
 
-test_that("Running implemented constructor with unbalanced number of replicates", {
-    expect_error(srnadiffExp(bamFiles, sampleInfo[1:3], annotReg))
+test_that("Running implemented constructor with one condition replicates", {
+    expect_error(srnadiffExp(bamFiles, sampleInfo[1:3, ], annotReg))
+})
+
+test_that("Running implemented constructor with missing sample information", {
+    expect_error(srnadiffExp(bamFiles, sampleInfo[1:2], annotReg))
 })
 
 test_that("Running example constructor", {
-    exp <- sRNADiffExample()
-    expect_is(exp, "sRNADiffExp")
+    object <- srnadiffExample()
+    expect_is(object, "srnadiffExp")
 })

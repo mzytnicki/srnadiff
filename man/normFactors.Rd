@@ -18,6 +18,9 @@
 \item{value}{A numeric vector, one size factor for each sample
 in the coverage data.}
 }
+\value{
+The normalization factors, in a list.
+}
 \description{
 The \code{normFactors} slot holds the normalization factors as a
 named vector with sample names.

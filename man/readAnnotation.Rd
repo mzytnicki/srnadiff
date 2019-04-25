@@ -39,8 +39,6 @@ If \code{tagName} is \code{NULL}, then a systematic name
 (\code{annot.N}) is given to elements of the \code{GRanges} object.
 }
 \examples{
-\dontrun{
-
 ##-----------------------------------------------------------------------
 ## Extraction of miRNAs using an GTF annotation file
 ##-----------------------------------------------------------------------
@@ -64,7 +62,6 @@ basedir  <- system.file("extdata", package="srnadiff", mustWork = TRUE)
 gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
 annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
 annotReg
-}
 
 }
 \seealso{
