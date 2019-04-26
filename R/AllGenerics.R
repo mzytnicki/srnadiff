@@ -79,3 +79,10 @@ setGeneric(name="countMatrix",
             }
 )
 
+
+##- print.srnadiff_par
+setGeneric(name="print.srnadiff_par",
+            def=function(object) {
+                standardGeneric("print.srnadiff_par")
+            }
+)

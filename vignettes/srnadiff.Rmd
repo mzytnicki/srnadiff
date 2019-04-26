@@ -24,7 +24,9 @@ suppressPackageStartupMessages({
     library("BiocStyle")
     library("knitr")
     library("rmarkdown")
+    library("grid")
 })
+
 knitr::opts_chunk$set(
     error=FALSE,
     fig.height=5,
@@ -85,24 +87,32 @@ for differential expression of RNA-seq data, assigning a p-value to each
 candidate DER.
 
 The main functions for finds differently expressed regions are
-`srnadiffExp`  and `srnadiff`. The first one
+`srnadiffExp` and `srnadiff`. The first one
 creates an S4 class providing the infrastructure (slots) to store the
 input data, methods parameters, intermediate calculations and results
 of an *sRNA-diff* approach. The second one implement four methods to find
 candidate differentially expressed regions and quantify the statistic
 signification of the finded regions.
 
-This vignette explains the basics of using `r Biocpkg("srnadiff")` by showing an
-example, including advanced material for fine tuning some options.
+This vignette explains the basics of using `r Biocpkg("srnadiff")` by 
+showing an example, including advanced material for fine tuning some options.
 The vignette also includes description of the methods behind the package.
 
 
 ## Citing `r Biocpkg("srnadiff")`
 
 We hope that `r Biocpkg("srnadiff")` will be useful for your research. Please
-use [@srnadiff] to cite `r Biocpkg("srnadiff")` and the overall approach
-when you publish results obtained using this package, as such citation is the
-main means by which the authors receive credit for their work. Thank you!
+use the following information to cite `r Biocpkg("srnadiff")` and the overall
+approach when you publish results obtained using this package, as such citation
+is the main means by which the authors receive credit for their work. Thank
+you!
+
+```{r eval=TRUE, echo=FALSE}
+x <- citation("srnadiff")
+```
+
+Zytnicki, M., and I. González. `r paste0("(", x$year, "). ")`
+"`r paste0(x$title, ". ")`" `r paste0(x$note, ".")`
 
 
 ## How to get help for `r Biocpkg("srnadiff")`
@@ -137,23 +147,23 @@ provide a small reproducible example and your session information so package
 developers can track down the source of the error. Users posting to the
 support site for the first time will find it helpful to read the posting
 guide at
-[the BioConductor help page](http://www.bioconductor.org/help/support/posting-guide).
+[the Bioconductor help page](http://www.bioconductor.org/help/support/posting-guide).
 
 
 ## Quick start
 
 A typical *sRNA-diff* session can be divided into three steps:
 
-* *Data preparation:* In this first step, a convenient *R* object of
+1. **Data preparation:** In this first step, a convenient *R* object of
 class `srnadiffExp` is created containing all the information required
 for the two remaining steps. The user needs to provide a vector with the full
 paths to the BAM files, a `data.frame` with sample and experimental
 design information and optionally annotated regions as a `GRanges`
 object.
-* *Performing srnadiff:* Using the object created in the first step
+2. **Performing srnadiff:** Using the object created in the first step
 the user can perform `srnadiff` to find potential DERs and quantify the
 statistic signification of these.
-* *Visualization of the results:* The DERs obtained in the second
+3. **Visualization of the results:** The DERs obtained in the second
 step are visualized by plotting the coverage information surrounding genomic
 regions.
 
@@ -184,8 +194,8 @@ We assume that the user has the *R* program (see the
 The `r Biocpkg("srnadiff")` package is available from the
 [Bioconductor repository](http://www.bioconductor.org).
 To be able to install the package one needs first to install the core
-`r CRANpkg("BioConductor")` packages. If you have already installed
-`r CRANpkg("BioConductor")` packages on your system then you can
+`r CRANpkg("Bioconductor")` packages. If you have already installed
+`r CRANpkg("Bioconductor")` packages on your system then you can
 skip the two lines below.
 
 ```{r, bioconductor, eval=FALSE}
@@ -193,7 +203,7 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 ```
 
-Once the core `r CRANpkg("BioConductor")` packages are installed, you can
+Once the core `r CRANpkg("Bioconductor")` packages are installed, you can
 install the `r Biocpkg("srnadiff")` package by
 
 ```{r, install, eval=FALSE}
@@ -209,7 +219,7 @@ library(srnadiff)
 A list of all accessible vignettes and methods is available with the
 following command:
 
-```{r, helpSearch}
+```{r, helpSearch, eval=FALSE}
 help.search("srnadiff")
 ```
 
@@ -252,14 +262,14 @@ object will be also the input of the visualization function.
 The object `srnadiffExp` will usually be represented in the code here
 as `srnaExp`. To build such an object the user needs the following:
 
-* *paths to the BAM files:* a vector with the full paths to the sample BAM
+1. **paths to the BAM files:** a vector with the full paths to the sample BAM
 files.
-* *sample information:* a `data.frame` with three columns labelled
+2. **sample information:** a `data.frame` with three columns labelled
 `FileName`, `SampleName` and `Condition`. The first column
 is the BAM file name (without extension), the second column the sample name,
 and the third column the condition to which sample belongs. Each row describes
 one sample.
-* *annotation:* optionally annotation information. A `r Biocpkg("GRanges")`
+3. **annotation:** optionally annotation information. A `r Biocpkg("GRanges")`
 object containing annotated regions.
 
 Here, we demonstrate how to construct a `srnadiffExp` object from [@data].
@@ -269,11 +279,13 @@ Here, we demonstrate how to construct a `srnadiffExp` object from [@data].
 basedir <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 
 ## Vector with the full paths to the BAM files to use
-bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam",
-                  sep=".")
+bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
 
 ## Reads sample information file and creates a data frame from it
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
+
+## Vector with the full paths to the BAM files to use
+bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
 
 ## Creates an srnadiffExp object
 srnaExp <- srnadiffExp(bamFiles, sampleInfo)
@@ -283,7 +295,7 @@ Optionally, if annotation information is available as a `r Biocpkg("GRanges")`
 object, `annotReg` say, then a `srnadiffExp` object can be
 created by 
 
-```{r}
+```{r, eval=FALSE}
 srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 ```
 
@@ -316,8 +328,7 @@ basedir    <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-bamFiles   <- paste(file.path(basedir, sampleInfo$FileName),
-                    "bam", sep=".")
+bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
 srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 ```
 
@@ -362,28 +373,28 @@ gtfFile  <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 ```
 
-
-### miRBase annotation
+### Extraction of precursor miRNAs using a miRBase-formatted GFF file
 
 [miRBase](http://www.mirbase.org/) [@mirbase] is the central repository for
-miRNAs.
-If your organism is available, you can download their miRNA annotation in GFF3
-format (check the "Browse" tab).
-The following function parses a GFF3 miRBase file, and extracts the precursor
-miRNAs.
-
-```{r message=FALSE, warning=FALSE}
-gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
-annotReg <- readAnnotation(gffFile, feature="miRNA")
-```
-
-As a result, the reads will be counted per pre-miRNA, and the 5' and 3' arms,
-the miRNA and the miRNA\* will be merged in the same feature.
-If you want to separate the two, use:
+miRNAs. If your organism is available, you can download their miRNA annotation
+in GFF3 format (check the "Browse" tab). The following code parses a GFF3
+miRBase file, and extracts the precursor miRNAs.
 
 ```{r message=FALSE, warning=FALSE}
 gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
 annotReg <- readAnnotation(gffFile, feature="miRNA_primary_transcript")
+```
+
+
+### Extraction of mature miRNAs using a miRBase-formatted GFF file
+
+In the previous example, the reads will be counted per pre-miRNA, and the 5' and
+3' arms, the miRNA and the miRNA\* will be merged in the same feature.
+If you want to separate the two, use:
+
+```{r message=FALSE, warning=FALSE}
+gffFile  <- file.path(basedir, "mirbase21_GRCh38.gff3")
+annotReg <- readAnnotation(gffFile, feature="miRNA")
 ```
 
 ### Other format
@@ -417,9 +428,9 @@ quantify the statistic signification of these.
 
 `srnadiff` has three main arguments. The first argument is an instance
 of class `srnadiffExp`. The second argument is of type character
-vector, it specify whether to skip a method, one of `annotation`,
+vector, it specify the segmentation methods to use, one of `annotation`,
 `naive`, `hmm`, `slice` or combinations thereof.
-The default `none`, no method is skipped.
+The default `all`, all methods are used.
 The third arguments is of type list, it contain named components for the
 methods parameters to use. If missing, default parameter values are supplied.
 Details about the methods parameters are further described in the manual page
@@ -506,34 +517,43 @@ the genomic regions.
 The sample coverages can be plotted in various different forms as well
 as combinations thereof. Supported plotting types are:
 
-`p`: simple dot plot
+The sample coverages can be plotted in various different forms as well
+as combinations thereof. Supported plotting types are:
 
-```{r}
-plotRegions(srnaExp, regions(srnaExp)[1], type="p")
+`p`: simple dot plot;
+
+`l`: lines plot;
+
+`b`: combination of dot and lines plot;
+
+`a`: lines plot of the sample-groups average (i.e., mean) values;
+
+`confint`: confidence intervals for average values.
+
+The default visualization for results from `srnadiff` is a lines plot
+of the sample-groups average.
+
+```{r, fig.height=3.5, fig.width=4, fig.align='center', out.width='450pt'}
+plotRegions(srnaExp, regions(srnaExp)[1])
 ```
 
-`l`: lines plot
+Displayed below are the same sample data as before but plotted with the
+different type settings:
 
-```{r}
-plotRegions(srnaExp, regions(srnaExp)[1], type="l")
-```
-
-`b`: combination of dot and lines plot
-
-```{r}
-plotRegions(srnaExp, regions(srnaExp)[1], type="b")
-```
-
-`a`: lines plot of the sample-groups average (i.e., mean) values
-
-```{r}
-plotRegions(srnaExp, regions(srnaExp)[1], type="a")
-```
-
-`confint`: confidence intervals for average values
-
-```{r}
-plotRegions(srnaExp, regions(srnaExp)[1], type=c("a", "confint"))
+```{r, echo=FALSE, fig.height=9}
+types <- list("p", "l", "b", "a", c("a", "confint"), c("a", "p", "confint"))
+ncols <- 2
+nrows <- 3
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(nrows, ncols)))
+for(i in 1:length(types)){
+    pushViewport(viewport(layout.pos.col=((i - 1) %% ncols) + 1,
+                          layout.pos.row=(((i) - 1) %/% ncols) + 1))
+    trN <- paste(types[[i]], collapse=", ")
+    plotRegions(srnaExp, regions(srnaExp)[1], type=types[[i]],
+                trNames=c("DER", trN), chrTitle=FALSE, add=TRUE)
+    popViewport(1)
+}
 ```
 
 
@@ -543,7 +563,7 @@ plotRegions(srnaExp, regions(srnaExp)[1], type=c("a", "confint"))
 
 As input, `srnadiffExp` expects BAM files as obtained, *e.g.*, from
 RNA-Seq or another high-throughput sequencing experiment. Reading and
-processing of BAM files uses current `r CRANpkg("BioConductor")` infrastructure
+processing of BAM files uses current `r CRANpkg("Bioconductor")` infrastructure
 for processing sequencing reads: `r Biocpkg("RSamtools")`,
 `r Biocpkg("IRanges")` and `r Biocpkg("GenomicRanges")` libraries.
 At this stage BAM files are summarized into base-resolution coverage and
@@ -563,7 +583,6 @@ method* described by Equation 5 in [@deseq].
 
 
 ## Methods to produce differentially expressed regions
-
 
 ### HMM method: `hmm`
 
@@ -609,16 +628,18 @@ differentially expressed sRNA.
 
 The parameters for the HMM method are:
 
-* `noDiffToDiff`: Initial transition probability from
+`noDiffToDiff`: Initial transition probability from
         "no differentially expressed" state to "differentially expressed"
         state.
-* `diffToNoDiff`: Initial transition probability from
+        
+`diffToNoDiff`: Initial transition probability from
         "differentially expressed" state to no "differentially expressed"
         state.
-* `emission`: Is the probability to emit a p-value $<t$ in
+        
+`emission`: Is the probability to emit a p-value $<t$ in
         the "differentially expressed" state, and a p-value $\geq t$ in the
         "not differentially expressed" state.
-* `emissionThreshold`: Is the threshold $t$ that limits each
+`emissionThreshold`: Is the threshold $t$ that limits each
         state.
 
 This parameters can be changed using using the assignment function
@@ -628,7 +649,6 @@ This parameters can be changed using using the assignment function
 ```{r, eval=FALSE}
 parameters(srnaExp) <- list(noDiffToDiff=0.01, emissionThreshold=0.2)
 ```
-
 
 ### Slice method: `slice`
 
@@ -680,7 +700,6 @@ region. Then, this count matrix is analyzed using the standard
 assigning a p-value to each DER.
 
 
-
 ## General parameters
 
 The three last strategies can be tuned by specifying:
@@ -727,7 +746,6 @@ parameters(srnaExp) <- list(minOverlap=1000)
 
 `r Biocpkg("DESeq2")` is then used to get the adjusted p-values of these
 regions.
-
 
 
 # Misc

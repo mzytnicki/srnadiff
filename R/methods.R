@@ -385,10 +385,9 @@ setMethod(f="regions", signature="srnadiffExp",
 #' @examples
 #' srnaExp <- srnadiffExample()
 #' srnaExp <- srnadiff(srnaExp)
-#' parameters(srnaExp)
+#' print(parameters(srnaExp))
 #'
 #' parameters(srnaExp) <- list("minSize" = 1, "maxSize" = 1500)
-#' parameters(srnaExp)
 #'
 #' @export
 setMethod(f="parameters", signature="srnadiffExp",
@@ -400,6 +399,8 @@ setMethod(f="parameters", signature="srnadiffExp",
                             " for details.")
                 } else {
                     object@parameters
+                    class(object@parameters) <- "srnadiff_par"
+                    return(invisible(object@parameters))
                 }
             }
 )
@@ -501,3 +502,44 @@ setMethod(f="show", signature ="srnadiffExp",
                 print(object@sampleInfo)
             }
 )
+
+
+##- print method for parameters ----------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Dispatch print method for the parameters used by an \code{srnadiff} object.
+#'
+#' @docType methods
+#' @name parameters
+#' @rdname parameters
+#' @aliases parameters parameters,srnadiffExp-method
+#' @param x The first element of the parameters used by an \code{srnadiff}
+#'          object
+#' @param ... The other elements of the parameters
+#' @examples
+#' srnaExp <- srnadiffExample()
+#' srnaExp <- srnadiff(srnaExp)
+#' print(parameters(srnaExp))
+#'
+#' @export
+print.srnadiff_par <- function(x, ...) {
+
+    cat("\n Global parameters: \n",
+        "------------------ \n")
+    df <- data.frame(value = unlist(x[1:6]))
+    print(df)
+
+    cat("\n HMM method parameters: \n",
+        "---------------------- \n")
+    df <- data.frame(value = unlist(x[7:10]))
+    print(df)
+
+    cat("\n Slice method parameter: \n",
+        "----------------------- \n")
+    df <- data.frame(value = unlist(x[12]))
+    print(df)
+
+    cat("\n Naive method parameter: \n",
+        "----------------------- \n")
+    df <- data.frame(value = unlist(x[11]))
+    print(df)
+}

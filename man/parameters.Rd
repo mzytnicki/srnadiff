@@ -6,16 +6,24 @@
 \alias{parameters,srnadiffExp-method}
 \alias{parameters<-}
 \alias{parameters<-,srnadiffExp-method}
+\alias{print.srnadiff_par}
 \title{Accessors for the 'parameters' slot of an srnadiffExp object}
 \usage{
 \S4method{parameters}{srnadiffExp}(object)
 
 \S4method{parameters}{srnadiffExp}(object) <- value
+
+\method{print}{srnadiff_par}(x, ...)
 }
 \arguments{
 \item{object}{An \code{srnadiffExp} object.}
 
 \item{value}{A named \code{list} containing valid parameters. See details.}
+
+\item{x}{The first element of the parameters used by an \code{srnadiff}
+object}
+
+\item{...}{The other elements of the parameters}
 }
 \value{
 The named list of the parameters used in the analysis.
@@ -81,10 +89,13 @@ Parameters in an sRNA-diff approach.
 \examples{
 srnaExp <- srnadiffExample()
 srnaExp <- srnadiff(srnaExp)
-parameters(srnaExp)
+print(parameters(srnaExp))
 
 parameters(srnaExp) <- list("minSize" = 1, "maxSize" = 1500)
-parameters(srnaExp)
+
+srnaExp <- srnadiffExample()
+srnaExp <- srnadiff(srnaExp)
+print(parameters(srnaExp))
 
 }
 \seealso{

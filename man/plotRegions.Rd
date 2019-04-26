@@ -7,8 +7,8 @@
 plotRegions(object, region, normCvg = TRUE, annot = NULL,
   allSignReg = TRUE, featureAnnot = NULL, flankReg = 10,
   colGroup = c("#0080ff", "#ff00ff"), fillReg = c("darkgreen",
-  "darkred"), fillAnnot = "#FFD58A", type = "a", trNames = c("DER",
-  "coverage"), legend = TRUE, ...)
+  "darkred"), fillAnnot = "#FFD58A", type = "a", chrTitle = TRUE,
+  trNames = c("DER", "coverage"), legend = TRUE, ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{srnadiffExp}} as returned
@@ -54,6 +54,10 @@ annotated regions.}
 (\code{"a", "l", "p", "b", "confint"}) or combinations
 thereof. See Details for more information on the
 individual plotting types.}
+
+\item{chrTitle}{Boolean or character vector of length one. Defaults
+\code{TRUE}, the chromosome name is added to the plot.
+If character, this will be used for title.}
 
 \item{trNames}{Title for the tracks. By default \code{"DER"} and
 \code{"coverage"}.}
