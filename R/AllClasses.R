@@ -171,11 +171,6 @@ srnadiffExp <- function(bamFiles=NULL,
     bamNames <- strsplit(basename(bamFiles), ".", fixed = TRUE)
     bamNames <- unlist(lapply(bamNames, function(x) x[1]))
 
-    if (!(all(as.character(sampleInfo$FileName) %in% bamNames))) {
-        stop("'FileName' in sampleInfo do not match BAM file names in",
-            " bamFiles.", call.=FALSE)
-    }
-
     ##- annotReg
     if (!is.null(annotReg)) {
         if (!is(annotReg, "GRanges")) {
@@ -258,8 +253,9 @@ srnadiffExp <- function(bamFiles=NULL,
 ##----------------------------------------------------------------------------#
 #' Example constructor
 #'
-#' This function provides an example of a \code{srnadiffExp} object from
-#' two conditions ... à completer ...
+#' This function provides an example of a \code{srnadiffExp} object which
+#' contains mapped reads of small RNAs extracted from SLK cells infected with
+#' latent KSHV, compared to uninfected SLK cells.
 #'
 #' Raw data have been downloaded from the GEO data set GSE62830, provided in
 #' Viollet et \emph{al}. (2015). Adapters were removed with
@@ -276,7 +272,7 @@ srnadiffExp <- function(bamFiles=NULL,
 #' Viollet, Coralie, David A. Davis, Martin Reczko, Joseph M. Ziegelbauer,
 #' Francesco Pezzella, Jiannis Ragoussis, and Robert Yarchoan (2015).
 #' "Next-Generation Sequencing Analysis Reveals Differential Expression
-#' Profiles of Mirna-mRNA Target Pairs in Kshv-Infected Cells."
+#' Profiles of MiRNA-mRNA Target Pairs in KSHV-Infected Cells."
 #' \emph{PLOS ONE}, 10:1–23.
 #'
 #' Salzberg, Steven, and Ben Langmead (2012). "Fast gapped-read alignment

@@ -7,7 +7,7 @@
 \title{Finding differentially expressed unannotated genomic regions from
 RNA-seq data}
 \usage{
-srnadiff(object, segMethod = "all",
+srnadiff(object, segMethod = c("hmm", "IR"),
   useParameters = srnadiffDefaultParameters, nThreads = 1)
 }
 \arguments{
@@ -15,7 +15,7 @@ srnadiff(object, segMethod = "all",
 
 \item{segMethod}{A character vector. The segmentation methods to use,
 one of \code{'annotation'}, \code{'naive'},
-\code{'hmm'}, \code{'slice'} or combinations thereof.
+\code{'hmm'}, \code{'IR'} or combinations thereof.
 Default \code{'all'}, all methods are used. See
 Details.}
 
@@ -52,7 +52,7 @@ quantify the statistic signification of these.
 }
 \details{
 The \code{srnadiff} package implements two major methods to produce
-potential differentially expressed regions: the HMM and Slice method.
+potential differentially expressed regions: the HMM and IR method.
 Briefly, these methods identify contiguous base-pairs in the genome
 that present differential expression signal, then these are regrouped
 into genomic intervals called differentially expressed regions (DERs).
@@ -99,7 +99,7 @@ regions in \code{\link{srnadiff}} are:
       defined as a set of consecutive bases showing a common expression
       signature.}
 
-\item{\code{slice:}}{In this approach, for each base, the average from
+\item{\code{IR:}}{In this approach, for each base, the average from
       the normalized coverage is calculated across all samples into each
       condition. This generates a vector of (normalized) mean coverage
       expression per condition. These two vectors

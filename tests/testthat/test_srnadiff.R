@@ -7,7 +7,7 @@ exp <- srnadiffExample()
 exp <- srnadiff(exp)
 
 test_that("Testing regions method", {
-    expect_equal(length(regions(exp)), 24)
+    expect_equal(length(regions(exp)), 21)
 })
 
 test_that("Running with different strategies", {
@@ -19,13 +19,13 @@ test_that("Running with different strategies", {
 test_that("Running with different sizes", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, useParameters=list(minSize=15, maxSize=30))
-    expect_equal(length(regions(exp2)), 36)
+    expect_equal(length(regions(exp2)), 32)
 })
 
 test_that("Running with different minimum depth", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, useParameters=list(minDepth=1))
-    expect_equal(length(regions(exp2)), 56)
+    expect_equal(length(regions(exp2)), 50)
 })
 
 test_that("Running with different transition probabilities", {
@@ -61,7 +61,7 @@ test_that("Running several threads", {
 })
 
 test_that("Running main function", {
-    expect_equal(length(regions(exp)), 24)
+    expect_equal(length(regions(exp)), 21)
 })
 
 test_that("Running redundant removal", {

@@ -9,7 +9,7 @@
 # srnadiff ...... core function to find differentially expressed regions
 # naive \
 # hmm    ........ segmentation method functions
-# slice /
+# IR    /
 # plotRegions ... plot function
 # helper ........ computeNormFactors, computeLogFoldChange, cvgNormalization,
 #                 reconcileRegions, checkParameters, IRlist2GR
@@ -31,7 +31,7 @@
 #       |- computeLogFoldChange
 #          |- cvgNormalization
 #       |- IRlist2GR
-#    |- runSlice
+#    |- runIR
 #       |- computeLogFoldChange
 #          |- cvgNormalization
 #       |- rcpp_ir (C++)
@@ -63,7 +63,7 @@
 #' and differential expression quantification.
 #'
 #' The \code{srnadiff} package implements two major methods to produce
-#' potential differentially expressed regions: the HMM and Slice method.
+#' potential differentially expressed regions: the HMM and IR method.
 #' Briefly, these methods identify contiguous base-pairs in the genome
 #' that present differential expression signal, then these are regrouped
 #' into genomic intervals called differentially expressed regions (DERs).

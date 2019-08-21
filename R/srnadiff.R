@@ -31,7 +31,7 @@
 #'       defined as a set of consecutive bases showing a common expression
 #'       signature.}
 #'
-#' \item{\code{slice:}}{In this approach, for each base, the average from
+#' \item{\code{IR:}}{In this approach, for each base, the average from
 #'       the normalized coverage is calculated across all samples into each
 #'       condition. This generates a vector of (normalized) mean coverage
 #'       expression per condition. These two vectors
@@ -57,7 +57,7 @@
 #' @param object        An \code{\link{srnadiffExp}} object.
 #' @param segMethod     A character vector. The segmentation methods to use,
 #'                      one of \code{'annotation'}, \code{'naive'},
-#'                      \code{'hmm'}, \code{'slice'} or combinations thereof.
+#'                      \code{'hmm'}, \code{'IR'} or combinations thereof.
 #'                      Default \code{'all'}, all methods are used. See
 #'                      Details.
 #' @param nThreads      \code{integer(1)}. Number of workers.
@@ -85,7 +85,7 @@
 #'
 #' @export
 srnadiff <- function(object,
-                     segMethod="all",
+                     segMethod=c("hmm", "IR"),
                      useParameters=srnadiffDefaultParameters,
                      nThreads=1) {
 
@@ -97,16 +97,16 @@ srnadiff <- function(object,
     }
 
     ##- segMethod
-    choices <- c("all", "annotation", "naive", "hmm", "slice")
+    choices <- c("all", "annotation", "naive", "hmm", "IR")
     segMethod <- choices[pmatch(segMethod, choices)]
 
     if (any(is.na(segMethod))) {
         stop("'segMethod' should be 'all' or one of 'annotation', 'naive'",
-            " 'hmm', 'slice' or combinations thereof.", call.=FALSE)
+            " 'hmm', 'IR' or combinations thereof.", call.=FALSE)
     }
 
     if ("all" %in% segMethod) {
-        segMethod <- c("annotation", "naive", "hmm", "slice")
+        segMethod <- c("annotation", "naive", "hmm", "IR")
     }
 
     ##- nThreads
@@ -164,7 +164,7 @@ srnadiff <- function(object,
 ##- srnadiff core function ---------------------------------------------------#
 ##----------------------------------------------------------------------------#
 srnadiffCore <- function(object,
-                         segMethod=c("annotation", "naive", "hmm", "slice"),
+                         segMethod=c("annotation", "naive", "hmm", "IR"),
                          nThreads=1,
                          minDepth=10,
                          minSize=18,
@@ -197,10 +197,10 @@ srnadiffCore <- function(object,
         allRegions <- do.call("c", list(allRegions, runNaive(object)))
     }
 
-    ##- run slice  -----------------------------------------------------------#
+    ##- run IR ---------------------------------------------------------------#
     ##------------------------------------------------------------------------#
-    if ("slice" %in% segMethod) {
-        allRegions <- do.call("c", list(allRegions, runSlice(object)))
+    if ("IR" %in% segMethod) {
+        allRegions <- do.call("c", list(allRegions, runIR(object)))
     }
 
     ##- run hmm --------------------------------------------------------------#

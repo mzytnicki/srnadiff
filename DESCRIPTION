@@ -2,13 +2,12 @@ Package: srnadiff
 Type: Package
 Title: Finding differentially expressed unannotated genomic regions from RNA-seq
        data
-Version: 0.99.4
+Version: 0.99.6
 Date: 2019-04-26
 Authors@R: c(
     person("Zytnicki", "Matthias", email = "matthias.zytnicki@inra.fr",
             role = c("aut", "cre")),
     person("Gonzalez", "Ignacio", role = "aut"))
-Maintainer: Matthias Zytnicki <matthias.zytnicki@inra.fr>
 Description: srnadiff is a package that finds differently expressed regions from
    RNA-seq data at base-resolution level without relying on existing annotation.
    To do so, the package implements the identify-then-annotate methodology that
@@ -17,7 +16,7 @@ Description: srnadiff is a package that finds differently expressed regions from
 License: GPL-3
 Encoding: UTF-8
 LazyData: false
-Depends: R (>= 3.5)
+Depends: R (>= 3.6)
 SystemRequirements: C++11
 Imports:
     Rcpp (>= 0.12.8),

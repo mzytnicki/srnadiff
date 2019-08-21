@@ -73,7 +73,7 @@ analyses.  Several ad hoc method have been used, and this package implements a
 unifying method, finding differentially expressed genes or regions of any kind.
 
 The `r Biocpkg("srnadiff")` package implements two major methods to produce
-potential differentially expressed regions: the HMM and Slice method.
+potential differentially expressed regions: the HMM and IR method.
 Briefly, these methods identify contiguous base-pairs in the genome that
 present differential expression signal, then these are regrouped into
 genomic intervals called differentially expressed regions (DERs).
@@ -421,7 +421,7 @@ If `name` is null, then a systematic name is given (`annotation_N`).
 The main function for performing an *sRNA-diff* analysis is
 `srnadiff`, this the wrapper for running several key functions from
 this package. `srnadiff` implement four methods to produce potential
-DERs: the *annotation*, *naive*, *hmm* and *slice* method
+DERs: the *annotation*, *naive*, *hmm* and *IR* method
 (see bellow).
 Once potential DERs are detected, the second step in `srnadiff` is to
 quantify the statistic signification of these.
@@ -429,7 +429,7 @@ quantify the statistic signification of these.
 `srnadiff` has three main arguments. The first argument is an instance
 of class `srnadiffExp`. The second argument is of type character
 vector, it specify the segmentation methods to use, one of `annotation`,
-`naive`, `hmm`, `slice` or combinations thereof.
+`naive`, `hmm`, `IR` or combinations thereof.
 The default `all`, all methods are used.
 The third arguments is of type list, it contain named components for the
 methods parameters to use. If missing, default parameter values are supplied.
@@ -650,7 +650,7 @@ This parameters can be changed using using the assignment function
 parameters(srnaExp) <- list(noDiffToDiff=0.01, emissionThreshold=0.2)
 ```
 
-### Slice method: `slice`
+### IR method: `IR`
 
 In this approach, for each base, the average from the normalized coverage is
 calculated across all samples into each condition. This generates a vector of
@@ -663,7 +663,7 @@ Regions of contiguous bases passing this threshold are then analyzed using an
 adaptation of Aumann and Lindell algorithm for irreducibility property 
 [@irreducible].
 
-The minimun sliding threshold, `minLogFC`, used in the Slice method can
+The minimun sliding threshold, `minLogFC`, used in the IR method can
 be changed using the assignment function `parameters<-`
 
 ```{r, eval=FALSE}
@@ -691,7 +691,7 @@ with a specific use, to quantify their expression for subsequent testing
 for differential expression. The selected regions are then quantified using
 the `summarizeOverlaps` function of the `r Biocpkg("GenomicAlignments")`
 package. Notice that a read can overlap two different regions (*e.g.* extracted
-from the HMM and the Slice methods), and thus can be counted twice for the
+from the HMM and the IR methods), and thus can be counted twice for the
 quantification. The result is ultimately a matrix with rows corresponding
 to ERs and columns corresponding to samples; entries of this matrix are the
 number of aligned reads from a particular sample that overlap a particular
@@ -726,7 +726,7 @@ function `srnadiff`.
 
 ```{r, strategies}
 srnaExp <- srnadiffExample()
-srnaExp <- srnadiff(srnaExp, segMethod=c("hmm", "slice"))
+srnaExp <- srnadiff(srnaExp, segMethod=c("hmm", "IR"))
 ```
 
 

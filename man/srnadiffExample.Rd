@@ -10,8 +10,9 @@ srnadiffExample()
 An \code{srnadiffExp} object called '\code{srnaExp}'.
 }
 \description{
-This function provides an example of a \code{srnadiffExp} object from
-two conditions ... à completer ...
+This function provides an example of a \code{srnadiffExp} object which
+contains mapped reads of small RNAs extracted from SLK cells infected with
+latent KSHV, compared to uninfected SLK cells.
 }
 \details{
 Raw data have been downloaded from the GEO data set GSE62830, provided in
@@ -44,7 +45,7 @@ srnaExp
 Viollet, Coralie, David A. Davis, Martin Reczko, Joseph M. Ziegelbauer,
 Francesco Pezzella, Jiannis Ragoussis, and Robert Yarchoan (2015).
 "Next-Generation Sequencing Analysis Reveals Differential Expression
-Profiles of Mirna-mRNA Target Pairs in Kshv-Infected Cells."
+Profiles of MiRNA-mRNA Target Pairs in KSHV-Infected Cells."
 \emph{PLOS ONE}, 10:1–23.
 
 Salzberg, Steven, and Ben Langmead (2012). "Fast gapped-read alignment

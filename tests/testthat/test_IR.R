@@ -1,11 +1,11 @@
 library(srnadiff)
 library(testthat)
 
-context("Checking slice strategy")
+context("Checking IR strategy")
 
 exp    <- srnadiffExample()
 parameters(exp) <- srnadiffDefaultParameters
-ranges <- runSlice(exp)
+ranges <- runIR(exp)
 
 test_that("Running IR method", {
     expect_equal(length(ranges), 8)

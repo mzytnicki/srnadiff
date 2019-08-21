@@ -1,8 +1,8 @@
-##- Segmentation of the genome using the slice method ------------------------#
+##- Segmentation of the genome using the IR method ---------------------------#
 ##----------------------------------------------------------------------------#
-runSlice <- function(object) {
+runIR <- function(object) {
 
-    message("Starting Slice step...")
+    message("Starting IR step...")
 
     logFC <- computeLogFoldChange(object)
 
@@ -13,10 +13,10 @@ runSlice <- function(object) {
 
     if (dim(intervals)[1] > 0) {
         intervals <- GRanges(intervals)
-        names(intervals) <- paste("slice", seq(length(intervals)), sep="_")
+        names(intervals) <- paste("IR", seq(length(intervals)), sep = "_")
     }
 
     message(paste0(c("  ... ", length(intervals), " regions found.")))
-    message("... Slice step done.\n")
+    message("... IR step done.\n")
     return(intervals)
 }

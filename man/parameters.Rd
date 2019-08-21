@@ -77,12 +77,12 @@ Parameters in an sRNA-diff approach.
    }
 }
 
-\subsection{Parameters for the Naive and Slice methods}{
+\subsection{Parameters for the Naive and IR methods}{
    \describe{
        \item{\code{cutoff}}{The cutoff used in the naive method to
              determine candidate regions. Default to \code{1}.}
        \item{\code{minLogFC}}{The minimun sliding threshold used in the
-             Slice method. Default to \code{0.5}.}
+             IR method. Default to \code{0.5}.}
    }
 }
 }

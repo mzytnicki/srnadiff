@@ -363,12 +363,12 @@ setMethod(f="regions", signature="srnadiffExp",
 #'    }
 #' }
 #'
-#' \subsection{Parameters for the Naive and Slice methods}{
+#' \subsection{Parameters for the Naive and IR methods}{
 #'    \describe{
 #'        \item{\code{cutoff}}{The cutoff used in the naive method to
 #'              determine candidate regions. Default to \code{1}.}
 #'        \item{\code{minLogFC}}{The minimun sliding threshold used in the
-#'              Slice method. Default to \code{0.5}.}
+#'              IR method. Default to \code{0.5}.}
 #'    }
 #' }
 #'
@@ -525,7 +525,7 @@ print.srnadiff_par <- function(x, ...) {
 
     cat("\n Global parameters: \n",
         "------------------ \n")
-    df <- data.frame(value = unlist(x[1:6]))
+    df <- data.frame(value = unlist(x[seq_len(6)]))
     print(df)
 
     cat("\n HMM method parameters: \n",
@@ -533,7 +533,7 @@ print.srnadiff_par <- function(x, ...) {
     df <- data.frame(value = unlist(x[7:10]))
     print(df)
 
-    cat("\n Slice method parameter: \n",
+    cat("\n IR method parameter: \n",
         "----------------------- \n")
     df <- data.frame(value = unlist(x[12]))
     print(df)
