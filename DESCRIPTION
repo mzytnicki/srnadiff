@@ -2,8 +2,8 @@ Package: srnadiff
 Type: Package
 Title: Finding differentially expressed unannotated genomic regions from RNA-seq
        data
-Version: 0.99.6
-Date: 2019-04-26
+Version: 1.5.2
+Date: 2019-08-21
 Authors@R: c(
     person("Zytnicki", "Matthias", email = "matthias.zytnicki@inra.fr",
             role = c("aut", "cre")),
@@ -39,7 +39,7 @@ Imports:
     BiocStyle
 LinkingTo: Rcpp
 RoxygenNote: 6.1.1
-biocViews:
+biocViews: ImmunoOncology, 
     GeneExpression,
     Coverage,
     SmallRNA,
