@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <cmath>
 #include <vector>
 #include <map>
 #include <algorithm>
