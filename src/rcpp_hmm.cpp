@@ -64,7 +64,7 @@ DataFrame rcpp_viterbi(List          &coverages,
         for (int sampleId = 0; sampleId < nSamples; ++sampleId) {
             row[sampleId] = counts(i, sampleId);
         }
-        if (! isnan(pvalues[i])) {
+        if (! std::isnan(pvalues[i])) {
             pvalueMap[row] = pvalues[i];
         }
     }
