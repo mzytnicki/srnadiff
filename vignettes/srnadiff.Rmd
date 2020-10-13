@@ -537,25 +537,6 @@ of the sample-groups average.
 plotRegions(srnaExp, regions(srnaExp)[1])
 ```
 
-Displayed below are the same sample data as before but plotted with the
-different type settings:
-
-```{r, echo=FALSE, fig.height=9}
-types <- list("p", "l", "b", "a", c("a", "confint"), c("a", "p", "confint"))
-ncols <- 2
-nrows <- 3
-grid.newpage()
-pushViewport(viewport(layout=grid.layout(nrows, ncols)))
-for(i in 1:length(types)){
-    pushViewport(viewport(layout.pos.col=((i - 1) %% ncols) + 1,
-                          layout.pos.row=(((i) - 1) %/% ncols) + 1))
-    trN <- paste(types[[i]], collapse=", ")
-    plotRegions(srnaExp, regions(srnaExp)[1], type=types[[i]],
-                trNames=c("DER", trN), chrTitle=FALSE, add=TRUE)
-    popViewport(1)
-}
-```
-
 
 # Methods behind `r Biocpkg("srnadiff")`
 
