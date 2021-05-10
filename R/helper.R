@@ -1,6 +1,7 @@
 ##- Remove redundant regions -------------------------------------------------#
 ##----------------------------------------------------------------------------#
-removeRedundant <- function(regions, padj) {
+removeRedundant <- function(regions) {
+    padj           <- mcols(regions)$padj
     names(regions) <- paste0(seqnames(regions), "_", start(regions),
                                 "_", end(regions))
     sizes          <- width(regions)
@@ -38,6 +39,23 @@ removeRedundant <- function(regions, padj) {
 }
 
 
+##- Use DESeq2 to compute p-values -------------------------------------------#
+##----------------------------------------------------------------------------#
+useDESeq2 <- function(object, counts) {
+    rse <- SummarizedExperiment(assays = SimpleList(counts = counts),
+                                colData=sampleInfo(object))
+    dds <- DESeqDataSet(rse, design=~Condition)
+    sizeFactors(dds) <- normFactors(object)
+    dds <- suppressMessages(DESeq(dds))
+    if (! all(names(dds) == rownames(counts))) {
+        stop("Error!  Region names have changed.")
+    }
+    padj <- results(dds)$padj
+    padj <- ifelse(is.na(padj), 1.0, padj)
+    return(padj)
+}
+
+
 ##- Statistic quantification of the DERs -------------------------------------#
 ##----------------------------------------------------------------------------#
 reconcileRegions <- function(object, allRegions, minOverlap) {
@@ -51,21 +69,30 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
                                                 minoverlap=minOverlap)
                                     }
                                 )
-    colData(countM) <- DataFrame(condition=sampleInfo(object)$Condition)
+    counts <- assays(countM)$counts
+    padj <- useDESeq2(object, counts)
+    if (length(padj) != length(allRegions)) {
+        stop("Error!  Cannot compute p-values: lengths differ.")
+    }
+    mcols(allRegions)$padj <- padj
 
-    dds <- DESeqDataSet(countM, design=~condition)
-    names(dds) <- names(allRegions)
-    countM <- counts(dds)
-    colnames(countM) <- sampleInfo(object)$SampleName
-    sizeFactors(dds) <- normFactors(object)
-    dds <- suppressMessages(DESeq(dds))
-    recRegions <- allRegions[names(allRegions) %in% names(dds), ]
-    mcols(recRegions) <- results(dds)
-    padj <- mcols(recRegions)$padj
-    recRegions <- recRegions[!is.na(padj)]
-    dds <- dds[!is.na(padj)]
-    padj <- padj[!is.na(padj)]
-    recRegions <- removeRedundant(recRegions, padj)
+#   colData(countM) <- DataFrame(condition=sampleInfo(object)$Condition)
+
+#   dds <- DESeqDataSet(countM, design=~condition)
+#   names(dds) <- names(allRegions)
+#   countM <- counts(dds)
+#   colnames(countM) <- sampleInfo(object)$SampleName
+#   sizeFactors(dds) <- normFactors(object)
+#   dds <- suppressMessages(DESeq(dds))
+#   recRegions <- allRegions[names(allRegions) %in% names(dds), ]
+#   mcols(recRegions) <- results(dds)
+#   padj <- mcols(recRegions)$padj
+#   recRegions <- recRegions[!is.na(padj)]
+#   dds <- dds[!is.na(padj)]
+#   padj <- padj[!is.na(padj)]
+#   recRegions <- removeRedundant(recRegions, padj)
+
+    recRegions <- removeRedundant(allRegions)
     message("... done.")
 
     return(list(regions = recRegions, countMatrix = countM))
