@@ -32,6 +32,7 @@ Imports:
     GenomicRanges,
     DESeq2,
     edgeR,
+    baySeq,
     Rsamtools,
     GenomicFeatures,
     GenomicAlignments,
