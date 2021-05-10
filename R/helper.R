@@ -39,23 +39,6 @@ removeRedundant <- function(regions) {
 }
 
 
-##- Use DESeq2 to compute p-values -------------------------------------------#
-##----------------------------------------------------------------------------#
-useDESeq2 <- function(object, counts) {
-    rse <- SummarizedExperiment(assays = SimpleList(counts = counts),
-                                colData=sampleInfo(object))
-    dds <- DESeqDataSet(rse, design=~Condition)
-    sizeFactors(dds) <- normFactors(object)
-    dds <- suppressMessages(DESeq(dds))
-    if (! all(names(dds) == rownames(counts))) {
-        stop("Error!  Region names have changed.")
-    }
-    padj <- results(dds)$padj
-    padj <- ifelse(is.na(padj), 1.0, padj)
-    return(padj)
-}
-
-
 ##- Statistic quantification of the DERs -------------------------------------#
 ##----------------------------------------------------------------------------#
 reconcileRegions <- function(object, allRegions, minOverlap) {

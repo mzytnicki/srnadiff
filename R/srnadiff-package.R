@@ -121,6 +121,7 @@
 #' @import IRanges
 #' @import Rsamtools
 #' @import DESeq2
+#' @import edgeR
 #' @import GenomicFeatures
 #' @import GenomicAlignments
 #' @import BiocParallel
