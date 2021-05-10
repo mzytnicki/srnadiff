@@ -13,6 +13,8 @@ Description: srnadiff is a package that finds differently expressed regions from
    To do so, the package implements the identify-then-annotate methodology that
    builds on the idea of combining two pipelines approachs differential
    expressed regions detection and differential expression quantification.
+   It reads BAM files as input, and outputs a list differentially regions,
+   together with the adjusted p-values.
 License: GPL-3
 Encoding: UTF-8
 LazyData: false
@@ -35,10 +37,10 @@ Imports:
     grDevices,
     Gviz,
     BiocParallel,
-    BiocManager,
-    BiocStyle
+    BiocStyle,
+    BiocManager
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 biocViews: ImmunoOncology, 
     GeneExpression,
     Coverage,
@@ -49,5 +51,7 @@ biocViews: ImmunoOncology,
     DifferentialExpression
 Suggests: knitr,
     rmarkdown,
-    testthat
+    testthat,
+    BiocManager,
+    BiocStyle
 VignetteBuilder: knitr

@@ -101,7 +101,7 @@ setClass("srnadiffExp", slots=c(bamFiles="ANY",
 #' sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 #' gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-#' bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
+#' bamFiles   <- file.path(basedir, sampleInfo$FileName)
 #'
 #' srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 #' srnaExp
@@ -287,7 +287,7 @@ srnadiffExp <- function(bamFiles=NULL,
 #' sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 #' gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 #' annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-#' bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
+#' bamFiles   <- file.path(basedir, sampleInfo$FileName)
 #' srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 #' }
 #'

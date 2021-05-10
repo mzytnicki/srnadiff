@@ -4,7 +4,9 @@
 \name{srnadiffDefaultParameters}
 \alias{srnadiffDefaultParameters}
 \title{List of srnadiff default parameters.}
-\format{An object of class \code{list} of length 12.}
+\format{
+An object of class \code{list} of length 12.
+}
 \usage{
 srnadiffDefaultParameters
 }

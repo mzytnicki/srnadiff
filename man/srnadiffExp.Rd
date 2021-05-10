@@ -7,8 +7,12 @@
 \alias{show,srnadiffExp-method}
 \title{Infrastructure for sRNA-Seq experiment and differential expression}
 \usage{
-srnadiffExp(bamFiles = NULL, sampleInfo = NULL, annotReg = NULL,
-  normFactors = NULL)
+srnadiffExp(
+  bamFiles = NULL,
+  sampleInfo = NULL,
+  annotReg = NULL,
+  normFactors = NULL
+)
 
 \S4method{show}{srnadiffExp}(object)
 }
