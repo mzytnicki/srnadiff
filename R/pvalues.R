@@ -53,9 +53,6 @@ useEdgeR <- function(object, counts, nThreads = 1) {
 ##- Use edgeR to compute p-values --------------------------------------------#
 ##----------------------------------------------------------------------------#
 useBaySeq <- function(object, counts, nThreads = 1) {
-    if (! is.factor(sampleInfo(object)$Condition)) {
-        stop("Error!  Conditions should be factors.")
-    }
     conditions <- factor(sampleInfo(object)$Condition)
     CD <- new("countData",
               data = counts,

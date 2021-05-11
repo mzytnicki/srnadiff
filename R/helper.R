@@ -59,22 +59,6 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
     }
     mcols(allRegions)$padj <- padj
 
-#   colData(countM) <- DataFrame(condition=sampleInfo(object)$Condition)
-
-#   dds <- DESeqDataSet(countM, design=~condition)
-#   names(dds) <- names(allRegions)
-#   countM <- counts(dds)
-#   colnames(countM) <- sampleInfo(object)$SampleName
-#   sizeFactors(dds) <- normFactors(object)
-#   dds <- suppressMessages(DESeq(dds))
-#   recRegions <- allRegions[names(allRegions) %in% names(dds), ]
-#   mcols(recRegions) <- results(dds)
-#   padj <- mcols(recRegions)$padj
-#   recRegions <- recRegions[!is.na(padj)]
-#   dds <- dds[!is.na(padj)]
-#   padj <- padj[!is.na(padj)]
-#   recRegions <- removeRedundant(recRegions, padj)
-
     recRegions <- removeRedundant(allRegions)
     message("... done.")
 

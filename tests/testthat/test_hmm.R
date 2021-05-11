@@ -18,5 +18,5 @@ test_that("Computing p-values", {
 })
 
 test_that("Running HMM", {
-    expect_equal(length(intervals), 20)
+    expect_equal(length(intervals), 16)
 })
