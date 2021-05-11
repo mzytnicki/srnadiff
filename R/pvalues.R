@@ -1,6 +1,6 @@
 ##- Compute p-values of the selected counts ----------------------------------#
 ##----------------------------------------------------------------------------#
-computePvalues <- function(object, counts, nThreads) {
+computePvalues <- function(object, counts, nThreads=1) {
     if (object@diffMethod == "deseq2") {
         return(useDESeq2(object, counts, nThreads))
     }

@@ -120,10 +120,11 @@ srnadiff <- function(object,
              " of size 1.", call.=FALSE)
     }
     choices <- c("deseq2", "edger", "bayseq")
-    if (!(diffMethod %in% choices)) {
+    if (!(tolower(diffMethod) %in% choices)) {
         stop("'diffMethod' should be 'DESeq2', 'edgeR', or 'baySeq'. ",
-             "Got ", diffMethod, ".", call.=FALSE)
+             "Got '", diffMethod, "'.", call.=FALSE)
     }
+    diffMethod <- tolower(diffMethod)
 
     ##- nThreads
     if (is.null(nThreads) || !is.numeric(nThreads) || (nThreads < 1) ||

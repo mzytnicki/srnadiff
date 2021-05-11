@@ -767,6 +767,29 @@ parameters(srnaExp) <- list(minOverlap=1000)
 regions.
 
 
+## Using an other method to compute adjusted p-values
+
+p-values are computed twice in the process:
+first, when preparing the HMM observed values;
+second, when comparing putative regions.
+
+The defaut method uses `r Biocpkg("DESeq2")`.
+You can choose instead two other methods:
+`r Biocpkg("edgeR")`, or `r Biocpkg("baySeq")`.
+
+The method can be chosen using the parameter `diffMethod` of the function
+`srnadiff`:
+
+```{r, pvalue_edger}
+srnaExp <- srnadiff(srnaExp, diffMethod="edgeR")
+```
+or
+```{r, pvalue_bayseq}
+srnaExp <- srnadiff(srnaExp, diffMethod="baySeq")
+```
+The parameter `diffMethod` is case-insensitive.
+
+
 # Misc
 
 ## Using several cores

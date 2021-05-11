@@ -120,8 +120,8 @@ cvgNormalization <- function(object) {
 ##- Compute fold-change ------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 computeLogFoldChange <- function(object) {
-    avgCounts <- lapply(split(cvgNormalization(object),
-                                sampleInfo(object)$Condition),
+    conditions <- as.character(sampleInfo(object)[["Condition"]])
+    avgCounts <- lapply(split(cvgNormalization(object), conditions),
                         function(s) { round(Reduce('+', s) / length(s)) })
 
     lowValues <- (pmin(avgCounts[[1]], avgCounts[[2]]) <

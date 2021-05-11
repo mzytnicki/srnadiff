@@ -9,22 +9,6 @@ buildDataHmm <- function (object) {
 }
 
 
-##- Compute p-values of the selected counts ----------------------------------#
-##----------------------------------------------------------------------------#
-computePvalues <- function(object, counts, nThreads) {
-    return(useDESeq2(object, counts, nThreads))
-#   dds <- DESeqDataSetFromMatrix(countData=counts,
-#                                   colData=sampleInfo(object),
-#                                   design=~Condition)
-#   sizeFactors(dds) <- normFactors(object)
-#   dds <- suppressMessages(DESeq(dds, parallel=(nThreads > 1)))
-#   res <- results(dds)
-#   pvalues <- res$pvalue
-
-#   return(pvalues)
-}
-
-
 ##- Initialize and run the HMM -----------------------------------------------#
 ##----------------------------------------------------------------------------#
 hmm <- function(object, counts, pvalues) {
