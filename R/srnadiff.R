@@ -60,6 +60,9 @@
 #'                      \code{'hmm'}, \code{'IR'} or combinations thereof.
 #'                      Default \code{'all'}, all methods are used. See
 #'                      Details.
+#' @param diffMethod    A character. The differential expression testing
+#'                      method to use, one of \code{'DESeq2'}, \code{'edgeR'},
+#'                      or \code{'baySeq'}. See Details.
 #' @param nThreads      \code{integer(1)}. Number of workers.
 #'                      Defaults to all cores available as determined by
 #'                      \code{\link[BiocParallel]{multicoreWorkers}}.
@@ -86,6 +89,7 @@
 #' @export
 srnadiff <- function(object,
                      segMethod=c("hmm", "IR"),
+                     diffMethod="DESeq2",
                      useParameters=srnadiffDefaultParameters,
                      nThreads=1) {
 
@@ -107,6 +111,18 @@ srnadiff <- function(object,
 
     if ("all" %in% segMethod) {
         segMethod <- c("annotation", "naive", "hmm", "IR")
+    }
+
+    ##- diffMethod
+    if (is.null(diffMethod) || !is.character(diffMethod) ||
+        (length(diffMethod) != 1)) {
+        stop("Invalid declaration off 'diffMethod'. It must be a character",
+             " of size 1.", call.=FALSE)
+    }
+    choices <- c("deseq2", "edger", "bayseq")
+    if (!(diffMethod %in% choices)) {
+        stop("'diffMethod' should be 'DESeq2', 'edgeR', or 'baySeq'. ",
+             "Got ", diffMethod, ".", call.=FALSE)
     }
 
     ##- nThreads
@@ -154,7 +170,10 @@ srnadiff <- function(object,
 
     ##- end checking ---------------------------------------------------------#
 
-    args = c(list(object=object, segMethod=segMethod, nThreads=nThreads),
+    object@diffMethod <- diffMethod
+    args = c(list(object     = object,
+                  segMethod  = segMethod,
+                  nThreads   = nThreads),
             parameters(object))
 
     do.call('srnadiffCore', args)
@@ -165,6 +184,7 @@ srnadiff <- function(object,
 ##----------------------------------------------------------------------------#
 srnadiffCore <- function(object,
                          segMethod=c("annotation", "naive", "hmm", "IR"),
+                         diffMethod="DESeq2",
                          nThreads=1,
                          minDepth=10,
                          minSize=18,

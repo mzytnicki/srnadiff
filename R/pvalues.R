@@ -1,17 +1,27 @@
 ##- Compute p-values of the selected counts ----------------------------------#
 ##----------------------------------------------------------------------------#
 computePvalues <- function(object, counts, nThreads) {
-    #return(useDESeq2(object, counts, nThreads))
-    #return(useEdgeR(object, counts, nThreads))
-    return(useBaySeq(object, counts, nThreads))
+    if (object@diffMethod == "deseq2") {
+        return(useDESeq2(object, counts, nThreads))
+    }
+    if (object@diffMethod == "edger") {
+        return(useEdgeR(object, counts, nThreads))
+    }
+    if (object@diffMethod == "bayseq") {
+        return(useBaySeq(object, counts, nThreads))
+    }
+    stop("Cannot understand differential analysis method ", object@diffMethod,
+         ".")
 }
 
 
 ##- Use DESeq2 to compute p-values -------------------------------------------#
 ##----------------------------------------------------------------------------#
 useDESeq2 <- function(object, counts, nThreads = 1) {
+    colData <- sampleInfo(object)
+    colData$Condition <- factor(colData$Condition)
     rse <- SummarizedExperiment(assays = SimpleList(counts = counts),
-                                colData = sampleInfo(object))
+                                colData = colData)
     dds <- DESeqDataSet(rse, design = ~Condition)
     sizeFactors(dds) <- normFactors(object)
     dds <- suppressMessages(DESeq(dds, parallel = (nThreads > 1)))
@@ -27,7 +37,7 @@ useDESeq2 <- function(object, counts, nThreads = 1) {
 ##- Use edgeR to compute p-values --------------------------------------------#
 ##----------------------------------------------------------------------------#
 useEdgeR <- function(object, counts, nThreads = 1) {
-    group <- sampleInfo(object)$Condition
+    group <- factor(sampleInfo(object)$Condition)
     y <- DGEList(counts = counts, group = group)
     y <- calcNormFactors(y)
     y$samples$norm.factors <- 1 / normFactors(object)
@@ -46,7 +56,7 @@ useBaySeq <- function(object, counts, nThreads = 1) {
     if (! is.factor(sampleInfo(object)$Condition)) {
         stop("Error!  Conditions should be factors.")
     }
-    conditions <- sampleInfo(object)$Condition
+    conditions <- factor(sampleInfo(object)$Condition)
     CD <- new("countData",
               data = counts,
               replicates = conditions,

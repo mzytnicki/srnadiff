@@ -51,6 +51,9 @@ srnadiffDefaultParameters <- list(minDepth=10,
 #' @slot sampleInfo      A \code{data.frame} with sample and experimental
 #'                       design information. Each row describes one sample.
 #' @slot annotReg        A \code{GRanges} with annotation information.
+#' @slot diffMethod      A character storing the name of the method used
+#'                       to compute the p-values. Can be \code{DESeq2}, 
+#'                       \code{edgeR}, or \code{baySeq}.
 #' @slot chromosomeSizes A named vector with the sizes of the chromosomes.
 #' @slot coverages       The sample coverages, a named
 #'                       \code{\link[IRanges]{RleList}} object.
@@ -66,6 +69,7 @@ srnadiffDefaultParameters <- list(minDepth=10,
 setClass("srnadiffExp", slots=c(bamFiles="ANY",
                                 sampleInfo="ANY",
                                 annotReg="ANY",
+                                diffMethod="ANY",
                                 chromosomeSizes="ANY",
                                 coverages="ANY",
                                 normFactors="ANY",
@@ -90,6 +94,9 @@ setClass("srnadiffExp", slots=c(bamFiles="ANY",
 #' @param annotReg    Optional annotation information. Annotated regions as a
 #'                    \code{GRanges} object. By example, ranges in the output
 #'                    from \code{\link{readAnnotation}}.
+#' @param diffMethod  A character storing the name of the method used
+#'                    to compute the p-values. Can be \code{DESeq2} (default), 
+#'                    \code{edgeR}, or \code{baySeq}.
 #' @param normFactors A numeric vector, one size factor for each sample in the
 #'                    data.
 #'
@@ -110,6 +117,7 @@ setClass("srnadiffExp", slots=c(bamFiles="ANY",
 srnadiffExp <- function(bamFiles=NULL,
                         sampleInfo=NULL,
                         annotReg=NULL,
+                        diffMethod=NULL,
                         normFactors=NULL) {
 
     ##- checking general input arguments -------------------------------------#
@@ -178,6 +186,21 @@ srnadiffExp <- function(bamFiles=NULL,
         }
     }
 
+    ##- diffMethod
+    if (is.null(diffMethod)) {
+        diffMethod <- "DESeq2" 
+    }
+    if ((!is.character(diffMethod)) || (length(diffMethod) != 1)) {
+        stop("Invalid declaration off 'diffMethod'. It must be a character",
+             " of size 1.", call.=FALSE)
+    }
+    choices <- c("deseq2", "edger", "bayseq")
+    diffMethod <- tolower(diffMethod)
+    if (!(diffMethod %in% choices)) {
+        stop("'diffMethod' should be 'DESeq2', 'edgeR', or 'baySeq'.",
+             call.=FALSE)
+    }
+
     ##- normFactors
     if (!is.null(normFactors)) {
         n <- nrow(sampleInfo)
@@ -230,6 +253,7 @@ srnadiffExp <- function(bamFiles=NULL,
     object@annotReg <- annotReg
     object@bamFiles <- bamFiles
     object@sampleInfo <- sampleInfo
+    object@diffMethod <- diffMethod
     object@chromosomeSizes <- seqlengths(bamFiles[[1]])
     object@coverages <- lapply(bamFiles, coverage)
 
@@ -289,6 +313,7 @@ srnadiffExp <- function(bamFiles=NULL,
 #' annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 #' bamFiles   <- file.path(basedir, sampleInfo$FileName)
 #' srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
+#' save(srnaExp, file = file.path(basedir, "srnadiffExample.rda"))
 #' }
 #'
 #' srnaExp <- srnadiffExample()

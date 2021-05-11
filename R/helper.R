@@ -53,7 +53,7 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
                                     }
                                 )
     counts <- assays(countM)$counts
-    padj <- useDESeq2(object, counts)
+    padj <- computePvalues(object, counts)
     if (length(padj) != length(allRegions)) {
         stop("Error!  Cannot compute p-values: lengths differ.")
     }
