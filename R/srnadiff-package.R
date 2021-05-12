@@ -10,6 +10,7 @@
 # naive \
 # hmm    ........ segmentation method functions
 # IR    /
+# pvalues ....... method that compute the p-values
 # plotRegions ... plot function
 # helper ........ computeNormFactors, computeLogFoldChange, cvgNormalization,
 #                 reconcileRegions, checkParameters, IRlist2GR
@@ -39,10 +40,13 @@
 #       |- buildDataHmm
 #          |- rcpp_buildHmm (C++)
 #       |- computePvalues
-#          |- DESeq
+#          |- DESeq or
+#          |- edgeR or
+#          |- baySeq
 #       |- hmm
 #          |- rcpp_viterbi (C++)
 #    |- reconcileRegions
+#       |- computePvalues
 # --------------------------------
 #
 # --------------------------------
@@ -74,7 +78,8 @@
 #' arrive at a count matrix with one row per region and one column per sample.
 #' Then, this count matrix is analyzed using the standard workflow of
 #' \code{DESeq2} for differential expression of RNA-seq data, assigning a
-#' p-value to each candidate DER.
+#' p-value to each candidate DER. Alternatively, other methods (\code{edgeR},
+#' \code{baySeq}) can be used.
 #'
 #' The main functions for finds differently expressed regions are
 #' \code{\link{srnadiffExp}} and \code{\link{srnadiff}}. The first one
@@ -121,12 +126,14 @@
 #' @import IRanges
 #' @import Rsamtools
 #' @import DESeq2
+#' @import edgeR
+#' @import baySeq
 #' @import GenomicFeatures
 #' @import GenomicAlignments
 #' @import BiocParallel
 #' @import GenomicRanges
-#' @import BiocStyle
 #' @import Gviz
+#' @import BiocStyle
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp
 #' @importFrom grDevices col2rgb

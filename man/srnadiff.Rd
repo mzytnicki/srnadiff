@@ -7,8 +7,13 @@
 \title{Finding differentially expressed unannotated genomic regions from
 RNA-seq data}
 \usage{
-srnadiff(object, segMethod = c("hmm", "IR"),
-  useParameters = srnadiffDefaultParameters, nThreads = 1)
+srnadiff(
+  object,
+  segMethod = c("hmm", "IR"),
+  diffMethod = "DESeq2",
+  useParameters = srnadiffDefaultParameters,
+  nThreads = 1
+)
 }
 \arguments{
 \item{object}{An \code{\link{srnadiffExp}} object.}
@@ -18,6 +23,10 @@ one of \code{'annotation'}, \code{'naive'},
 \code{'hmm'}, \code{'IR'} or combinations thereof.
 Default \code{'all'}, all methods are used. See
 Details.}
+
+\item{diffMethod}{A character. The differential expression testing
+method to use, one of \code{'DESeq2'}, \code{'edgeR'},
+or \code{'baySeq'}. See Details.}
 
 \item{useParameters}{A named list containing the methods parameters to use.
 If missing, default parameter values are supplied.
@@ -63,7 +72,8 @@ fractions of reads) that overlap each expressed region are counted to
 arrive at a count matrix with one row per region and one column per sample.
 Then, this count matrix is analyzed using the standard workflow of
 \code{DESeq2} for differential expression of RNA-seq data, assigning a
-p-value to each candidate DER.
+p-value to each candidate DER. Alternatively, other methods (\code{edgeR},
+\code{baySeq}) can be used.
 
 The main functions for finds differently expressed regions are
 \code{\link{srnadiffExp}} and \code{\link{srnadiff}}. The first one

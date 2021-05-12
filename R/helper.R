@@ -1,6 +1,7 @@
 ##- Remove redundant regions -------------------------------------------------#
 ##----------------------------------------------------------------------------#
-removeRedundant <- function(regions, padj) {
+removeRedundant <- function(regions) {
+    padj           <- mcols(regions)$padj
     names(regions) <- paste0(seqnames(regions), "_", start(regions),
                                 "_", end(regions))
     sizes          <- width(regions)
@@ -51,21 +52,14 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
                                                 minoverlap=minOverlap)
                                     }
                                 )
-    colData(countM) <- DataFrame(condition=sampleInfo(object)$Condition)
+    counts <- assays(countM)$counts
+    padj <- computePvalues(object, counts)
+    if (length(padj) != length(allRegions)) {
+        stop("Error!  Cannot compute p-values: lengths differ.")
+    }
+    mcols(allRegions)$padj <- padj
 
-    dds <- DESeqDataSet(countM, design=~condition)
-    names(dds) <- names(allRegions)
-    countM <- counts(dds)
-    colnames(countM) <- sampleInfo(object)$SampleName
-    sizeFactors(dds) <- normFactors(object)
-    dds <- suppressMessages(DESeq(dds))
-    recRegions <- allRegions[names(allRegions) %in% names(dds), ]
-    mcols(recRegions) <- results(dds)
-    padj <- mcols(recRegions)$padj
-    recRegions <- recRegions[!is.na(padj)]
-    dds <- dds[!is.na(padj)]
-    padj <- padj[!is.na(padj)]
-    recRegions <- removeRedundant(recRegions, padj)
+    recRegions <- removeRedundant(allRegions)
     message("... done.")
 
     return(list(regions = recRegions, countMatrix = countM))
@@ -110,8 +104,8 @@ cvgNormalization <- function(object) {
 ##- Compute fold-change ------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 computeLogFoldChange <- function(object) {
-    avgCounts <- lapply(split(cvgNormalization(object),
-                                sampleInfo(object)$Condition),
+    conditions <- as.character(sampleInfo(object)[["Condition"]])
+    avgCounts <- lapply(split(cvgNormalization(object), conditions),
                         function(s) { round(Reduce('+', s) / length(s)) })
 
     lowValues <- (pmin(avgCounts[[1]], avgCounts[[2]]) <

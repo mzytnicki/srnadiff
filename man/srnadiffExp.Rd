@@ -7,8 +7,13 @@
 \alias{show,srnadiffExp-method}
 \title{Infrastructure for sRNA-Seq experiment and differential expression}
 \usage{
-srnadiffExp(bamFiles = NULL, sampleInfo = NULL, annotReg = NULL,
-  normFactors = NULL)
+srnadiffExp(
+  bamFiles = NULL,
+  sampleInfo = NULL,
+  annotReg = NULL,
+  diffMethod = NULL,
+  normFactors = NULL
+)
 
 \S4method{show}{srnadiffExp}(object)
 }
@@ -25,6 +30,10 @@ one sample.}
 \item{annotReg}{Optional annotation information. Annotated regions as a
 \code{GRanges} object. By example, ranges in the output
 from \code{\link{readAnnotation}}.}
+
+\item{diffMethod}{A character storing the name of the method used
+to compute the p-values. Can be \code{DESeq2} (default), 
+\code{edgeR}, or \code{baySeq}.}
 
 \item{normFactors}{A numeric vector, one size factor for each sample in the
 data.}
@@ -64,6 +73,10 @@ design information. Each row describes one sample.}
 
 \item{\code{annotReg}}{A \code{GRanges} with annotation information.}
 
+\item{\code{diffMethod}}{A character storing the name of the method used
+to compute the p-values. Can be \code{DESeq2}, 
+\code{edgeR}, or \code{baySeq}.}
+
 \item{\code{chromosomeSizes}}{A named vector with the sizes of the chromosomes.}
 
 \item{\code{coverages}}{The sample coverages, a named
@@ -86,7 +99,7 @@ basedir    <- system.file("extdata", package="srnadiff", mustWork = TRUE)
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
+bamFiles   <- file.path(basedir, sampleInfo$FileName)
 
 srnaExp <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 srnaExp

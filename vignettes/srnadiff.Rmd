@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
 ```{r echo=FALSE}
 basedir    <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
-bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
+bamFiles   <- file.path(basedir, sampleInfo$FileName)
 gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
 ```
@@ -157,9 +157,9 @@ A typical *sRNA-diff* session can be divided into three steps:
 1. **Data preparation:** In this first step, a convenient *R* object of
 class `srnadiffExp` is created containing all the information required
 for the two remaining steps. The user needs to provide a vector with the full
-paths to the BAM files, a `data.frame` with sample and experimental
-design information and optionally annotated regions as a `GRanges`
-object.
+paths to the BAM files (which should be coordinate sorted), a `data.frame`
+with sample and experimental design information and optionally annotated
+regions as a `GRanges` object.
 2. **Performing srnadiff:** Using the object created in the first step
 the user can perform `srnadiff` to find potential DERs and quantify the
 statistic signification of these.
@@ -207,7 +207,7 @@ Once the core `r CRANpkg("Bioconductor")` packages are installed, you can
 install the `r Biocpkg("srnadiff")` package by
 
 ```{r, install, eval=FALSE}
-BiocManager::install("srnadiff", version="3.8")
+BiocManager::install("srnadiff")
 ```
 
 Load the `r Biocpkg("srnadiff")` package in your *R* session:
@@ -259,11 +259,14 @@ providing the infrastructure to store the input data, methods parameters,
 intermediate calculations and results of a *sRNA-diff* approach. This
 object will be also the input of the visualization function.
 
+### Content
+
 The object `srnadiffExp` will usually be represented in the code here
 as `srnaExp`. To build such an object the user needs the following:
 
 1. **paths to the BAM files:** a vector with the full paths to the sample BAM
-files.
+files, which should be coordinate sorted.  Please use the `sortBam` function
+of the `r Biocpkg("Rsamtools")` package to sort the reads.
 2. **sample information:** a `data.frame` with three columns labelled
 `FileName`, `SampleName` and `Condition`. The first column
 is the BAM file name (without extension), the second column the sample name,
@@ -275,21 +278,20 @@ object containing annotated regions.
 Here, we demonstrate how to construct a `srnadiffExp` object from [@data].
 
 ```{r message=FALSE, warning=FALSE}
-## Determine the path to data files
+## Specifiy path to data files
 basedir <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 
-## Vector with the full paths to the BAM files to use
-bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
-
-## Reads sample information file and creates a data frame from it
+## Read sample information file, and create a data frame
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 
 ## Vector with the full paths to the BAM files to use
-bamFiles <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep = ".")
+bamFiles <- file.path(basedir, sampleInfo$FileName)
 
 ## Creates an srnadiffExp object
 srnaExp <- srnadiffExp(bamFiles, sampleInfo)
 ```
+
+### Adding an annotation
 
 Optionally, if annotation information is available as a `r Biocpkg("GRanges")`
 object, `annotReg` say, then a `srnadiffExp` object can be
@@ -305,6 +307,33 @@ or by
 srnaExp <- srnadiffExp(bamFiles, sampleInfo)
 annotReg(srnaExp) <- annotReg
 ```
+
+
+### Directionality
+
+`srnadiff` chooses a reference condition, which is the control, or wild type
+condition.
+The results reflect the comparison of the other condition *versus* the reference
+condition.
+By default, the reference condition is the first condition, when the conditions
+are sorted by the alphabetical order.
+It is thus advisable to specify the reference condition.
+
+As mentionned in `r Biocpkg("DESeq2")`, you can select the reference condition
+using factors:
+
+```{r message=FALSE, warning=FALSE}
+sampleInfo$Condition <- factor(sampleInfo$Condition,
+                               levels = c("control", "infected"))
+```
+
+Internally, `srnadiff` (through `r Biocpkg("DESeq2")`) computes the
+log-fold-change of the comparison.
+The log-fold-change is positive when the reference condition is less expressed
+than the other condition.
+
+
+### The `srnaExp` object
 
 A summary of the `srnaExp` object can be seen by typing the object name
 at the *R* prompt
@@ -328,7 +357,7 @@ basedir    <- system.file("extdata", package="srnadiff", mustWork=TRUE)
 sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
 gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
 annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-bamFiles   <- paste(file.path(basedir, sampleInfo$FileName), "bam", sep=".")
+bamFiles   <- file.path(basedir, sampleInfo$FileName)
 srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
 ```
 
@@ -490,6 +519,15 @@ regions <- regions(srnaExp, pvalue=0.5)
 where `pvalue` is the (adjusted) p-value threshold.  The output in a
 `r Biocpkg("GenomicRanges")` object, and the information is accessible with the
 `mcols()` function.
+
+You can export the regions to a BED file with the `r Biocpkg("rtracklayer")`
+function `export`.
+```{r message=FALSE, warning=FALSE}
+library(rtracklayer)
+export(regions, "file.bed")
+```
+You can either export to GFF, GFF3, or GTF formats.  Simply change the file
+suffix.
 
 
 ## Data visualization
@@ -727,6 +765,29 @@ parameters(srnaExp) <- list(minOverlap=1000)
 
 `r Biocpkg("DESeq2")` is then used to get the adjusted p-values of these
 regions.
+
+
+## Using an other method to compute adjusted p-values
+
+p-values are computed twice in the process:
+first, when preparing the HMM observed values;
+second, when comparing putative regions.
+
+The defaut method uses `r Biocpkg("DESeq2")`.
+You can choose instead two other methods:
+`r Biocpkg("edgeR")`, or `r Biocpkg("baySeq")`.
+
+The method can be chosen using the parameter `diffMethod` of the function
+`srnadiff`:
+
+```{r, pvalue_edger}
+srnaExp <- srnadiff(srnaExp, diffMethod="edgeR")
+```
+or
+```{r, pvalue_bayseq}
+srnaExp <- srnadiff(srnaExp, diffMethod="baySeq")
+```
+The parameter `diffMethod` is case-insensitive.
 
 
 # Misc

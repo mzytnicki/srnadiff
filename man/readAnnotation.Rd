@@ -4,8 +4,7 @@
 \alias{readAnnotation}
 \title{Reads and parses GFF/GTF files}
 \usage{
-readAnnotation(fileName, feature = NULL, source = NULL,
-  tagName = NULL)
+readAnnotation(fileName, feature = NULL, source = NULL, tagName = NULL)
 }
 \arguments{
 \item{fileName}{A path, URL or connection to the GFF/GTF annotation

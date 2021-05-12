@@ -7,25 +7,25 @@ exp <- srnadiffExample()
 exp <- srnadiff(exp)
 
 test_that("Testing regions method", {
-    expect_equal(length(regions(exp)), 21)
+    expect_equal(length(regions(exp)), 18)
 })
 
 test_that("Running with different strategies", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, segMethod=c("annotation", "hmm"))
-    expect_equal(length(regions(exp2)), 23)
+    expect_equal(length(regions(exp2)), 176)
 })
 
 test_that("Running with different sizes", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, useParameters=list(minSize=15, maxSize=30))
-    expect_equal(length(regions(exp2)), 32)
+    expect_equal(length(regions(exp2)), 29)
 })
 
 test_that("Running with different minimum depth", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, useParameters=list(minDepth=1))
-    expect_equal(length(regions(exp2)), 50)
+    expect_equal(length(regions(exp2)), 47)
 })
 
 test_that("Running with different transition probabilities", {
@@ -38,20 +38,20 @@ test_that("Running with different transition probabilities", {
 test_that("Running with different emission probabilities", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, segMethod="hmm", useParameters=list(emission=0.75))
-    expect_equal(length(regions(exp2)), 10)
+    expect_equal(length(regions(exp2)), 9)
 })
 
 test_that("Running with different emission threshold", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, segMethod="hmm",
                      useParameters=list(emissionThreshold=0.5))
-    expect_equal(length(regions(exp2)), 27)
+    expect_equal(length(regions(exp2)), 28)
 })
 
 test_that("Running with different number of overlapping base pairs", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, segMethod="hmm", useParameters=list(minOverlap=15))
-    expect_equal(length(regions(exp2)), 20)
+    expect_equal(length(regions(exp2)), 16)
 })
 
 test_that("Running several threads", {
@@ -61,15 +61,14 @@ test_that("Running several threads", {
 })
 
 test_that("Running main function", {
-    expect_equal(length(regions(exp)), 21)
+    expect_equal(length(regions(exp)), 18)
 })
 
-test_that("Running redundant removal", {
+test_that("Running redundant regions removal", {
     regions  <- GRanges(seqnames = "14", strand = "+",
                         ranges = IRanges(start = c(60000000, 60000100),
                         width = 10))
-    padj     <- c(0.01,  0.001)
-    regions2 <- removeRedundant(regions, padj)
+    regions2 <- removeRedundant(regions)
     expect_equal(length(regions2), 2)
 })
 

@@ -4,11 +4,23 @@
 \alias{plotRegions}
 \title{Plot the coverage information surrounding genomic regions}
 \usage{
-plotRegions(object, region, normCvg = TRUE, annot = NULL,
-  allSignReg = TRUE, featureAnnot = NULL, flankReg = 10,
-  colGroup = c("#0080ff", "#ff00ff"), fillReg = c("darkgreen",
-  "darkred"), fillAnnot = "#FFD58A", type = "a", chrTitle = TRUE,
-  trNames = c("DER", "coverage"), legend = TRUE, ...)
+plotRegions(
+  object,
+  region,
+  normCvg = TRUE,
+  annot = NULL,
+  allSignReg = TRUE,
+  featureAnnot = NULL,
+  flankReg = 10,
+  colGroup = c("#0080ff", "#ff00ff"),
+  fillReg = c("darkgreen", "darkred"),
+  fillAnnot = "#FFD58A",
+  type = "a",
+  chrTitle = TRUE,
+  trNames = c("DER", "coverage"),
+  legend = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{\link{srnadiffExp}} as returned
