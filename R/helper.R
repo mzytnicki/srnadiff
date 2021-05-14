@@ -108,7 +108,7 @@ computeLogFoldChange <- function(object) {
     avgCounts <- lapply(split(cvgNormalization(object), conditions),
                         function(s) { round(Reduce('+', s) / length(s)) })
 
-    lowValues <- (pmin(avgCounts[[1]], avgCounts[[2]]) <
+    lowValues <- (pmax(avgCounts[[1]], avgCounts[[2]]) <
                     parameters(object)$minDepth)
     avgCounts[[1]][lowValues] <- 0
     avgCounts[[2]][lowValues] <- 0
