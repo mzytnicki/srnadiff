@@ -18,7 +18,6 @@ srnadiffDefaultParameters <- list(minDepth=10,
                                     diffToNoDiff=0.000001,
                                     emission=0.9,
                                     emissionThreshold=0.1,
-                                    cutoff=1,
                                     minLogFC=0.5)
 
 

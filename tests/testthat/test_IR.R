@@ -8,5 +8,5 @@ parameters(exp) <- srnadiffDefaultParameters
 ranges <- runIR(exp)
 
 test_that("Running IR method", {
-    expect_equal(length(ranges), 8)
+    expect_equal(length(ranges), 19)
 })

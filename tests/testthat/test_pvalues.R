@@ -8,17 +8,17 @@ parameters(exp) <- srnadiffDefaultParameters
 
 test_that("Running DESeq2 method", {
     exp <- srnadiff(exp, diffMethod = "DESeq2")
-    expect_equal(length(regions(exp)), 18)
+    expect_equal(length(regions(exp)), 26)
 })
 
 test_that("Running edgeR method", {
     exp <- srnadiff(exp, diffMethod = "edgeR")
-    expect_equal(length(regions(exp)), 8)
+    expect_equal(length(regions(exp)), 19)
 })
 
 test_that("Running baySeq method", {
     exp <- srnadiff(exp, diffMethod = "baySeq")
-    expect_equal(length(regions(exp)), 8)
+    expect_equal(length(regions(exp)), 19)
 })
 
 test_that("Running unknown method", {

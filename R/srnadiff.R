@@ -197,7 +197,6 @@ srnadiffCore <- function(object,
                          diffToNoDiff=0.000001,
                          emission=0.9,
                          emissionThreshold=0.1,
-                         cutoff=1,
                          minLogFC=0.5) {
 
     if (nThreads > 1) {

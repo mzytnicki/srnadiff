@@ -148,7 +148,6 @@ checkParameters <- function(value) {
     diffToNoDiff <- value$diffToNoDiff
     emission <- value$emission
     emissionThreshold <- value$emissionThreshold
-    cutoff <- value$cutoff
     minLogFC <- value$minLogFC
 
     ##- minDepth
@@ -314,17 +313,6 @@ checkParameters <- function(value) {
     if (dec > 0) {
         stop("invalid value for 'minOverlap'. It must be a non-negative",
              " integer.", call.=FALSE)
-    }
-
-    ##- cutoff
-    if (length(cutoff) != 1) {
-        stop("'cutoff' must be of length 1.", call.=FALSE)
-    }
-
-    if (is.null(cutoff) || !is.numeric(cutoff) ||
-        (cutoff < 0) || !is.finite(cutoff)) {
-        stop("invalid value for 'cutoff'. It must be a non-negative",
-             " number.", call.=FALSE)
     }
 
     ##- minLogFC

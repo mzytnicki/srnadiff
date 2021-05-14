@@ -5,7 +5,7 @@ runNaive <- function(object) {
     message("Starting Naive step...")
 
     logFC <- abs(computeLogFoldChange(object))
-    idReg <- (logFC >= parameters(object)$cutoff)
+    idReg <- (logFC >= parameters(object)$minLogFC)
     intervals <- lapply(idReg, IRanges)
 
     intervals <- lapply(intervals, function(IR, minSize, maxSize) {
