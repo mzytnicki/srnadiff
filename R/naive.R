@@ -16,6 +16,7 @@ runNaive <- function(object) {
                         maxSize=parameters(object)$maxSize)
 
     intervals <- IRlist2GR(intervals)
+    intervals <- reduce(intervals, min.gapwidth = parameters(object)$minGap)
 
     if (length(intervals) > 0) {
         names(intervals) <- paste("naive", seq(length(intervals)), sep="_")

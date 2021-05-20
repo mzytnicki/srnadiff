@@ -508,15 +508,14 @@ parameters(srnaExp)
 
 ## Extracting regions
 
-The regions, with corresponding information provided by `r Biocpkg("DESeq2")`
-(mean expression, fold-change, p-value, adjusted p-value, etc.), can be
+The regions, together with log2-fold-changes and adjusted p-values, can be
 extracted with this command:
 
 ```{r message=FALSE, warning=FALSE}
 regions <- regions(srnaExp, pvalue=0.5)
 ```
 
-where `pvalue` is the (adjusted) p-value threshold.  The output in a
+where `padj` is the (adjusted) p-value threshold.  The output in a
 `r Biocpkg("GenomicRanges")` object, and the information is accessible with the
 `mcols()` function.
 
@@ -540,16 +539,16 @@ are distributed on the genomic coordinates.
 displaying tracks in the sense of the `Gviz` package. Given
 a region (or regions), four separate tracks are represented:
 
-1. `GenomeAxisTrack`, a horizontal axis with genomic
+1. `GenomeAxisTrack, a horizontal axis with genomic
 coordinate tickmarks for reference location to the displayed genomic
 regions;
-2. `GeneRegionTrack`, if the `annot` argument is
+2. `GeneRegionTrack, if the `annot` argument is
 passed, a track displaying all gene and/or sRNA annotation information
 in a particular region;
-3. `AnnotationTrack`, regions are plotted as simple
+3. `AnnotationTrack, regions are plotted as simple
 boxes if no strand information is available, or as arrows to indicate
 their direction; and
-4. `DataTrack`, plot the sample coverages surrounding
+4. `DataTrack, plot the sample coverages surrounding
 the genomic regions.
 
 The sample coverages can be plotted in various different forms as well
@@ -558,15 +557,15 @@ as combinations thereof. Supported plotting types are:
 The sample coverages can be plotted in various different forms as well
 as combinations thereof. Supported plotting types are:
 
-`p`: simple dot plot;
+`p: simple dot plot;
 
-`l`: lines plot;
+`l: lines plot;
 
-`b`: combination of dot and lines plot;
+`b: combination of dot and lines plot;
 
-`a`: lines plot of the sample-groups average (i.e., mean) values;
+`a: lines plot of the sample-groups average (i.e., mean) values;
 
-`confint`: confidence intervals for average values.
+`confint: confidence intervals for average values.
 
 The default visualization for results from `srnadiff` is a lines plot
 of the sample-groups average.

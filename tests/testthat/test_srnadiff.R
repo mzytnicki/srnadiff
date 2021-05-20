@@ -19,13 +19,13 @@ test_that("Running with different strategies", {
 test_that("Running with different sizes", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, useParameters=list(minSize=15, maxSize=30))
-    expect_equal(length(regions(exp2)), 43)
+    expect_equal(length(regions(exp2)), 26)
 })
 
 test_that("Running with different minimum depth", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, useParameters=list(minDepth=1))
-    expect_equal(length(regions(exp2)), 703)
+    expect_equal(length(regions(exp2)), 26)
 })
 
 test_that("Running with different transition probabilities", {
@@ -38,14 +38,14 @@ test_that("Running with different transition probabilities", {
 test_that("Running with different emission probabilities", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, segMethod="hmm", useParameters=list(emission=0.75))
-    expect_equal(length(regions(exp2)), 9)
+    expect_equal(length(regions(exp2)), 16)
 })
 
 test_that("Running with different emission threshold", {
     exp2 <- srnadiffExample()
     exp2 <- srnadiff(exp2, segMethod="hmm",
                      useParameters=list(emissionThreshold=0.5))
-    expect_equal(length(regions(exp2)), 28)
+    expect_equal(length(regions(exp2)), 16)
 })
 
 test_that("Running with different number of overlapping base pairs", {
