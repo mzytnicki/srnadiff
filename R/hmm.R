@@ -47,7 +47,7 @@ runHmm <- function(object, nThreads) {
     message("  ... data built")
 
     message("  Computing p-values...")
-    pvalues <- computePvalues(object, counts, nThreads)
+    pvalues <- computePvalues(object, counts, nThreads)$padj
     message("  ... values computed")
 
     message("  Running HMM...")

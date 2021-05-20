@@ -12,7 +12,6 @@ srnadiffDefaultParameters <- list(minDepth=10,
                                     minSize=18,
                                     maxSize=1000000,
                                     minGap=100,
-                                    maxDiff=20,
                                     minOverlap=10,
                                     noDiffToDiff=0.001,
                                     diffToNoDiff=0.000001,
@@ -306,12 +305,13 @@ srnadiffExp <- function(bamFiles=NULL,
 #'
 #' \dontrun{
 #'
-#' basedir    <- system.file("extdata", package="srnadiff", mustWork = TRUE)
-#' sampleInfo <- read.csv(file.path(basedir, "dataInfo.csv"))
-#' gtfFile    <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
-#' annotReg   <- readAnnotation(gtfFile, feature="gene", source="miRNA")
-#' bamFiles   <- file.path(basedir, sampleInfo$FileName)
-#' srnaExp    <- srnadiffExp(bamFiles, sampleInfo, annotReg)
+#' basedir             <- system.file("extdata", package="srnadiff", mustWork = TRUE)
+#' sampleInfo          <- read.csv(file.path(basedir, "dataInfo.csv"))
+#' gtfFile             <- file.path(basedir, "Homo_sapiens.GRCh38.76.gtf.gz")
+#' annotReg            <- readAnnotation(gtfFile, feature="gene", source="miRNA")
+#' bamFiles            <- file.path(basedir, sampleInfo$FileName)
+#' srnaExp             <- srnadiffExp(bamFiles, sampleInfo, annotReg)
+#' parameters(srnaExp) <- srnadiffDefaultParameters
 #' save(srnaExp, file = file.path(basedir, "srnadiffExample.rda"))
 #' }
 #'

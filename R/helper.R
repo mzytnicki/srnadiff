@@ -53,11 +53,14 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
                                     }
                                 )
     counts <- assays(countM)$counts
-    padj <- computePvalues(object, counts)
+    r <- computePvalues(object, counts)
+    padj <- r$padj
+    log2FC <- r$log2FC
     if (length(padj) != length(allRegions)) {
         stop("Error!  Cannot compute p-values: lengths differ.")
     }
-    mcols(allRegions)$padj <- padj
+    mcols(allRegions)$padj   <- padj
+    mcols(allRegions)$log2FC <- log2FC
 
     recRegions <- removeRedundant(allRegions)
     message("... done.")
@@ -138,17 +141,16 @@ IRlist2GR <- function(IRlist) {
 ##----------------------------------------------------------------------------#
 checkParameters <- function(value) {
 
-    minDepth <- value$minDepth
-    minSize <- value$minSize
-    maxSize <- value$maxSize
-    minGap <- value$minGap
-    maxDiff <- value$maxDiff
-    minOverlap <- value$minOverlap
-    noDiffToDiff <- value$noDiffToDiff
-    diffToNoDiff <- value$diffToNoDiff
-    emission <- value$emission
+    minDepth          <- value$minDepth
+    minSize           <- value$minSize
+    maxSize           <- value$maxSize
+    minGap            <- value$minGap
+    minOverlap        <- value$minOverlap
+    noDiffToDiff      <- value$noDiffToDiff
+    diffToNoDiff      <- value$diffToNoDiff
+    emission          <- value$emission
     emissionThreshold <- value$emissionThreshold
-    minLogFC <- value$minLogFC
+    minLogFC          <- value$minLogFC
 
     ##- minDepth
     if (length(minDepth) != 1) {
@@ -219,24 +221,6 @@ checkParameters <- function(value) {
 
     if (dec > 0) {
         stop("invalid value for 'minGap'. It must be a non-negative",
-             " integer.", call.=FALSE)
-    }
-
-    ##- maxDiff
-    if (length(maxDiff) != 1) {
-        stop("'maxDiff' must be of length 1.", call.=FALSE)
-    }
-
-    if (is.null(maxDiff) || !is.numeric(maxDiff) ||
-        (maxDiff < 0) || !is.finite(maxDiff)) {
-        stop("invalid value for 'maxDiff'. It must be a non-negative",
-             " integer.", call.=FALSE)
-    }
-
-    dec <- maxDiff - trunc(maxDiff)
-
-    if (dec > 0) {
-        stop("invalid value for 'maxDiff'. It must be a non-negative",
              " integer.", call.=FALSE)
     }
 

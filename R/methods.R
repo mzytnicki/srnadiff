@@ -334,18 +334,26 @@ setMethod(f="regions", signature="srnadiffExp",
 #'              regions to be found. Default to \code{18}.}
 #'        \item{\code{maxSize}}{The maximum size (in base-pairs) of the
 #'              regions to be found. Default to \code{1000000}.}
-#'        \item{\code{minGap}}{The minimum gap between regions. Regions
-#'              separated by a gap of at most \code{minGap} positions
-#'              are merged. Default to \code{100}.}
-#'        \item{\code{maxDiff}}{The maximum number of different bases between
-#'              two regions. Near-identical regions are collapsed.
-#'              Only regions with at most \code{maxDiff} different
-#'              positions are considered identicals and are collapsed
-#'              into one single region. Default to \code{20}.}
 #'        \item{\code{minOverlap}}{This parameters is used in the construction
 #'              of the \code{\link{countMatrix}} matrix. Only reads (ranges)
 #'              with a minimum of \code{minOverlap} overlapping each expressed
 #'              region are considered to be overlapping. Default to \code{10}.}
+#'    }
+#' }
+#'
+#' \subsection{Parameters for the Naive method}{
+#'    \describe{
+#'        \item{\code{minGap}}{The maximum number of different bases between
+#'              two regions. Near-identical regions are collapsed.
+#'              Only regions with at most \code{minGap} different
+#'              positions are considered identicals and are collapsed
+#'              into one single region. Default to \code{20}.}
+#' }
+#'
+#' \subsection{Parameters for the Naive and IR methods}{
+#'    \describe{
+#'        \item{\code{minLogFC}}{The minimun sliding threshold used in the
+#'              naive and IR method. Default to \code{0.5}.}
 #'    }
 #' }
 #'
@@ -360,13 +368,6 @@ setMethod(f="regions", signature="srnadiffExp",
 #'        \item{\code{emission}}{Emission probability. Default to \code{0.9}.}
 #'        \item{\code{emissionThreshold}}{Emission threshold. A real number
 #'              between \code{0} and \code{1}. Default to \code{0.1}.}
-#'    }
-#' }
-#'
-#' \subsection{Parameters for the Naive and IR methods}{
-#'    \describe{
-#'        \item{\code{minLogFC}}{The minimun sliding threshold used in the
-#'              naive and IR method. Default to \code{0.5}.}
 #'    }
 #' }
 #'
