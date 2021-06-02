@@ -649,14 +649,15 @@ The parameters for the HMM method are:
 `noDiffToDiff`: Initial transition probability from
         "no differentially expressed" state to "differentially expressed"
         state.
-        
+
 `diffToNoDiff`: Initial transition probability from
         "differentially expressed" state to no "differentially expressed"
         state.
-        
+
 `emission`: Is the probability to emit a p-value $<t$ in
         the "differentially expressed" state, and a p-value $\geq t$ in the
         "not differentially expressed" state.
+
 `emissionThreshold`: Is the threshold $t$ that limits each
         state.
 
@@ -780,10 +781,12 @@ The method can be chosen using the parameter `diffMethod` of the function
 `srnadiff`:
 
 ```{r, pvalue_edger}
+srnaExp <- srnadiffExample()
 srnaExp <- srnadiff(srnaExp, diffMethod="edgeR")
 ```
 or
 ```{r, pvalue_bayseq}
+srnaExp <- srnadiffExample()
 srnaExp <- srnadiff(srnaExp, diffMethod="baySeq")
 ```
 The parameter `diffMethod` is case-insensitive.
