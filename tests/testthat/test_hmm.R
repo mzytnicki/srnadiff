@@ -6,7 +6,7 @@ context("Checking HMM strategy")
 object    <- srnadiffExample()
 parameters(object) <- srnadiffDefaultParameters
 counts    <- buildDataHmm(object)
-pvalues   <- computePvalues(object, counts, 1)
+pvalues   <- computePvalues(object, counts, 1)$padj
 intervals <- hmm(object, counts, pvalues)
 
 test_that("Building data", {
