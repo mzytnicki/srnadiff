@@ -22,7 +22,7 @@ double computeMedian(std::vector < std::pair < double, int > > &table){
 
 
 // [[Rcpp::export]]
-NumericVector rcpp_normalization(List &coverages, IntegerVector &librarySizes) {
+NumericVector rcpp_normalization(List &coverages, NumericVector &librarySizes) {
     GenomeIterator iterator (coverages);
     std::vector < std::pair < std::valarray < double >, int > > normValues;
     std::vector < std::pair < double, int > > normValuesPerSample;

@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // rcpp_buildHmm
 IntegerMatrix rcpp_buildHmm(List& coverages, int minDepth);
 RcppExport SEXP _srnadiff_rcpp_buildHmm(SEXP coveragesSEXP, SEXP minDepthSEXP) {
@@ -52,13 +57,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_normalization
-NumericVector rcpp_normalization(List& coverages, IntegerVector& librarySizes);
+NumericVector rcpp_normalization(List& coverages, NumericVector& librarySizes);
 RcppExport SEXP _srnadiff_rcpp_normalization(SEXP coveragesSEXP, SEXP librarySizesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type coverages(coveragesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector& >::type librarySizes(librarySizesSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type librarySizes(librarySizesSEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_normalization(coverages, librarySizes));
     return rcpp_result_gen;
 END_RCPP

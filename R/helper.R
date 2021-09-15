@@ -72,7 +72,9 @@ reconcileRegions <- function(object, allRegions, minOverlap) {
 ##- Compute normalization factors --------------------------------------------#
 ##----------------------------------------------------------------------------#
 computeNormFactors <- function(cvg) {
-    librarySize <- unlist(lapply(lapply(cvg, sum), sum))
+    # Convert coverages to numeric.
+    # See issue https://github.com/mzytnicki/srnadiff/issues/1
+    librarySize <- unlist(lapply(lapply(lapply(cvg, sum), as.numeric), sum))
     normFactors <- rcpp_normalization(cvg, librarySize)
 
     return(normFactors)
@@ -82,12 +84,15 @@ computeNormFactors <- function(cvg) {
 ##- Coverage normalization ---------------------------------------------------#
 ##----------------------------------------------------------------------------#
 cvgNormalization <- function(object) {
-    librarySize <- unlist(lapply(lapply(coverages(object), sum), sum))
+    cvg <- coverages(object)
+    # Convert coverages to numeric.
+    # See issue https://github.com/mzytnicki/srnadiff/issues/1
+    librarySize <- unlist(lapply(lapply(lapply(cvgs, sum), as.numeric), sum))
     md <- median(librarySize / sum(chromosomeSizes(object)))
     librarySize <- librarySize * normFactors(object)
 
     #-- normalization
-    normCvg <- mapply('/', coverages(object), librarySize)
+    normCvg <- mapply('/', cvg, librarySize)
 
     normLibSize <- unlist(lapply(lapply(normCvg, sum), sum))
     normMd <- median(normLibSize / sum(chromosomeSizes(object)))
