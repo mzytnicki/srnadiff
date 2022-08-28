@@ -87,7 +87,7 @@ cvgNormalization <- function(object) {
     cvg <- coverages(object)
     # Convert coverages to numeric.
     # See issue https://github.com/mzytnicki/srnadiff/issues/1
-    librarySize <- unlist(lapply(lapply(lapply(cvgs, sum), as.numeric), sum))
+    librarySize <- unlist(lapply(lapply(lapply(cvg, sum), as.numeric), sum))
     md <- median(librarySize / sum(chromosomeSizes(object)))
     librarySize <- librarySize * normFactors(object)
 
