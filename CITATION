@@ -1,0 +1,14 @@
+citEntry(entry="article",
+         title = "Finding differentially expressed sRNA-Seq regions with srnadiff",
+         author = personList( as.person("Matthias Zytnicki"),
+                              as.person("Ignacio González")),
+         year = 2021,
+         journal = "PLOS ONE",
+         doi = "10.1371/journal.pone.0256196",
+         volume = 16,
+         issue = 8,
+         pages = e0256196,
+         textVersion = 
+         paste("Zytnicki, M., González, I.", 
+               "Finding differentially expressed sRNA-Seq regions with srnadiff",
+               "PLOS ONE 16(8): e0256196 (2014)"))
