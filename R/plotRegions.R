@@ -236,7 +236,7 @@ plotRegions <- function(object, region,
     if (is.logical(chrTitle)) {
         if (chrTitle) {
             chrTitle <- paste0("Chromosome ",
-                                levels(runValue(seqnames(region))))
+                                as.character(seqnames(region)))
             showTitles <- TRUE
         } else {
             showTitles <- FALSE
