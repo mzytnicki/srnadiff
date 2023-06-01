@@ -55,7 +55,8 @@ runHmm <- function(object, nThreads) {
     message("  ... HMM run.")
 
     if (length(intervals) > 0) {
-        names(intervals) <- paste("hmm", seq(length(intervals)), sep="_")
+        names(intervals) <- paste(seqnames(intervals), start(intervals),
+                                  end(intervals), sep="_")
     }
 
     message(paste0(c("  ... ", length(intervals), " regions found.")))

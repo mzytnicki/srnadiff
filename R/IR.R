@@ -13,7 +13,8 @@ runIR <- function(object) {
 
     if (dim(intervals)[1] > 0) {
         intervals <- GRanges(intervals)
-        names(intervals) <- paste("IR", seq(length(intervals)), sep = "_")
+        names(intervals) <- paste(seqnames(intervals), start(intervals),
+                                  end(intervals), sep="_")
     }
 
     message(paste0(c("  ... ", length(intervals), " regions found.")))

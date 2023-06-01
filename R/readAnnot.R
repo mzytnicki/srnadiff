@@ -99,7 +99,8 @@ readAnnotation <- function(fileName, feature=NULL, source=NULL, tagName=NULL) {
         }
         names(annot) <- paste(tagName, seq_along(annot), sep=".")
     } else {
-        names(annot) <- paste("annot", seq_along(annot), sep=".")
+        names(intervals) <- paste(seqnames(intervals), start(intervals),
+                                  end(intervals), sep="_")
     }
 
     ##- end checking ---------------------------------------------------------#
