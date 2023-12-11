@@ -41,8 +41,7 @@
 #          |- rcpp_buildHmm (C++)
 #       |- computePvalues
 #          |- DESeq or
-#          |- edgeR or
-#          |- baySeq
+#          |- edgeR
 #       |- hmm
 #          |- rcpp_viterbi (C++)
 #    |- reconcileRegions
@@ -78,8 +77,7 @@
 #' arrive at a count matrix with one row per region and one column per sample.
 #' Then, this count matrix is analyzed using the standard workflow of
 #' \code{DESeq2} for differential expression of RNA-seq data, assigning a
-#' p-value to each candidate DER. Alternatively, other methods (\code{edgeR},
-#' \code{baySeq}) can be used.
+#' p-value to each candidate DER. Alternatively, \code{edgeR} can be used.
 #'
 #' The main functions for finds differently expressed regions are
 #' \code{\link{srnadiffExp}} and \code{\link{srnadiff}}. The first one
@@ -127,7 +125,6 @@
 #' @import Rsamtools
 #' @import DESeq2
 #' @import edgeR
-#' @import baySeq
 #' @import GenomicFeatures
 #' @import GenomicAlignments
 #' @import BiocParallel

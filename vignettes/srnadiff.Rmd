@@ -774,8 +774,7 @@ first, when preparing the HMM observed values;
 second, when comparing putative regions.
 
 The defaut method uses `r Biocpkg("DESeq2")`.
-You can choose instead two other methods:
-`r Biocpkg("edgeR")`, or `r Biocpkg("baySeq")`.
+You can choose instead `r Biocpkg("edgeR")`.
 
 The method can be chosen using the parameter `diffMethod` of the function
 `srnadiff`:
@@ -783,11 +782,6 @@ The method can be chosen using the parameter `diffMethod` of the function
 ```{r, pvalue_edger}
 srnaExp <- srnadiffExample()
 srnaExp <- srnadiff(srnaExp, diffMethod="edgeR")
-```
-or
-```{r, pvalue_bayseq}
-srnaExp <- srnadiffExample()
-srnaExp <- srnadiff(srnaExp, diffMethod="baySeq")
 ```
 The parameter `diffMethod` is case-insensitive.
 

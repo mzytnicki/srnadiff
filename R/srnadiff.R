@@ -61,8 +61,8 @@
 #'                      Default \code{'all'}, all methods are used. See
 #'                      Details.
 #' @param diffMethod    A character. The differential expression testing
-#'                      method to use, one of \code{'DESeq2'}, \code{'edgeR'},
-#'                      or \code{'baySeq'}. See Details.
+#'                      method to use, one of \code{'DESeq2'}, \code{'edgeR'}.
+#'                      See Details.
 #' @param nThreads      \code{integer(1)}. Number of workers.
 #'                      Defaults to all cores available as determined by
 #'                      \code{\link[BiocParallel]{multicoreWorkers}}.
@@ -119,9 +119,9 @@ srnadiff <- function(object,
         stop("Invalid declaration off 'diffMethod'. It must be a character",
              " of size 1.", call.=FALSE)
     }
-    choices <- c("deseq2", "edger", "bayseq")
+    choices <- c("deseq2", "edger")
     if (!(tolower(diffMethod) %in% choices)) {
-        stop("'diffMethod' should be 'DESeq2', 'edgeR', or 'baySeq'. ",
+        stop("'diffMethod' should be 'DESeq2', or 'edgeR'. ",
              "Got '", diffMethod, "'.", call.=FALSE)
     }
     diffMethod <- tolower(diffMethod)

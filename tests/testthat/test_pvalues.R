@@ -16,11 +16,6 @@ test_that("Running edgeR method", {
     expect_equal(length(regions(exp)), 19)
 })
 
-test_that("Running baySeq method", {
-    exp <- srnadiff(exp, diffMethod = "baySeq")
-    expect_equal(length(regions(exp)), 19)
-})
-
 test_that("Running unknown method", {
     expect_error(srnadiff(exp, diffMethod = "unkown"))
 })

@@ -36,7 +36,55 @@ values in the \code{useParameters} argument of the \code{\link{srnadiff}}
 function or using the assignment function \code{\link{parameters<-}}.
 }
 \details{
+Parameters in an sRNA-diff approach.
 
+\subsection{Global parameters}{
+   \describe{
+       \item{\code{minDepth}}{The cutoff to filter the base-level
+             coverage. Bases where at least one sample has (normalized)
+             coverage greater than \code{minDepth} be been retained.
+             Default to \code{10}.}
+       \item{\code{minSize}}{The minimum size (in base-pairs) of the
+             regions to be found. Default to \code{18}.}
+       \item{\code{maxSize}}{The maximum size (in base-pairs) of the
+             regions to be found. Default to \code{1000000}.}
+       \item{\code{minOverlap}}{This parameters is used in the construction
+             of the \code{\link{countMatrix}} matrix. Only reads (ranges)
+             with a minimum of \code{minOverlap} overlapping each expressed
+             region are considered to be overlapping. Default to \code{10}.}
+   }
+}
+
+\subsection{Parameters for the Naive method}{
+   \describe{
+       \item{\code{minGap}}{The maximum number of different bases between
+             two regions. Near-identical regions are collapsed.
+             Only regions with at most \code{minGap} different
+             positions are considered identicals and are collapsed
+             into one single region. Default to \code{20}.}
+   }
+}
+
+\subsection{Parameters for the Naive and IR methods}{
+   \describe{
+       \item{\code{minLogFC}}{The minimun sliding threshold used in the
+             naive and IR method. Default to \code{0.5}.}
+   }
+}
+
+\subsection{Parameters for the HMM method}{
+   \describe{
+       \item{\code{noDiffToDiff}}{Initial transition probability from
+             no differentially expressed state to differentially expressed.
+             Default to \code{0.001}.}
+       \item{\code{diffToNoDiff}}{Initial transition probability from
+             differentially expressed state to no differentially expressed.
+             Default to \code{0.000001}.}
+       \item{\code{emission}}{Emission probability. Default to \code{0.9}.}
+       \item{\code{emissionThreshold}}{Emission threshold. A real number
+             between \code{0} and \code{1}. Default to \code{0.1}.}
+   }
+}
 }
 \examples{
 srnaExp <- srnadiffExample()

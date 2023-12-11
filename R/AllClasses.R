@@ -51,7 +51,7 @@ srnadiffDefaultParameters <- list(minDepth=10,
 #' @slot annotReg        A \code{GRanges} with annotation information.
 #' @slot diffMethod      A character storing the name of the method used
 #'                       to compute the p-values. Can be \code{DESeq2}, 
-#'                       \code{edgeR}, or \code{baySeq}.
+#'                       or \code{edgeR}.
 #' @slot chromosomeSizes A named vector with the sizes of the chromosomes.
 #' @slot coverages       The sample coverages, a named
 #'                       \code{\link[IRanges]{RleList}} object.
@@ -94,7 +94,7 @@ setClass("srnadiffExp", slots=c(bamFiles="ANY",
 #'                    from \code{\link{readAnnotation}}.
 #' @param diffMethod  A character storing the name of the method used
 #'                    to compute the p-values. Can be \code{DESeq2} (default), 
-#'                    \code{edgeR}, or \code{baySeq}.
+#'                    or \code{edgeR}.
 #' @param normFactors A numeric vector, one size factor for each sample in the
 #'                    data.
 #'
@@ -192,10 +192,10 @@ srnadiffExp <- function(bamFiles=NULL,
         stop("Invalid declaration off 'diffMethod'. It must be a character",
              " of size 1.", call.=FALSE)
     }
-    choices <- c("deseq2", "edger", "bayseq")
+    choices <- c("deseq2", "edger")
     diffMethod <- tolower(diffMethod)
     if (!(diffMethod %in% choices)) {
-        stop("'diffMethod' should be 'DESeq2', 'edgeR', or 'baySeq'.",
+        stop("'diffMethod' should be 'DESeq2', or 'edgeR'",
              call.=FALSE)
     }
 

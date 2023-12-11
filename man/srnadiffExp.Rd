@@ -33,7 +33,7 @@ from \code{\link{readAnnotation}}.}
 
 \item{diffMethod}{A character storing the name of the method used
 to compute the p-values. Can be \code{DESeq2} (default), 
-\code{edgeR}, or \code{baySeq}.}
+or \code{edgeR}.}
 
 \item{normFactors}{A numeric vector, one size factor for each sample in the
 data.}
@@ -75,7 +75,7 @@ design information. Each row describes one sample.}
 
 \item{\code{diffMethod}}{A character storing the name of the method used
 to compute the p-values. Can be \code{DESeq2}, 
-\code{edgeR}, or \code{baySeq}.}
+or \code{edgeR}.}
 
 \item{\code{chromosomeSizes}}{A named vector with the sizes of the chromosomes.}
 

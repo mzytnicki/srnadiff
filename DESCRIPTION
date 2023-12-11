@@ -32,7 +32,6 @@ Imports:
     GenomicRanges,
     DESeq2,
     edgeR,
-    baySeq,
     Rsamtools,
     GenomicFeatures,
     GenomicAlignments,
@@ -42,7 +41,7 @@ Imports:
     BiocStyle,
     BiocManager
 LinkingTo: Rcpp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 biocViews: ImmunoOncology, 
     GeneExpression,
     Coverage,

@@ -348,6 +348,7 @@ setMethod(f="regions", signature="srnadiffExp",
 #'              Only regions with at most \code{minGap} different
 #'              positions are considered identicals and are collapsed
 #'              into one single region. Default to \code{20}.}
+#'    }
 #' }
 #'
 #' \subsection{Parameters for the Naive and IR methods}{

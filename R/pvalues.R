@@ -7,9 +7,6 @@ computePvalues <- function(object, counts, nThreads=1) {
     if (object@diffMethod == "edger") {
         return(useEdgeR(object, counts, nThreads))
     }
-    if (object@diffMethod == "bayseq") {
-        return(useBaySeq(object, counts, nThreads))
-    }
     stop("Cannot understand differential analysis method ", object@diffMethod,
          ".")
 }
@@ -50,39 +47,3 @@ useEdgeR <- function(object, counts, nThreads = 1) {
     log2FC <- qlf$table$logFC
     return(list(padj = padj, log2FC = log2FC))
 }
-
-
-##- Use baySeq to compute p-values and log2-fold changes ---------------------#
-##----------------------------------------------------------------------------#
-useBaySeq <- function(object, counts, nThreads = 1) {
-    conditions <- factor(sampleInfo(object)$Condition)
-    CD <- new("countData",
-              data = counts,
-              replicates = conditions,
-              groups = list(NDE = rep.int(1, length(conditions)), 
-                            DE = as.numeric(conditions)))
-    libsizes(CD) <- getLibsizes(CD)
-    CD <- suppressMessages(getPriors.NB(CD, samplesize = 1000, estimation = "QL", cl = NULL, verbose = FALSE))
-    CD <- suppressMessages(getLikelihoods(CD, cl = NULL, bootStraps = 3, verbose = FALSE))
-    res <- topCounts(CD, group = "DE", number = nrow(counts))
-
-    #- Compute logFC
-    counts <- res[seq_along(libsizes(CD))]
-    counts <- as.data.frame(mapply("/", counts, libsizes(CD)))
-    conditions <- object@sampleInfo$Condition
-    if (! is.factor(conditions)) {
-        conditions <- factor(conditions)
-    }
-    condId1 <- which(as.numeric(conditions) == 1)
-    condId2 <- which(as.numeric(conditions) == 2)
-    cond1 <- as.matrix(counts[condId1])
-    cond2 <- as.matrix(counts[condId2])
-    medCond1 <- apply(cond1, 1, median)
-    medCond2 <- apply(cond2, 1, median)
-    offset <- c(medCond1, medCond2)
-    offset <- offset[offset > 0]
-    offset <- min(offset) / 10
-    log2FC <- log2((medCond2 + offset) / (medCond1 + offset))
-    return(list(padj = res$FDR.DE, log2FC = log2FC))
-}
-
