@@ -78,7 +78,7 @@
 #'                     \code{\link{AnnotationTrack}}, \code{\link{DataTrack}}
 #'                     in the \code{Gviz} package.
 #' @return             A list of GenomeGraph track objects, all inheriting
-#'                     from class \code{\link{GdObject}}.
+#'                     from class \code{GdObject}.
 #'
 #' @examples
 #' srnaExp <- srnadiffExample()

@@ -115,6 +115,7 @@
 #'
 #' @author Matthias Zytnicki and Ignacio González
 #'
+#' @import stats
 #' @import methods
 #' @import devtools
 #' @import S4Vectors

@@ -86,7 +86,7 @@ in the \code{Gviz} package.}
 }
 \value{
 A list of GenomeGraph track objects, all inheriting
-                    from class \code{\link{GdObject}}.
+                    from class \code{GdObject}.
 }
 \description{
 This function plot the coverage information surrounding genomic regions
