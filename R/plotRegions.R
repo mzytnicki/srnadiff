@@ -287,7 +287,7 @@ plotRegions <- function(object, region,
     endReg <- end(region)
     strandReg <- strand(region)
 
-    minStart <- min(startReg) - flankReg
+    minStart <- max(1, min(startReg) - flankReg)
     maxEnd <- max(endReg) + flankReg
     len <- maxEnd - minStart + 1
 
