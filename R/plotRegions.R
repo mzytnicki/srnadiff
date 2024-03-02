@@ -169,14 +169,14 @@ plotRegions <- function(object, region,
 
     if (is.null(flankReg) || !is.numeric(flankReg) || (flankReg < 0) ||
         !is.finite(flankReg)) {
-        stop("invalid value for 'flankReg'. It must be a not negative",
+        stop("invalid value for 'flankReg'. It must not be negative",
              " integer.", call.=FALSE)
     }
 
     dec <- flankReg - trunc(flankReg)
 
     if (dec > 0) {
-        stop("invalid value for 'flankReg'. It must be a not negative",
+        stop("invalid value for 'flankReg'. It must not be decimal",
              " integer.", call.=FALSE)
     }
 
@@ -287,7 +287,7 @@ plotRegions <- function(object, region,
     endReg <- end(region)
     strandReg <- strand(region)
 
-    minStart <- min(startReg) - flankReg
+    minStart <- max(1, min(startReg) - flankReg)
     maxEnd <- max(endReg) + flankReg
     len <- maxEnd - minStart + 1
 
