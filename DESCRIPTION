@@ -39,8 +39,13 @@ Imports:
     grDevices,
     Gviz,
     BiocParallel,
+<<<<<<< HEAD
     BiocStyle,
     BiocManager
+=======
+    BiocManager,
+    BiocStyle
+>>>>>>> 29f3f7c (Add BiocManager & BiocStyle to depends)
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews: ImmunoOncology, 
