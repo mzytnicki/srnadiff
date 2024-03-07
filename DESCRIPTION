@@ -38,7 +38,9 @@ Imports:
     GenomicAlignments,
     grDevices,
     Gviz,
-    BiocParallel
+    BiocParallel,
+    BiocManager,
+    BiocStyle
 LinkingTo: Rcpp
 RoxygenNote: 7.2.3
 biocViews: ImmunoOncology, 
