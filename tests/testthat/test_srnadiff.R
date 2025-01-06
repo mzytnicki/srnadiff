@@ -9,7 +9,7 @@ test_that("Testing regions method", {
 
 test_that("Running with different strategies", {
     exp <- srnadiff(exp, segMethod=c("annotation", "hmm"))
-    expect_equal(length(regions(exp)), 176)
+    expect_equal(length(regions(exp)), 178)
 })
 
 test_that("Running with different sizes", {
@@ -30,18 +30,18 @@ test_that("Running with different transition probabilities", {
 
 test_that("Running with different emission probabilities", {
     exp <- srnadiff(exp, segMethod="hmm", useParameters=list(emission=0.75))
-    expect_equal(length(regions(exp)), 16)
+    expect_equal(length(regions(exp)), 17)
 })
 
 test_that("Running with different emission threshold", {
     exp <- srnadiff(exp, segMethod="hmm",
                      useParameters=list(emissionThreshold=0.5))
-    expect_equal(length(regions(exp)), 16)
+    expect_equal(length(regions(exp)), 17)
 })
 
 test_that("Running with different number of overlapping base pairs", {
     exp <- srnadiff(exp, segMethod="hmm", useParameters=list(minOverlap=15))
-    expect_equal(length(regions(exp)), 16)
+    expect_equal(length(regions(exp)), 17)
 })
 
 test_that("Running several threads", {
