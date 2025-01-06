@@ -81,7 +81,7 @@ class GenomeIterator {
         }
 
         GenomeIterator (List c):
-                    GenomeIterator(c, NumericVector(as<List>(c[0]).size(), 1.0))
+                    GenomeIterator(c, NumericVector(c.size(), 1.0))
             {}
 
         void reset (bool nextChromosome = false) {
