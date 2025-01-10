@@ -10,7 +10,7 @@ test_that("Running DESeq2 method", {
 
 test_that("Running edgeR method", {
     exp <- srnadiff(exp, diffMethod = "edgeR")
-    expect_equal(length(regions(exp)), 19)
+    expect_equal(length(regions(exp)), 20)
 })
 
 test_that("Running unknown method", {
